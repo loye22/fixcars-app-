@@ -1,3 +1,4 @@
+import 'package:fixcars/shared/screens/client_singup_screen.dart';
 import 'package:flutter/material.dart';
 
 
@@ -51,26 +52,34 @@ class signup_screen extends StatelessWidget {
                         bottom: 0,
                         left: 0,
                         right: 0,
-                        child: Card(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          margin: EdgeInsets.zero,
-                          child: ListTile(
-                            contentPadding: EdgeInsets.all(16),
-                            leading: Image.asset('assets/op1.png'),
-                            title: Text(
-                              'Client',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                        child: GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => client_singup_screen()),
+                            );
+                          },
+                          child: Card(
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            margin: EdgeInsets.zero,
+                            child: ListTile(
+                              contentPadding: EdgeInsets.all(16),
+                              leading: Image.asset('assets/op1.png'),
+                              title: Text(
+                                'Client',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
                               ),
-                            ),
-                            subtitle: Text(
-                              'Rezervă servicii, discută cu mecanicii și gestionează-ți vehiculele',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
+                              subtitle: Text(
+                                'Rezervă servicii, discută cu mecanicii și gestionează-ți vehiculele',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
                               ),
                             ),
                           ),

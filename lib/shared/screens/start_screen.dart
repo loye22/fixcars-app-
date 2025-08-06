@@ -1,5 +1,8 @@
+import 'package:fixcars/shared/screens/signup_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'login_screen.dart';
 
 class start_screen extends StatelessWidget {
   @override
@@ -37,7 +40,13 @@ class start_screen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => signup_screen()),
+                    );
+
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF808080),
                     foregroundColor: Colors.white,
@@ -56,7 +65,13 @@ class start_screen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => login_screen()),
+                          (Route<dynamic> route) => false,
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.grey[700],

@@ -1,4 +1,5 @@
- import 'package:fixcars/shared/screens/intro_screen.dart';
+ import 'package:fixcars/shared/screens/client_singup_screen.dart';
+import 'package:fixcars/shared/screens/intro_screen.dart';
 import 'package:fixcars/shared/screens/login_screen.dart';
 import 'package:fixcars/shared/screens/mecanic_singup_screen.dart';
 import 'package:fixcars/shared/screens/password_rest_screen.dart';
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         textTheme: baseTextTheme,
-      ),      home: mecanic_singup_screen(),
+      ),      home: into_screen(),
     );
   }
 }
