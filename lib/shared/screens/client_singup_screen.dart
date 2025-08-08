@@ -117,6 +117,8 @@ class _client_singup_screenState extends State<client_singup_screen> {
 
     final photoUrl = uploadResult['data']['file_url'];
 
+    print("debug");
+
     // Perform signup
     final signupResult = await ApiService().clientSignup(
       fullName: _fullNameController.text,
@@ -140,7 +142,9 @@ class _client_singup_screenState extends State<client_singup_screen> {
       );
     } else {
       setState(() {
+
         _errorMessage = signupResult['error'];
+        print(_errorMessage);
       });
     }
   }
@@ -297,8 +301,9 @@ class _client_singup_screenState extends State<client_singup_screen> {
             )
                 : SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  SizedBox(height: 50,),
                   Text(
                     'Creează-ți contul',
                     style: TextStyle(
@@ -312,28 +317,33 @@ class _client_singup_screenState extends State<client_singup_screen> {
                     onTap: _showImageSourceDialog,
                     child: Container(
                       height: 100,
-                      width: double.infinity,
+                      width: 100, // Changed from double.infinity to fixed width for circle
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.0),
+                        shape: BoxShape.circle, // Changed from borderRadius to shape
+                        border: Border.all( // Optional: add border to make circle more visible
+                          color: Colors.grey,
+                          width: 2.0,
+                        ),
                       ),
                       child: _selectedImage == null
                           ? Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.camera_alt,
-                            color: Colors.grey,
-                            size: 40,
-                          ),
+                          Image.asset('assets/camera.png', width: 40,),
+                          // Icon(
+                          //   Icons.camera_alt,
+                          //   color: Colors.grey,
+                          //   size: 40,
+                          // ),
                           Text(
                             'Încărcați o fotografie',
-                            style: TextStyle(color: Colors.grey),
+                            style: TextStyle(color: Colors.grey, fontSize: 10), // Smaller font
+                            textAlign: TextAlign.center, // Center text
                           ),
                         ],
                       )
-                          : ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
+                          : ClipOval( // Changed from ClipRRect to ClipOval for perfect circle
                         child: Image.file(
                           _selectedImage!,
                           fit: BoxFit.cover,
@@ -341,6 +351,39 @@ class _client_singup_screenState extends State<client_singup_screen> {
                       ),
                     ),
                   ),
+                  // GestureDetector(
+                  //   onTap: _showImageSourceDialog,
+                  //   child: Container(
+                  //     height: 100,
+                  //     width: double.infinity,
+                  //     decoration: BoxDecoration(
+                  //       color: Colors.white,
+                  //       borderRadius: BorderRadius.circular(8.0),
+                  //     ),
+                  //     child: _selectedImage == null
+                  //         ? Column(
+                  //       mainAxisAlignment: MainAxisAlignment.center,
+                  //       children: [
+                  //         Icon(
+                  //           Icons.camera_alt,
+                  //           color: Colors.grey,
+                  //           size: 40,
+                  //         ),
+                  //         Text(
+                  //           'Încărcați o fotografie',
+                  //           style: TextStyle(color: Colors.grey),
+                  //         ),
+                  //       ],
+                  //     )
+                  //         : ClipRRect(
+                  //       borderRadius: BorderRadius.circular(8.0),
+                  //       child: Image.file(
+                  //         _selectedImage!,
+                  //         fit: BoxFit.cover,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   SizedBox(height: 16),
                   TextField(
                     controller: _fullNameController,

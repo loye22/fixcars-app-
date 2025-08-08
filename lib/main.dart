@@ -1,21 +1,40 @@
- import 'package:fixcars/shared/screens/client_singup_screen.dart';
+import 'package:fixcars/client/screens/client_home_page.dart';
+import 'package:fixcars/shared/screens/global_keys.dart';
+import 'package:fixcars/shared/services/api_service.dart';
+import 'package:fixcars/supplier/screens/supplier_home_page.dart';
 import 'package:fixcars/shared/screens/intro_screen.dart';
-import 'package:fixcars/shared/screens/login_screen.dart';
-import 'package:fixcars/shared/screens/mecanic_singup_screen.dart';
-import 'package:fixcars/shared/screens/password_rest_screen.dart';
-import 'package:fixcars/shared/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-void main() {
-  runApp(const MyApp());
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final apiService = ApiService();
+
+  bool isAuthenticated = false;
+  try {
+    final token = await apiService.getJwtToken();
+    if (token != null) {
+      if (await apiService.isTokenExpired()) {
+        final newToken = await apiService.refreshToken();
+        isAuthenticated = newToken != null;
+      } else {
+        isAuthenticated = true;
+      }
+    }
+  } catch (e) {
+    print('Auth check error: $e');
+    isAuthenticated = false;
+  }
+
+  runApp(MyApp(isAuthenticated: isAuthenticated));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-  final Color customTextColor = const Color(0xFF808080); // Hex: #808080
+  final bool isAuthenticated;
+  const MyApp({super.key, required this.isAuthenticated});
+  final Color customTextColor = const Color(0xFF808080);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     final baseTextTheme = GoogleFonts.interTextTheme(
@@ -25,11 +44,78 @@ class MyApp extends StatelessWidget {
       displayColor: customTextColor,
     );
 
-
     return MaterialApp(
+      navigatorKey: navigatorKey,
       theme: ThemeData(
         textTheme: baseTextTheme,
-      ),      home: into_screen(),
+      ),
+      home: isAuthenticated ? const HomePageRedirector() :   into_screen(),
     );
   }
 }
+
+class HomePageRedirector extends StatelessWidget {
+  const HomePageRedirector({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: ApiService().getUserData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (snapshot.hasError || !snapshot.hasData) {
+          return  into_screen();
+        }
+
+        final userData = snapshot.data!;
+        final userType = userData['user_type'];
+
+        if (userType == 'client') {
+          return   client_home_page();
+        } else if (userType == 'supplier') {
+          return   supplier_home_page();
+        }
+
+        return  into_screen();
+      },
+    );
+  }
+}
+
+
+//
+// import 'package:fixcars/shared/screens/intro_screen.dart';
+// import 'package:flutter/material.dart';
+// import 'package:google_fonts/google_fonts.dart';
+//
+// void main() {
+//   runApp(const MyApp());
+// }
+//
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+//   final Color customTextColor = const Color(0xFF808080); // Hex: #808080
+//
+//   // This widget is the root of your application.
+//   @override
+//   Widget build(BuildContext context) {
+//     final baseTextTheme = GoogleFonts.interTextTheme(
+//       Theme.of(context).textTheme,
+//     ).apply(
+//       bodyColor: customTextColor,
+//       displayColor: customTextColor,
+//     );
+//
+//
+//     return MaterialApp(
+//       theme: ThemeData(
+//         textTheme: baseTextTheme,
+//       ),      home:into_screen(),
+//     );
+//   }
+// }

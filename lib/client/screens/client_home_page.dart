@@ -11,8 +11,6 @@ class client_home_page extends StatefulWidget {
 class _client_home_pageState extends State<client_home_page> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text("home page client"),),
-    );
+    return Scaffold(body: Center(child: Text("cleint "),),);
   }
 }

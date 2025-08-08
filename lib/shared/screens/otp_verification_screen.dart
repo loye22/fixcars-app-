@@ -1,12 +1,13 @@
+import 'package:fixcars/shared/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 import '../services/api_service.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String userId;
-  final String phone;
+  final String email;
 
-  const OtpVerificationScreen({required this.userId, required this.phone, super.key});
+  const OtpVerificationScreen({required this.userId, required this.email, super.key});
 
   @override
   _OtpVerificationScreenState createState() => _OtpVerificationScreenState();
@@ -46,8 +47,16 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result['data']['message'])),
       );
-      Navigator.pushReplacementNamed(context, '/client-home');
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => login_screen()),
+            (Route<dynamic> route) => false,
+      );
+
+
     } else {
+      print(result);
       setState(() {
         _errorMessage = result['error'];
       });
@@ -109,7 +118,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 ),
                 Center(
                   child: Text(
-                    widget.phone,
+                    widget.email,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
