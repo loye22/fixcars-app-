@@ -15,7 +15,7 @@ class _MecanicScreenState extends State<MecanicScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Mecanic Auto'),
-        backgroundColor: Color(0xFF808080),
+        backgroundColor: Color(0xFF4B5563),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),

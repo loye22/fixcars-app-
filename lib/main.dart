@@ -6,6 +6,8 @@ import 'package:fixcars/shared/screens/intro_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'client/screens/MecanicScreen.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +51,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         textTheme: baseTextTheme,
       ),
-      home: isAuthenticated ? const HomePageRedirector() :   into_screen(),
+      home: isAuthenticated ?  MecanicScreen() :   into_screen(),
     );
   }
 }
