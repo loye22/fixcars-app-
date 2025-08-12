@@ -8,10 +8,11 @@ import 'package:image_picker/image_picker.dart';
 
 class ApiService {
   static const String _baseUrl = 'http://10.0.2.2:8000/api'; // Django backend URL
-  static const String _baseMediaUrl = 'http://10.0.2.2:8000'; // Django backend URL
+  static const String _baseMediaUrl = 'http://10.0.2.2:8000/media/'; // Django backend URL
 
 
   static String get baseUrl => _baseUrl;
+  static String get baseMediaUrl => _baseMediaUrl;
 
 
   Future<bool> isTokenExpired() async {

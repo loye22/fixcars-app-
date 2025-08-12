@@ -9,6 +9,11 @@
   <true/>
 </dict>
 
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>We need your location to show your current address</string>
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>We need your location to show your current address</string>
+
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
