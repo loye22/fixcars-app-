@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../services/ServicesService.dart';
 
-
 class ServiceSelectionWidget extends StatefulWidget {
   final Function(List<String>) onServicesSelected;
 
-  const ServiceSelectionWidget({Key? key, required this.onServicesSelected}) : super(key: key);
+  const ServiceSelectionWidget({Key? key, required this.onServicesSelected})
+    : super(key: key);
 
   @override
   _ServiceSelectionWidgetState createState() => _ServiceSelectionWidgetState();
@@ -57,9 +57,9 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load services: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to load services: $e')));
     }
   }
 
@@ -69,17 +69,21 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
       if (query.isEmpty) {
         _filteredServices = _allServices;
       } else {
-        _filteredServices = _allServices.where((service) {
-          // Search in service name
-          if (service['service_name'].toString().toLowerCase().contains(query)) {
-            return true;
-          }
-          // Search in tags
-          final tags = service['tags'] as List;
-          return tags.any((tag) =>
-              tag['tag_name'].toString().toLowerCase().contains(query)
-          );
-        }).toList();
+        _filteredServices =
+            _allServices.where((service) {
+              // Search in service name
+              if (service['service_name'].toString().toLowerCase().contains(
+                query,
+              )) {
+                return true;
+              }
+              // Search in tags
+              final tags = service['tags'] as List;
+              return tags.any(
+                (tag) =>
+                    tag['tag_name'].toString().toLowerCase().contains(query),
+              );
+            }).toList();
       }
     });
 
@@ -96,49 +100,53 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
     if (overlay == null) return;
 
     _dropdownOverlay = OverlayEntry(
-      builder: (context) => GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: _closeDropdown,
-        child: CompositedTransformFollower(
-          link: _layerLink,
-          showWhenUnlinked: false,
-          offset: const Offset(0, 48),
-          child: Material(
-            elevation: 4,
-            child: Container(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.4,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: _isLoading
-                  ? Center(child: CircularProgressIndicator())
-                  : _filteredServices.isEmpty
-                  ? Center(child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('No services found'),
-              ))
-                  : ListView.builder(
-                shrinkWrap: true,
-                itemCount: _filteredServices.length,
-                itemBuilder: (context, index) {
-                  final service = _filteredServices[index];
-                  return ListTile(
-                    title: Text(service['service_name']),
-                    onTap: () {
-                      _addService(service);
-                      _closeDropdown();
-                    },
-                  );
-                },
+      builder:
+          (context) => GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: _closeDropdown,
+            child: CompositedTransformFollower(
+              link: _layerLink,
+              showWhenUnlinked: false,
+              offset: const Offset(0, 48),
+              child: Material(
+                elevation: 4,
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child:
+                      _isLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : _filteredServices.isEmpty
+                          ? Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Text('No services found'),
+                            ),
+                          )
+                          : ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _filteredServices.length,
+                            itemBuilder: (context, index) {
+                              final service = _filteredServices[index];
+                              return ListTile(
+                                title: Text(service['service_name']),
+                                onTap: () {
+                                  _addService(service);
+                                  _closeDropdown();
+                                },
+                              );
+                            },
+                          ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
     );
     overlay.insert(_dropdownOverlay!);
     setState(() => _isDropdownOpen = true);
@@ -165,7 +173,9 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
   }
 
   void _addService(dynamic service) {
-    if (!_selectedServices.any((s) => s['service_id'] == service['service_id'])) {
+    if (!_selectedServices.any(
+      (s) => s['service_id'] == service['service_id'],
+    )) {
       setState(() {
         _selectedServices.add(service);
         _notifyParent();
@@ -181,7 +191,8 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
   }
 
   void _notifyParent() {
-    final ids = _selectedServices.map((s) => s['service_id'].toString()).toList();
+    final ids =
+        _selectedServices.map((s) => s['service_id'].toString()).toList();
     widget.onServicesSelected(ids);
   }
 
@@ -201,11 +212,39 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
             controller: _searchController,
             focusNode: _searchFocusNode,
             decoration: InputDecoration(
-              hintText: 'Search for a service or tag',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
+              hintText: 'Caută un serviciu sau etichetă',
+              hintStyle: TextStyle(color: Color(0xFFCCCCCC)),
+              prefixIcon: Icon(Icons.search, color: Color(0xFFCCCCCC)),
+              filled: true,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Color(0xFFCCCCCC), // Same border color
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Colors.grey, // Same border color
+                  width: 1.5,
+                ),
+              ),
+              fillColor: Colors.white,
+              // Background white
               suffixIcon: IconButton(
-                icon: Icon(_isDropdownOpen ? Icons.arrow_drop_up : Icons.arrow_drop_down),
+                icon:
+                    _isDropdownOpen
+                        ? Image.asset(
+                          'assets/arrowup.png',
+                          width: 24,
+                          height: 24,
+                        )
+                        : Image.asset(
+                          'assets/arrowdown.png',
+                          width: 24,
+                          height: 24,
+                        ),
                 onPressed: _toggleDropdown,
               ),
             ),
@@ -221,16 +260,22 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _selectedServices.map((service) =>
-                Chip(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20), // Adjust the radius as needed
-                  ),
-              backgroundColor: Colors.white,
-              label: Text(service['service_name']),
-              deleteIcon: Icon(Icons.close, size: 18),
-              onDeleted: () => _removeSelectedService(service),
-            )).toList(),
+            children:
+                _selectedServices
+                    .map(
+                      (service) => Chip(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            20,
+                          ), // Adjust the radius as needed
+                        ),
+                        backgroundColor: Colors.white,
+                        label: Text(service['service_name']),
+                        deleteIcon: Icon(Icons.close, size: 18),
+                        onDeleted: () => _removeSelectedService(service),
+                      ),
+                    )
+                    .toList(),
           ),
           SizedBox(height: 16),
         ],
@@ -261,4 +306,3 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
     }
   }
 }
-

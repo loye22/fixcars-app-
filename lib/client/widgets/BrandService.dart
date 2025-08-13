@@ -86,12 +86,23 @@ class _BrandSelectorWidgetState extends State<BrandSelectorWidget> {
           controller: _searchController,
           decoration: InputDecoration(
             hintText: 'Selectează marcă automobil',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
+            hintStyle: TextStyle(color: Color(0xFFCCCCCC)),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Color(0xFFCCCCCC), // Same border color
+                width: 1.5,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Color(0xFFCCCCCC), // Same border color
+                width: 1.5,
+              ),
             ),
             filled: true,
-            fillColor: Colors.grey[200],
+            fillColor: Colors.white,
           ),
         ),
         SizedBox(height: 16),

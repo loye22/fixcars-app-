@@ -36,8 +36,8 @@ class _MecanicScreenState extends State<MecanicScreen> {
       String address = await _addressService.getCurrentAddress();
 
       // Fetch mechanic services
-      List<Map<String, dynamic>> services =
-          await _mechanicService.fetchMecanicAutos();
+      List<Map<String, dynamic>> services =   //lat=&lng=
+          await _mechanicService.fetchMecanicAutos(category: AutoService.mecanic_auto ,lat:45.6486 , lng: 25.6061  );
 
       setState(() {
         _address = address;
@@ -45,6 +45,8 @@ class _MecanicScreenState extends State<MecanicScreen> {
         _filteredMechanicServices = services; // Initialize with all
         _isLoading = false;
       });
+
+
     } catch (e) {
       setState(() {
         _error = e.toString();
@@ -123,21 +125,60 @@ class _MecanicScreenState extends State<MecanicScreen> {
                         },
                       ),
                       SizedBox(height: 16), // Optional spacing
-                      ..._filteredMechanicServices.map((service) {
-                        return BusinessCardWidget(
-                          businessName: service['supplier_name'] ?? 'Unknown',
-                          rating:
-                              (service['review_score'] as num?)?.toDouble() ??
-                              0.0,
-                          reviewCount: service['total_reviews'] ?? 0,
-                          distance: "${service['distance_km'] ?? 0.0} km",
-                          location: service['supplier_address'] ?? 'Unknown',
-                          isAvailable: service['is_open'] ?? false,
-                          profileUrl: service['supplier_photo'] ?? '',
-                          servicesUrl: service['photo_url'] ?? '',
-                          carBrandUrl: service['brand_photo'] ?? '',
-                        );
-                      }).toList(),
+                      _filteredMechanicServices.isEmpty
+                          ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/noresults.png', // your image path
+                              width: 150,
+                              height: 150,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Nu s-au găsit rezultate, te rugăm să ajustezi filtrul.',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      )
+                          : Column(
+                        children: _filteredMechanicServices.map((service) {
+                          return BusinessCardWidget(
+                            businessName: service['supplier_name'] ?? 'Unknown',
+                            rating: (service['review_score'] as num?)?.toDouble() ?? 0.0,
+                            reviewCount: service['total_reviews'] ?? 0,
+                            distance: "${service['distance_km'] ?? 0.0} km",
+                            location: service['supplier_address'] ?? 'Unknown',
+                            isAvailable: service['is_open'] ?? false,
+                            profileUrl: service['supplier_photo'] ?? '',
+                            servicesUrl: service['photo_url'] ?? '',
+                            carBrandUrl: service['brand_photo'] ?? '',
+                          );
+                        }).toList(),
+                      ),
+
+
+                      // ..._filteredMechanicServices.map((service) {
+                      //   return BusinessCardWidget(
+                      //     businessName: service['supplier_name'] ?? 'Unknown',
+                      //     rating:
+                      //         (service['review_score'] as num?)?.toDouble() ??
+                      //         0.0,
+                      //     reviewCount: service['total_reviews'] ?? 0,
+                      //     distance: "${service['distance_km'] ?? 0.0} km",
+                      //     location: service['supplier_address'] ?? 'Unknown',
+                      //     isAvailable: service['is_open'] ?? false,
+                      //     profileUrl: service['supplier_photo'] ?? '',
+                      //     servicesUrl: service['photo_url'] ?? '',
+                      //     carBrandUrl: service['brand_photo'] ?? '',
+                      //   );
+                      // }).toList(),
                     ],
                   ),
                 ),
