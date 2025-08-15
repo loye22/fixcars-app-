@@ -1,10 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import '../../shared/services/api_service.dart';
 import '../services/BrandService.dart';
-import 'ServiceSelectionWidget.dart'; // Adjust path if needed
 
 class BrandSelectorWidget extends StatefulWidget {
   final Function(Map<String, dynamic>?) onBrandSelected;
@@ -39,14 +35,7 @@ class _BrandSelectorWidgetState extends State<BrandSelectorWidget> {
         _filteredBrands = brands;
         _isLoading = false;
       });
-      // Default to selecting "all cars" if it exists
-      final allCarsBrand = brands.firstWhere(
-            (brand) => brand['brand_name'].toLowerCase() == 'all cars',
-        orElse: () => {},
-      );
-      if (allCarsBrand.isNotEmpty) {
-        _selectBrand(allCarsBrand);
-      }
+      // Don't automatically select "all cars" - let user choose
     } catch (e) {
       setState(() {
         _error = e.toString();
@@ -65,10 +54,14 @@ class _BrandSelectorWidgetState extends State<BrandSelectorWidget> {
   }
 
   void _selectBrand(Map<String, dynamic> brand) {
+    print('BrandSelector: Selecting brand: ${brand['brand_name']} (ID: ${brand['brand_id']})');
     setState(() {
       _selectedBrandId = brand['brand_id'];
     });
-    widget.onBrandSelected(brand['brand_name'].toLowerCase() == 'all cars' ? null : brand);
+
+    final selectedBrand = brand['brand_name'].toLowerCase() == 'all cars' ? null : brand;
+    print('BrandSelector: Calling callback with: ${selectedBrand?['brand_name'] ?? 'null (all cars)'}');
+    widget.onBrandSelected(selectedBrand);
   }
 
   @override
@@ -144,7 +137,7 @@ class _BrandSelectorWidgetState extends State<BrandSelectorWidget> {
                             color: isSelected ? Colors.blue.withOpacity(0.1) : null,
                           ),
                           child: Image.network(
-                            brand['brand_photo'],
+                            brand['brand_photo'] ?? "",
                             width: 60,
                             height: 60,
                             errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
@@ -152,7 +145,7 @@ class _BrandSelectorWidgetState extends State<BrandSelectorWidget> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          brand['brand_name'],
+                          brand['brand_name'] ?? "404",
                           style: TextStyle(
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                           ),

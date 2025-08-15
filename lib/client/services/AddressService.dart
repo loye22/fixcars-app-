@@ -88,4 +88,25 @@ class AddressService {
       throw Exception("Error fetching coordinates: $e");
     }
   }
+
+
+  // Get address from coordinates using geocoding package
+  Future<String> getAddressFromCoordinates(double lat, double lng) async {
+    try {
+      // Convert coordinates to address using geocoding package
+      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
+
+      if (placemarks.isNotEmpty) {
+        Placemark placemark = placemarks[0];
+        String city = placemark.locality ?? "Unknown City";
+        String neighborhood = placemark.subLocality ?? "Unknown Neighborhood";
+        return "$neighborhood, $city";
+      } else {
+        return "Adresa nu a putut fi găsită";
+      }
+    } catch (e) {
+      print('Error getting address from coordinates: $e');
+      return "Adresa nu a putut fi găsită";
+    }
+  }
 }

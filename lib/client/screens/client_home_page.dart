@@ -16,7 +16,7 @@ class client_home_page extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text('Cum te putem ajuta astăzi?', style: TextStyle(color: Colors.white , fontWeight: FontWeight.w500))),
-        backgroundColor: Color(0xFF808080),
+        backgroundColor: Color(0xFF4B5563),
       ),
       backgroundColor: Color(0xFFFFFFFF),
       body: GridView.count(

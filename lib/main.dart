@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         textTheme: baseTextTheme,
       ),
-      home: isAuthenticated ?  MecanicScreen() :   into_screen(),
+      home: isAuthenticated ?  client_home_page() :   into_screen(),
     );
   }
 }
