@@ -47,4 +47,28 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+
+
+    <!-- Add this inside the <manifest> tag -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
+    </queries>
+
+
+    <queries>
+        <!-- For Google Maps -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="google.navigation" />
+        </intent>
+
+        <!-- For Google Maps web fallback -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" android:host="www.google.com" />
+        </intent>
+    </queries>
 </manifest>

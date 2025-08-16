@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import '../services/MecanicAutoService.dart';
 import '../services/ServicesService.dart';
 
 class ServiceSelectionWidget extends StatefulWidget {
   final Function(List<String>) onServicesSelected;
   final List<String> initialSelectedServices;
+  String AutoServicetype ;
 
-  const ServiceSelectionWidget({
+   ServiceSelectionWidget({
     Key? key,
     required this.onServicesSelected,
     this.initialSelectedServices = const [],
+    this.AutoServicetype = "mecanic_auto"
   }) : super(key: key);
 
   @override
@@ -57,7 +60,8 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
   Future<void> _fetchServices() async {
     setState(() => _isLoading = true);
     try {
-      final response = await _servicesApi.fetchServices();
+
+      final response = await _servicesApi.fetchServices(category: widget.AutoServicetype);
       setState(() {
         _allServices = response['data'] ?? [];
         _filteredServices = _allServices;
@@ -303,7 +307,6 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
         ),
         SizedBox(height: 16),
         if (_selectedServices.isNotEmpty) ...[
-          Text('Debug: Showing ${_selectedServices.length} chips'),
           Wrap(
             spacing: 8,
             runSpacing: 8,

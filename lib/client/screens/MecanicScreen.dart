@@ -94,7 +94,7 @@ class _MecanicScreenState extends State<MecanicScreen> {
       return;
     }
 
-    print('Fetching data with filters: brand=${_selectedBrand?['brand_name']}, services=$_selectedServices, lat=$_currentLat, lng=$_currentLng');
+    //print('Fetching data with filters: brand=${_selectedBrand?['brand_name']}, services=$_selectedServices, lat=$_currentLat, lng=$_currentLng');
 
     try {
       setState(() {
@@ -112,7 +112,7 @@ class _MecanicScreenState extends State<MecanicScreen> {
         tags: _selectedServices.isNotEmpty ? _selectedServices : null,
       );
 
-      print('API returned ${services.length} services');
+      // print('API returned ${services.length} services');
 
       setState(() {
         _mechanicServices = services;
@@ -140,9 +140,8 @@ class _MecanicScreenState extends State<MecanicScreen> {
   }
 
   void _onBrandSelected(Map<String, dynamic>? brand) {
-    print('Brand selected: ${brand?['brand_name']} (ID: ${brand?['brand_id']})');
-    print('Previous brand was: ${_selectedBrand?['brand_name']}');
-
+    // print('Brand selected: ${brand?['brand_name']} (ID: ${brand?['brand_id']})');
+    // print('Previous brand was: ${_selectedBrand?['brand_name']}');
     setState(() {
       _selectedBrand = brand;
     });
@@ -152,12 +151,12 @@ class _MecanicScreenState extends State<MecanicScreen> {
   }
 
   void _onServicesSelected(List<String> selectedServices) {
-    print('MecanicScreen: Services selected: $selectedServices');
-    print('MecanicScreen: Previous services: $_selectedServices');
+    // print('MecanicScreen: Services selected: $selectedServices');
+    // print('MecanicScreen: Previous services: $_selectedServices');
     setState(() {
       _selectedServices = selectedServices;
     });
-    print('MecanicScreen: After setState - selected services: $_selectedServices');
+    // print('MecanicScreen: After setState - selected services: $_selectedServices');
 
     _fetchData(); // Trigger API call with new service filters
   }

@@ -9,10 +9,24 @@
   <true/>
 </dict>
 
+
+<key>LSApplicationQueriesSchemes</key>
+<array>
+  <string>google.navigation</string>
+  <string>comgooglemaps</string>
+  <string>waze</string>
+</array>
+
+
 <key>NSLocationWhenInUseUsageDescription</key>
 <string>We need your location to show your current address</string>
 <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 <string>We need your location to show your current address</string>
+
+<key>LSApplicationQueriesSchemes</key>
+<array>
+    <string>tel</string>
+</array>
 
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
