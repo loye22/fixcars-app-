@@ -4,12 +4,14 @@ class StarRatingDisplay extends StatelessWidget {
   final double score;
   final int reviews;
   final double size;
+  bool hide_reviews ;
 
-  const StarRatingDisplay({
+   StarRatingDisplay({
     Key? key,
     required this.score,
     required this.reviews,
     this.size = 16.0,
+    this.hide_reviews = false
   }) : super(key: key);
 
   @override
@@ -32,6 +34,7 @@ class StarRatingDisplay extends StatelessWidget {
         ),
         const SizedBox(width: 4),
         // Score and reviews
+        this.hide_reviews ? SizedBox.shrink() :
         Text(
           '${score.toStringAsFixed(1)} • $reviews',
           style: TextStyle(

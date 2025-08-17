@@ -8,15 +8,15 @@ class NavigationService {
     required double longitude,
     String? locationName, // Made optional
   }) async {
-    // Try Waze first (works without location name)
-    final wazeUri = locationName != null
-        ? Uri.parse('waze://?ll=$latitude,$longitude&navigate=yes&q=${Uri.encodeComponent(locationName)}')
-        : Uri.parse('waze://?ll=$latitude,$longitude&navigate=yes');
-
-    if (await canLaunchUrl(wazeUri)) {
-      await launchUrl(wazeUri);
-      return;
-    }
+    // // Try Waze first (works without location name)
+    // final wazeUri = locationName != null
+    //     ? Uri.parse('waze://?ll=$latitude,$longitude&navigate=yes&q=${Uri.encodeComponent(locationName)}')
+    //     : Uri.parse('waze://?ll=$latitude,$longitude&navigate=yes');
+    //
+    // if (await canLaunchUrl(wazeUri)) {
+    //   await launchUrl(wazeUri);
+    //   return;
+    // }
 
     // Fallback to Google Maps (also works without name)
     final googleMapsUri = Uri.parse(

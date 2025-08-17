@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:fixcars/client/screens/ReviewScreen.dart';
 import 'package:fixcars/shared/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../shared/services/NavigationService.dart';
 import '../../shared/services/phone_service.dart';
 import '../services/SupplierProfileService.dart';
+import '../widgets/ReviewPopup.dart';
 import '../widgets/StarRatingDisplay.dart';
 import 'package:intl/intl.dart';
 
@@ -21,7 +23,8 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
   late Future<Map<String, dynamic>> _profileFuture;
   final SupplierProfileService _profileService = SupplierProfileService();
   int currentIndex = 0;
-  late Timer _timer;
+  // late Timer _timer;
+  Timer? _timer; // Make this nullable
   List<String> coverImages = [];
   Map<String, dynamic>? profileData;
 
@@ -38,7 +41,7 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
               .toList();
           // Start timer only if we have cover images
           if (coverImages.isNotEmpty) {
-            _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
+            _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
               setState(() {
                 currentIndex = (currentIndex + 1) % coverImages.length;
               });
@@ -51,7 +54,7 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -124,14 +127,14 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
                         ),
 
                         // Review button
-                        IconButton(
-                          onPressed: () => print("Review button pressed"),
-                          icon: Image.asset(
-                            'assets/review2.png',
-                            width: 40,
-                            height: 40,
-                          ),
-                        ),
+                        // IconButton(
+                        //   onPressed: () => print("Review button pressed"),
+                        //   icon: Image.asset(
+                        //     'assets/review2.png',
+                        //     width: 40,
+                        //     height: 40,
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -160,14 +163,21 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    userProfile['full_name'] ?? 'John Doe',
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      color: Color(0xFF1F2937),
-                                      fontWeight: FontWeight.bold,
+                                  SizedBox(
+                                    width: MediaQuery.of(context).size.width - 200, // subtract the SizedBox(150) padding
+                                    child: Text(
+                                      userProfile['full_name'] ?? 'John Doe',
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        color: Color(0xFF1F2937),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis, // add ... if too long
+                                      maxLines: 2, // allow wrapping into 2 lines
+                                      softWrap: true,
                                     ),
                                   ),
+
                                   StarRatingDisplay(
                                     score: (reviews['averageRating'] as num?)?.toDouble() ?? 5.0,
                                     reviews: (reviews['totalReviews'] as num?)?.toInt() ?? 195,
@@ -199,7 +209,7 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
                                         height: 24,
                                       ),
                                       label: const Text(
-                                        'Call Now',
+                                        'Sună acum',
                                         style: TextStyle(
                                           color: Color(0xFF374151),
                                           fontSize: 16,
@@ -233,7 +243,7 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
                                         children: [
                                           Image.asset('assets/waze.png', width: 30),
                                           const SizedBox(width: 10),
-                                          const Text('Go Now'),
+                                          const Text('Vizitați-ne acum'),
                                         ],
                                       ),
                                       style: ElevatedButton.styleFrom(
@@ -265,7 +275,7 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
                                   width: 24,
                                   height: 24,
                                 ),
-                                label: const Text('Chat with Mechanic'),
+                                label: const Text('Discută cu noi'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFD1D5DB),
                                   foregroundColor: const Color(0xFF374151),
@@ -302,6 +312,7 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
 
                           // Reviews
                           ReviewListWidget(
+                            supplier_id: widget.userId,
                             reviews: (reviews['reviews'] as List<dynamic>? ?? [])
                                 .map((review) => {
                               'name': review['clientName'] ?? 'Anonymous',
@@ -358,7 +369,7 @@ class ServicesGrid extends StatelessWidget {
       children: [
         const SizedBox(height: 10),
         const Text(
-          'We support the following car brands',
+          'Suportăm următoarele mărci auto',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -370,7 +381,7 @@ class ServicesGrid extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         const Text(
-          'Services Offered',
+          'Servicii oferite',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -528,8 +539,9 @@ class BrandListHorizontal extends StatelessWidget {
 
 class ReviewListWidget extends StatefulWidget {
   final List<Map<String, dynamic>> reviews;
+  final String supplier_id ;
 
-  const ReviewListWidget({required this.reviews});
+  const ReviewListWidget({required this.reviews , required this.supplier_id});
 
   @override
   _ReviewListWidgetState createState() => _ReviewListWidgetState();
@@ -555,7 +567,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Recent Reviews',
+                'Recenzii recente',
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
@@ -573,8 +585,15 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text("see all"),
-                onPressed: () {},
+                child: const Text("vezi toate"),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ReviewScreen(supplierId: widget.supplier_id)),
+                  );
+
+
+                },
               ),
             ],
           ),
@@ -622,8 +641,8 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
           )).toList(),
           const SizedBox(height: 16.0),
           ElevatedButton.icon(
-            icon: Image.asset('assets/chat.png', width: 24, height: 24),
-            label: const Text('Write review'),
+            icon: Image.asset('assets/rating.png', width: 34, height: 34),
+            label: const Text('Lasă-ne o recenzie'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFD1D5DB),
               foregroundColor: const Color(0xFF374151),
@@ -632,7 +651,17 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            onPressed: () {},
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder:
+                    (context) => ReviewPopup(
+                  supplierId: widget.supplier_id,
+
+
+                ),
+              );
+            },
           ),
         ],
       ),

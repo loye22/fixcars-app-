@@ -1,7 +1,9 @@
+import 'package:fixcars/client/screens/SupplierProfileScreen.dart';
 import 'package:fixcars/shared/services/api_service.dart';
 import 'package:flutter/material.dart';
 
 class BusinessCardWidget extends StatelessWidget {
+  final String supplierID ; 
   final String businessName;
   final double rating;
   final int reviewCount;
@@ -22,6 +24,7 @@ class BusinessCardWidget extends StatelessWidget {
     required this.profileUrl,
     required this.servicesUrl,
     required this.carBrandUrl,
+    required this.supplierID
   });
 
   @override
@@ -155,7 +158,13 @@ class BusinessCardWidget extends StatelessWidget {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SupplierProfileScreen(userId: this.supplierID)),
+                  );
+                  
+                },
                 child: Text(
                   'Contactează',
                   style: TextStyle(

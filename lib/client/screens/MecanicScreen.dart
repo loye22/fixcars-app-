@@ -525,6 +525,7 @@ class MechanicServicesList extends StatelessWidget {
     return Column(
       children: services.map((service) {
         return BusinessCardWidget(
+          supplierID: service['supplier_id'] ?? "",
           businessName: service['supplier_name'] ?? 'Unknown',
           rating: (service['review_score'] as num?)?.toDouble() ?? 0.0,
           reviewCount: service['total_reviews'] ?? 0,

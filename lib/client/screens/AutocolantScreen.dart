@@ -516,6 +516,7 @@ class MechanicServicesList extends StatelessWidget {
           profileUrl: service['supplier_photo'] ?? '',
           servicesUrl: service['photo_url'] ?? '',
           carBrandUrl: service['brand_photo'] ?? '',
+          supplierID: service['supplier_id'] ?? '',
         );
       }).toList(),
     );

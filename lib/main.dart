@@ -6,9 +6,9 @@ import 'package:fixcars/shared/screens/intro_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'client/screens/AutocolantScreen.dart';
-import 'client/screens/MecanicScreen.dart';
+import 'client/screens/ReviewScreen.dart';
 import 'client/screens/SupplierProfileScreen.dart';
+
 
 
 void main() async {
@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         textTheme: baseTextTheme,
       ),
-      home: isAuthenticated ?  SupplierProfileScreen(userId: '0b401ea1-7867-4710-aade-1d3ae76bb75f',) :   into_screen(),
+      home: isAuthenticated ? HomePageRedirector()  :   into_screen(),
     );
   }
 }
