@@ -1,3 +1,4 @@
+import 'package:fixcars/client/screens/TractariScreen.dart';
 import 'package:fixcars/client/screens/client_home_page.dart';
 import 'package:fixcars/shared/screens/global_keys.dart';
 import 'package:fixcars/shared/services/api_service.dart';
@@ -54,7 +55,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         textTheme: baseTextTheme,
       ),
-      home: isAuthenticated ? HomePageRedirector()  :   into_screen(),
+      home: isAuthenticated ? TractariScreen()/*HomePageRedirector()*/  :   into_screen(),
     );
   }
 }

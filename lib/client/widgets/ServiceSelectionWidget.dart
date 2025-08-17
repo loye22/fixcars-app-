@@ -320,7 +320,7 @@ class _ServiceSelectionWidgetState extends State<ServiceSelectionWidget> {
                   ), // Adjust the radius as needed
                 ),
                 backgroundColor: Colors.white,
-                label: Text(service['service_name'] + "ccc"),
+                label: Text(service['service_name'] ),
                 deleteIcon: Icon(Icons.close, size: 18),
                 onDeleted: () => _removeSelectedService(service),
               ),
