@@ -1,3 +1,4 @@
+import 'package:fixcars/shared/services/api_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -384,10 +385,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                 ),
               ),
               children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.app',
-                ),
+              ApiService.lightTileLayer,
                 MarkerLayer(
                   markers: [
                     Marker(

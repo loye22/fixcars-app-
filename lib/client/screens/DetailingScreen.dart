@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../../shared/services/api_service.dart';
 import '../services/AddressService.dart';
 import '../services/MecanicAutoService.dart';
 import '../widgets/BrandListWidget.dart';
@@ -386,10 +387,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                 ),
               ),
               children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.app',
-                ),
+                ApiService.lightTileLayer,
                 MarkerLayer(
                   markers: [
                     Marker(

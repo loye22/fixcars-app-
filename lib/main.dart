@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         textTheme: baseTextTheme,
       ),
-      home: isAuthenticated ? TractariScreen()/*HomePageRedirector()*/  :   into_screen(),
+      home: isAuthenticated ? HomePageRedirector()  :   into_screen(),
     );
   }
 }
@@ -94,34 +94,3 @@ class HomePageRedirector extends StatelessWidget {
 }
 
 
-//
-// import 'package:fixcars/shared/screens/intro_screen.dart';
-// import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
-//
-// void main() {
-//   runApp(const MyApp());
-// }
-//
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-//   final Color customTextColor = const Color(0xFF808080); // Hex: #808080
-//
-//   // This widget is the root of your application.
-//   @override
-//   Widget build(BuildContext context) {
-//     final baseTextTheme = GoogleFonts.interTextTheme(
-//       Theme.of(context).textTheme,
-//     ).apply(
-//       bodyColor: customTextColor,
-//       displayColor: customTextColor,
-//     );
-//
-//
-//     return MaterialApp(
-//       theme: ThemeData(
-//         textTheme: baseTextTheme,
-//       ),      home:into_screen(),
-//     );
-//   }
-// }
