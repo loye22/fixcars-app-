@@ -1,5 +1,7 @@
 ///TractariScreen
 
+import 'package:fixcars/client/widgets/EmergencyServiceWidget.dart';
+import 'package:fixcars/shared/services/api_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -199,7 +201,7 @@ class _TractariScreenState extends State<TractariScreen> {
             ],
           ),
         ),
-        backgroundColor: Color(0xFF4B5563),
+        backgroundColor: Color(0xFFDC2626),
         automaticallyImplyLeading: false, // default is true
       ),
       body: Padding(
@@ -233,13 +235,7 @@ class _TractariScreenState extends State<TractariScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ServiceSelectionWidget(
-                key: ValueKey('service_selector'),
-                onServicesSelected: _onServicesSelected,
-                initialSelectedServices: _selectedServices,
-                AutoServicetype: 'tractari_auto',
 
-              ),
               SizedBox(height: 16),
               MechanicServicesList(
                 key: ValueKey('mechanic_services_${_mechanicServices.length}'),
@@ -386,10 +382,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                 ),
               ),
               children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.app',
-                ),
+                ApiService.lightTileLayer ,
                 MarkerLayer(
                   markers: [
                     Marker(
@@ -508,7 +501,10 @@ class MechanicServicesList extends StatelessWidget {
 
     return Column(
       children: services.map((service) {
-        return BusinessCardWidget(
+        print("service $service");
+        print("Longitude ${   service["Longitude"].runtimeType} +>>>>>>>> ");
+        return  EmergencyServiceCard(
+          phoneNr: service["supplier_phone"] ?? "",
           businessName: service['supplier_name'] ?? 'Unknown',
           rating: (service['review_score'] as num?)?.toDouble() ?? 0.0,
           reviewCount: service['total_reviews'] ?? 0,
@@ -519,7 +515,21 @@ class MechanicServicesList extends StatelessWidget {
           servicesUrl: service['photo_url'] ?? '',
           carBrandUrl: service['brand_photo'] ?? '',
           supplierID: service['supplier_id'] ?? '',
+
         );
+
+        // return BusinessCardWidget(
+        //   businessName: service['supplier_name'] ?? 'Unknown',
+        //   rating: (service['review_score'] as num?)?.toDouble() ?? 0.0,
+        //   reviewCount: service['total_reviews'] ?? 0,
+        //   distance: "${service['distance_km'] ?? 0.0} km",
+        //   location: service['supplier_address'] ?? 'Unknown',
+        //   isAvailable: service['is_open'] ?? false,
+        //   profileUrl: service['supplier_photo'] ?? '',
+        //   servicesUrl: service['photo_url'] ?? '',
+        //   carBrandUrl: service['brand_photo'] ?? '',
+        //   supplierID: service['supplier_id'] ?? '',
+        // );
       }).toList(),
     );
   }

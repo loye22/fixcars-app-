@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:http_parser/http_parser.dart';
@@ -9,8 +10,14 @@ import 'package:image_picker/image_picker.dart';
 class ApiService {
   static const String _baseUrl = 'http://10.0.2.2:8000/api'; // Django backend URL
   static const String _baseMediaUrl = 'http://10.0.2.2:8000/media/'; // Django backend URL
+  static final TileLayer _lightTileLayer = TileLayer(
+    urlTemplate: "https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    subdomains: const ['a', 'b', 'c', 'd'],
+    userAgentPackageName: 'com.example.app',
+  );
 
-
+  // Public getter to access the private TileLayer
+  static TileLayer get lightTileLayer => _lightTileLayer;
   static String get baseUrl => _baseUrl;
   static String get baseMediaUrl => _baseMediaUrl;
 
