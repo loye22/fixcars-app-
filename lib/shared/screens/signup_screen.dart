@@ -1,3 +1,4 @@
+import 'package:fixcars/shared/screens/SupplierSignupScreen.dart';
 import 'package:fixcars/shared/screens/client_singup_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -105,26 +106,34 @@ class signup_screen extends StatelessWidget {
                         bottom: 0,
                         left: 0,
                         right: 0,
-                        child: Card(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          margin: EdgeInsets.zero,
-                          child: ListTile(
-                            contentPadding: EdgeInsets.all(16),
-                            leading: Image.asset('assets/op2.png'),
-                            title: Text(
-                              'Mecanic',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                        child: GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => SupplierSignupScreen()),
+                            );
+                          },
+                          child: Card(
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            margin: EdgeInsets.zero,
+                            child: ListTile(
+                              contentPadding: EdgeInsets.all(16),
+                              leading: Image.asset('assets/op2.png'),
+                              title: Text(
+                                'Mecanic',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
                               ),
-                            ),
-                            subtitle: Text(
-                              'Gestionează programările și comunică cu clienții',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
+                              subtitle: Text(
+                                'Gestionează programările și comunică cu clienții',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
                               ),
                             ),
                           ),
@@ -135,23 +144,7 @@ class signup_screen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
 
-                backgroundColor: Color(0xFFDC2626),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                Image.asset('assets/warning.png' ,width: 20,),
-                  SizedBox(width: 5),
-                  Text('SOS Urgență', style: TextStyle(color: Colors.white)),
-                ],
-              ),
-            ),
 
 
           ],

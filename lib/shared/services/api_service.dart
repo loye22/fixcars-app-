@@ -436,5 +436,59 @@ class ApiService {
     await prefs.remove('jwt_token');
     await prefs.remove('refresh_token');
   }
+
+  // Add this method to your ApiService class for supplier signup
+  Future<Map<String, dynamic>> supplierSignup({
+    required String fullName,
+    required String email,
+    required String password,
+    required String phone,
+    required String photoUrl,
+    required List<String> coverPhotosUrls,
+    required double latitude,
+    required double longitude,
+    required String bio,
+    required String address
+
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/supplier-signup/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'full_name': fullName,
+          'email': email,
+          'password': password,
+          'phone': phone,
+          'photo_url': _baseMediaUrl + photoUrl,
+          'cover_photos_urls': coverPhotosUrls.map((photo) => _baseMediaUrl + photo).toList(),
+          'latitude': latitude,
+          'longitude': longitude,
+          'bio': bio,
+          'business_address' : address
+        }),
+      ).timeout(Duration(seconds: 10));
+
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 201) {
+        return {'success': true, 'data': data};
+      }
+      return {
+        'success': false,
+        'error': '${data['error'] ?? data['message'] ?? 'Eroare necunoscută de la server'}.'
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'error': e is SocketException
+            ? 'Fără conexiune la internet. Detalii: $e'
+            : e is TimeoutException
+            ? 'Cererea a expirat. Detalii: $e'
+            : 'Eroare de rețea: $e'
+      };
+    }
+  }
+
+
 }
 
