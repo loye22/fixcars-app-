@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
         textTheme: baseTextTheme,
       ),
      // home: SupplierSignupScreen(),
-      home: isAuthenticated ? HomePageRedirector() :   into_screen(),
+      home: isAuthenticated ? HomePageRedirector()/*supplier_home_page()*/ :   into_screen(),
     );
   }
 }
