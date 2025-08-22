@@ -45,6 +45,7 @@ dependencies:
   url_launcher: ^6.3.2
   flutter_rating_bar: ^4.0.1
   dotted_border: ^2.1.0
+  onesignal_flutter: ^5.3.4
 
 dev_dependencies:
   flutter_test:

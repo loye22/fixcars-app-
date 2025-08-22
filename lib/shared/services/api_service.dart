@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:fixcars/shared/services/OneSignalService.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -333,6 +334,10 @@ class ApiService {
             responseData['refresh_token']
         );
         await storeUserData(responseData['user']);
+
+        // Initialize OneSignal after successful login
+        await OneSignalService.initializeOneSignal();
+
         return {
           'success': true,
           'user_type': responseData['user']['user_type'],

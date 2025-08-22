@@ -1,15 +1,13 @@
-import 'package:fixcars/client/screens/TractariScreen.dart';
 import 'package:fixcars/client/screens/client_home_page.dart';
-import 'package:fixcars/shared/screens/SupplierSignupScreen.dart';
 import 'package:fixcars/shared/screens/global_keys.dart';
+import 'package:fixcars/shared/services/OneSignalService.dart';
 import 'package:fixcars/shared/services/api_service.dart';
 import 'package:fixcars/supplier/screens/supplier_home_page.dart';
 import 'package:fixcars/shared/screens/intro_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'client/screens/ReviewScreen.dart';
-import 'client/screens/SupplierProfileScreen.dart';
+
 
 
 
@@ -34,6 +32,14 @@ void main() async {
   }
 
   runApp(MyApp(isAuthenticated: isAuthenticated));
+
+
+  // Check if user is logged in and initialize OneSignal if they are
+  if (await apiService.isLoggedIn()) {
+    await OneSignalService.initializeOneSignal();
+  }
+
+
 }
 
 class MyApp extends StatelessWidget {

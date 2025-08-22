@@ -4,6 +4,8 @@ import 'package:fixcars/supplier/screens/AddNewServiceScreen.dart';
 import 'package:fixcars/supplier/screens/MyServicesScreen.dart';
 import 'package:fixcars/supplier/screens/RequestsScreen.dart';
 import 'package:flutter/material.dart';
+import '../../shared/services/OneSignalService.dart';
+import '../../shared/services/api_service.dart';
 import '../services/MarkNotificationAsReadService.dart';
 import '../services/SupplierProfileService.dart';
 import '../widgets/NotificationItemWidget.dart';
@@ -161,6 +163,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     final businessHours = supplier?['businessHours'] ?? {};
 
     return Scaffold(
+
       backgroundColor: Colors.grey[100],
       body:
 
@@ -459,6 +462,9 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       ),
     );
   }
+
+
+
 
   void _showBusinessHoursDialog(BuildContext context, Map<String, dynamic> businessHours, bool isOpen) {
     showDialog(
