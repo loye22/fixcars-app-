@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../services/ClientNotificationService.dart';
+import '../../supplier/services/MarkNotificationAsReadService.dart';
+import '../../client/services/ClientNotificationService.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -13,8 +14,10 @@ class NotificationScreen extends StatefulWidget {
 
 class _NotificationScreenState extends State<NotificationScreen> {
   final ClientNotificationService _notificationService = ClientNotificationService();
+  final NotificationService _notificationServiceread = NotificationService();
   late Future<List<Map<String, dynamic>>> _notificationsFuture;
   List<Map<String, dynamic>> _notificari = [];
+
 
   @override
   void initState() {
@@ -37,6 +40,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   // Function to show notification details
   void _arataDetaliiNotificare(int index) {
+    _markNotificationAsRead(_notificari[index]["notification_id"]);
+
     // Mark as read when opened (you might want to call an API endpoint for this)
     if (!_notificari[index]['is_read']) {
       setState(() {
@@ -50,6 +55,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: Text(
             _getTitleFromType(_notificari[index]['type']),
             style: const TextStyle(
@@ -313,6 +319,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
     );
   }
+  void _markNotificationAsRead(String notificationId) async {
+    try {
+      await _notificationServiceread.markNotificationAsRead(notificationId);
+      print('Notification marked as read successfully');
+      // Optionally update UI or show a success message
+    } catch (e) {
+      print('Error: $e');
+      // Optionally show an error message to the user
+    }
+  }
 }
+
 
 
