@@ -56,6 +56,8 @@ class SubmitAAARequestService {
 
       final data = jsonDecode(response.body);
 
+
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         return {
           'success': true,
@@ -71,7 +73,7 @@ class SubmitAAARequestService {
 
       return {
         'success': false,
-        'error': '${data['error'] ?? data['message'] ?? 'Unknown server error'}. Response: ${response.body}',
+        'error': '${data['error'] ?? data['message'] ?? 'Unknown server error'}. Response: ',
       };
     } catch (e) {
       return {

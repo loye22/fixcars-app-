@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../shared/services/OneSignalService.dart';
 import '../services/SubmitAAARequestService.dart';
 
 class RequestTowingPopup extends StatefulWidget {
@@ -62,6 +63,36 @@ class _RequestTowingPopupState extends State<RequestTowingPopup> {
 
       if (response['success']) {
         _showCustomToast(context, response['message'] ?? 'Serviciu de remorcare solicitat cu succes!', true);
+        //Send SOS notification
+
+        // Send SOS notification in Romanian
+        final success = await OneSignalService.sendNotification(
+          userId: widget.supplierId,
+          heading: '🚨 ASISTENȚĂ AUTO NECESARĂ',
+          message: 'Șoferul are nevoie de ajutor cu vehiculul! Vă rugăm să contactați clientul cât mai rapid posibil.',
+          data: {
+            'type': 'sos',
+            'timestamp': DateTime.now().toIso8601String(),
+          },
+        );
+
+
+        // if (success) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(
+        //       content: Text('SOS sent successfully! Help is on the way.'),
+        //       backgroundColor: Colors.green,
+        //     ),
+        //   );
+        // } else {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(
+        //       content: Text('Failed to send SOS. Please try again.'),
+        //       backgroundColor: Colors.red,
+        //     ),
+        //   );
+        // }
+
         Navigator.of(context).pop();
       } else {
         _showCustomToast(context, response['error'] ?? 'Eroare necunoscută', false);
