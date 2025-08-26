@@ -1,7 +1,10 @@
 
 
+import 'package:fixcars/supplier/widgets/LocationDetailsCard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../widgets/SOSAlertCard.dart';
 
 class RequestsScreen extends StatelessWidget {
   const RequestsScreen({super.key});
@@ -10,25 +13,48 @@ class RequestsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Requests'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'ALERTĂ SOS',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20.0,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: 2),
+            Text(
+              'Asistență urgentă necesară',
+              style: TextStyle(
+                fontSize: 14.0,
+                color: Colors.white.withOpacity(0.9),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.red[700],
+        foregroundColor: Colors.white,
         centerTitle: true,
+        elevation: 8,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(16),
+          ),
+        ),
       ),
-      body: const Center(
+
+     backgroundColor: Colors.white,
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.request_page, size: 64, color: Colors.blue),
-            SizedBox(height: 16),
-            Text(
-              'Requests Screen',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'This is where you manage service requests',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
+            SOSAlertCard(),
+            LocationDetailsCard()
+
+        
+        
           ],
         ),
       ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'AutocolantScreen.dart';
-import 'ChatScreen.dart';
+
 import 'DetailingScreen.dart';
 import 'ITPScreen.dart';
 import 'MecanicScreen.dart';
@@ -9,6 +9,7 @@ import 'TapiterieScreen.dart';
 import 'TractariScreen.dart';
 import 'TuningScreen.dart';
 import 'VulcanizareScreen.dart';
+import '../../shared/screens/conversation_list_screen.dart';
 
 
 
@@ -29,7 +30,7 @@ class _client_home_pageState extends State<client_home_page> {
     NotificationScreen(),
 
     // Chat screen
-    ChatScreen(),
+    ConversationListScreen(),
   ];
 
   @override

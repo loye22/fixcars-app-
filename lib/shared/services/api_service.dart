@@ -499,6 +499,17 @@ class ApiService {
     }
   }
 
-
+/// refactor this asn place it in the firebase servisesce
+  Future<Map<String, dynamic>> getUserInfo(String userId) async {
+    try {
+      final response = await authenticatedGet('$_baseUrl/user/$userId/');
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      }
+      throw Exception('Failed to get user info: ${response.statusCode}');
+    } catch (e) {
+      throw Exception('Error fetching user info: $e');
+    }
+  }
 }
 

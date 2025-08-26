@@ -3,6 +3,7 @@ import 'package:fixcars/client/screens/ReviewScreen.dart';
 import 'package:fixcars/shared/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import '../../shared/screens/chat_screen.dart';
 import '../../shared/services/NavigationService.dart';
 import '../../shared/services/phone_service.dart';
 import '../services/SupplierProfileService.dart';
@@ -285,7 +286,24 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
                                   ),
                                 ),
                                 onPressed: () {
-                                  // Handle chat action
+                                  print(profileData);
+
+                                  String otherUserUuid = profileData!["userProfile"]["user_id"];
+                                  String otherUserName = profileData!["userProfile"]["full_name"];
+                                  String profile_photo = profileData!["userProfile"]["user_id"];
+
+                                  print("otherUserUuid $otherUserUuid");
+                                  print("otherUserName $otherUserName");
+                                  print("profile_photo $profile_photo");
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatScreen(
+                                      otherUserUuid: otherUserUuid,),
+                                    ),
+                                  );
+
                                 },
                               ),
                             ],
