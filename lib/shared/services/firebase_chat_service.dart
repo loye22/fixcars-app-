@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'OneSignalService.dart';
 import 'api_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -409,6 +410,19 @@ class FirebaseChatService {
       );
 
       await batch.commit();
+
+
+      // --- NEW CODE START: Send notifications to OTHERS only ---
+      // Send notifications to all recipients (except sender)
+      await _sendNotificationsToRecipients(
+        participants: participants,
+        senderName: _cachedUserName ?? 'Someone',
+        messageContent: content,
+        messageType: type,
+        conversationId: conversationId,
+      );
+      // --- NEW CODE END ---
+
     } catch (e) {
       throw Exception('Error sending message: $e');
     }
@@ -527,4 +541,59 @@ class FirebaseChatService {
     return conversationId;
   }
 
+  // --- ADD THESE NEW METHODS AFTER YOUR sendMessage METHOD ---
+
+  Future<void> _sendNotificationsToRecipients({
+    required List<String> participants,
+    required String senderName,
+    required String messageContent,
+    required MessageType messageType,
+    required String conversationId,
+  }) async {
+    try {
+      // Filter out the sender - ONLY send to other participants
+      final otherParticipants = participants.where((id) => id != _cachedUserUuid).toList();
+
+      if (otherParticipants.isEmpty) return; // No one to notify
+
+      // Prepare notification message
+      String notificationMessage = _getNotificationMessage(
+        messageContent,
+        messageType,
+      );
+
+      // Send notification to each OTHER participant (not sender)
+      for (final recipientId in otherParticipants) {
+        await OneSignalService.sendNotification(
+          userId: recipientId, // This goes to OTHER users only
+          heading: 'New message from $senderName',
+          message: notificationMessage,
+          data: {
+            'type': 'new_message',
+            'conversation_id': conversationId,
+            'sender_id': _cachedUserUuid,
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+          },
+        );
+      }
+    } catch (e) {
+      print('Error sending notifications: $e');
+      // Don't throw error here as message was already sent successfully
+    }
+  }
+
+  String _getNotificationMessage(String content, MessageType type) {
+    switch (type) {
+      case MessageType.text:
+        return content.length > 100 ? '${content.substring(0, 100)}...' : content;
+      case MessageType.image:
+        return '📷 Sent an image';
+      case MessageType.voice:
+        return '🎤 Sent a voice message';
+      case MessageType.file:
+        return '📄 Sent a file';
+      default:
+        return 'Sent a message';
+    }
+  }
 }
