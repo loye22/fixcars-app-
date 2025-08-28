@@ -1,9 +1,12 @@
+import 'package:fixcars/client/screens/ReviewScreen.dart';
 import 'package:fixcars/shared/screens/NotificationScreen.dart';
 import 'package:fixcars/client/screens/SupplierProfileScreen.dart';
+import 'package:fixcars/shared/screens/conversation_list_screen.dart';
 import 'package:fixcars/supplier/screens/AddNewServiceScreen.dart';
 import 'package:fixcars/supplier/screens/MyServicesScreen.dart';
 import 'package:fixcars/supplier/screens/RequestsScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../shared/services/OneSignalService.dart';
 import '../../shared/services/api_service.dart';
 import '../services/MarkNotificationAsReadService.dart';
@@ -92,43 +95,6 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     );
   }
 
-  // Widget _buildStat(
-  //   String number,
-  //   String label,
-  //   String assetImagePath,
-  //   Color color,
-  //   VoidCallback onTap,
-  // ) {
-  //   return GestureDetector(
-  //     onTap: onTap,
-  //     child: Container(
-  //       width: 120,
-  //       padding: const EdgeInsets.all(12),
-  //       decoration: BoxDecoration(
-  //         color: const Color(0xFF212A39),
-  //         borderRadius: BorderRadius.circular(12),
-  //       ),
-  //       child: Column(
-  //         children: [
-  //           Image.asset(assetImagePath, height: 56, color: color),
-  //           const SizedBox(height: 6),
-  //           Text(
-  //             number,
-  //             style: const TextStyle(
-  //               color: Colors.white,
-  //               fontSize: 18,
-  //               fontWeight: FontWeight.bold,
-  //             ),
-  //           ),
-  //           Text(
-  //             label,
-  //             style: const TextStyle(color: Colors.white70, fontSize: 12),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -219,20 +185,6 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.remove_red_eye_outlined,
-                                    color: Colors.white,
-                                  ),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              SupplierProfileScreen(userId: supplierID)),
-                                    );
-                                  },
-                                ),
                                 const SizedBox(height: 10),
                                 GestureDetector(
                                   onTap: () {
@@ -277,10 +229,16 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                 child: _buildStat(
                                   offeredServicesCount,
                                   "Servicii",
-                                  "assets/setting3.png",
+                                  "assets/chat22.png",
                                   Colors.blue,
                                       () {
-                                    print("Servicii apăsat!");
+                                    ///here
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => ConversationListScreen()),
+                                        );
+
+
                                   },
                                 ),
                               ),
@@ -309,6 +267,11 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                   Colors.orange,
                                       () {
                                     print("Evaluare apăsat!");
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => ReviewScreen(supplierId:supplierID , hideReviewButton: true,)),
+                                    );
+
                                   },
                                 ),
                               ),
@@ -366,7 +329,9 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                               // Add navigation or action for "Serviciile mele"
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => MyServicesScreen()),
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        SupplierProfileScreen(userId: supplierID)),
                               );
                             },
                             child: buildQuickAction(
@@ -379,12 +344,8 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                         Expanded(
                           child: InkWell(
                             onTap: () {
-                              print("Adaugă serviciu tapped!");
-                              // Add navigation or action for "Adaugă serviciu"
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => AddNewServiceScreen()),
-                              );
+                              showContactPopup(context);
+
                             },
                             child: buildQuickAction(
                               "Adaugă serviciu",
@@ -652,6 +613,204 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       // Optionally show an error message to the user
     }
   }
+
+
+
+
+  void showContactPopup(BuildContext context) {
+    final String email = 'support@fixcars.com';
+    final String phone = '+40 721 123 456';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Icon
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.contact_support,
+                    size: 32,
+                    color: Colors.blue.shade700,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Title
+                const Text(
+                  'Adăugare Servicii Noi',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                // Description
+                const Text(
+                  'Pentru a adăuga servicii noi, vă rugăm să ne contactați:',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black54,
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Email section
+                _buildContactItem(
+                  icon: Icons.email,
+                  label: 'Email',
+                  value: email,
+                  onTap: () => _copyToClipboard(context, email, 'Email'),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Phone section
+                _buildContactItem(
+                  icon: Icons.phone,
+                  label: 'Telefon',
+                  value: phone,
+                  onTap: () => _copyToClipboard(context, phone, 'Număr de telefon'),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Close button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade700,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Închide'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildContactItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.blue.shade100,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 20, color: Colors.blue.shade700),
+            ),
+
+            const SizedBox(width: 16),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(width: 8),
+
+            Icon(
+              Icons.content_copy,
+              size: 18,
+              color: Colors.grey.shade500,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _copyToClipboard(BuildContext context, String text, String label) async {
+    await Clipboard.setData(ClipboardData(text: text));
+
+    // Show a confirmation
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$label a fost copiat în clipboard'),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
 
 }
 

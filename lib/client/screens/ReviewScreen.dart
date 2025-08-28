@@ -6,7 +6,12 @@ import '../widgets/ReviewPopup.dart';
 
 class ReviewScreen extends StatefulWidget {
   final String supplierId;
-  const ReviewScreen({required this.supplierId, Key? key}) : super(key: key);
+  final bool hideReviewButton; // Add this line
+  const ReviewScreen({
+    required this.supplierId,
+    this.hideReviewButton = false,
+    Key? key,
+  }) : super(key: key);
 
   @override
   _ReviewScreenState createState() => _ReviewScreenState();
@@ -57,6 +62,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(_reviews);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -83,44 +89,72 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                 .map(
                                   (review) => Container(
                                     margin: const EdgeInsets.only(bottom: 16.0),
-                                    child: Column(
+                                    child: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              review['client_name'] ??
-                                                  'Anonymous',
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16.0,
-                                              ),
-                                            ),
-                                            Text(
-                                              formatReviewDate(
-                                                review['created_at']
-                                                    ?.toString(),
-                                              ),
-                                              style: const TextStyle(
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                          ],
+                                        // Avatar Circle
+                                        CircleAvatar(
+                                          radius: 30,
+                                          backgroundImage: NetworkImage(
+                                            review['client_photo'] ??
+                                                'https://via.placeholder.com/40',
+                                          ),
+                                          onBackgroundImageError: (
+                                            exception,
+                                            stackTrace,
+                                          ) {
+                                            // Handle image loading errors if needed
+                                          },
                                         ),
-                                        const SizedBox(height: 8.0),
-                                        StarRatingDisplay(
-                                          score: review['rating'].toDouble(),
-                                          reviews: 2,
-                                          hide_reviews: true,
-                                        ),
-                                        const SizedBox(height: 8.0),
-                                        Text(
-                                          review['comment'] ?? 'No comment',
-                                          style: const TextStyle(
-                                            fontSize: 14.0,
+                                        const SizedBox(width: 12.0),
+                                        // Review Content
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    review['client_name'] ??
+                                                        'Anonymous',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16.0,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    formatReviewDate(
+                                                      review['created_at']
+                                                          ?.toString(),
+                                                    ),
+                                                    style: const TextStyle(
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 8.0),
+                                              StarRatingDisplay(
+                                                score:
+                                                    review['rating'].toDouble(),
+                                                reviews: 2,
+                                                hide_reviews: true,
+                                              ),
+                                              const SizedBox(height: 8.0),
+                                              Text(
+                                                review['comment'] ??
+                                                    'No comment',
+                                                style: const TextStyle(
+                                                  fontSize: 14.0,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
@@ -128,10 +162,60 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                   ),
                                 )
                                 .toList(),
+                        // _reviews
+                        //     .map(
+                        //       (review) => Container(
+                        //         margin: const EdgeInsets.only(bottom: 16.0),
+                        //         child: Column(
+                        //           crossAxisAlignment:
+                        //               CrossAxisAlignment.start,
+                        //           children: [
+                        //             Row(
+                        //               mainAxisAlignment:
+                        //                   MainAxisAlignment.spaceBetween,
+                        //               children: [
+                        //                 Text(
+                        //                   review['client_name'] ??
+                        //                       'Anonymous',
+                        //                   style: const TextStyle(
+                        //                     fontWeight: FontWeight.bold,
+                        //                     fontSize: 16.0,
+                        //                   ),
+                        //                 ),
+                        //                 Text(
+                        //                   formatReviewDate(
+                        //                     review['created_at']
+                        //                         ?.toString(),
+                        //                   ),
+                        //                   style: const TextStyle(
+                        //                     color: Colors.grey,
+                        //                   ),
+                        //                 ),
+                        //               ],
+                        //             ),
+                        //             const SizedBox(height: 8.0),
+                        //             StarRatingDisplay(
+                        //               score: review['rating'].toDouble(),
+                        //               reviews: 2,
+                        //               hide_reviews: true,
+                        //             ),
+                        //             const SizedBox(height: 8.0),
+                        //             Text(
+                        //               review['comment'] ?? 'No comment',
+                        //               style: const TextStyle(
+                        //                 fontSize: 14.0,
+                        //               ),
+                        //             ),
+                        //           ],
+                        //         ),
+                        //       ),
+                        //     )
+                        //     .toList(),
                       ),
                     ),
                     const SizedBox(height: 16.0),
-                    ElevatedButton.icon(
+                    if (!widget.hideReviewButton)
+                      ElevatedButton.icon(
                       icon: Image.asset(
                         'assets/chat.png',
                         width: 24,
@@ -152,8 +236,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           builder:
                               (context) => ReviewPopup(
                                 supplierId: widget.supplierId,
-                                onReviewSubmitted: _fetchReviews, // Pass the callback here
-
+                                onReviewSubmitted:
+                                    _fetchReviews, // Pass the callback here
                               ),
                         );
                       },

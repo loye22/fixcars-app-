@@ -42,6 +42,7 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         title: Center(child: Text("Mesaje")),
       ),
@@ -61,7 +62,8 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
             stream: _chatService.getConversations(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
+                return  Center(child:LoadingAnimationWidget.threeArchedCircle(color: Colors.white, size: 24),
+                    );
               }
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.red)));
