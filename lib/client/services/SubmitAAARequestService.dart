@@ -44,14 +44,24 @@ class SubmitAAARequestService {
         desiredAccuracy: LocationAccuracy.high,
       );
 
+      // Round coordinates to 6 decimal places
+      double roundedLatitude = double.parse(position.latitude.toStringAsFixed(6));
+      double roundedLongitude = double.parse(position.longitude.toStringAsFixed(6));
+
       final url = '${ApiService.baseUrl}/requests/create/';
+      // final body = {
+      //   'supplier': supplierId,
+      //   'longitude': position.longitude,
+      //   'latitude': position.latitude,
+      //   'reason': reason,
+      // };
+
       final body = {
         'supplier': supplierId,
-        'longitude': position.longitude,
-        'latitude': position.latitude,
+        'longitude': roundedLongitude,
+        'latitude': roundedLatitude,  // Now this will have exactly 6 decimal places
         'reason': reason,
       };
-
       final response = await _apiService.authenticatedPost(url, body);
 
       final data = jsonDecode(response.body);
@@ -71,9 +81,10 @@ class SubmitAAARequestService {
         };
       }
 
+      print(response.body);
       return {
         'success': false,
-        'error': '${data['error'] ?? data['message'] ?? 'Unknown server error'}. Response: ',
+        'error': '${data['error'] ?? data['message'] ?? 'Unknown server error'}. Response: ${response.body}',
       };
     } catch (e) {
       return {
