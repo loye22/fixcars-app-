@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fixcars/client/screens/ReviewScreen.dart';
 import 'package:fixcars/shared/screens/NotificationScreen.dart';
 import 'package:fixcars/client/screens/SupplierProfileScreen.dart';
@@ -8,7 +10,9 @@ import 'package:fixcars/supplier/screens/RequestsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../shared/services/OneSignalService.dart';
+import '../../shared/services/PendingCountRequestsService.dart';
 import '../../shared/services/api_service.dart';
+import '../../shared/services/firebase_chat_service.dart';
 import '../services/MarkNotificationAsReadService.dart';
 import '../services/SupplierProfileService.dart';
 import '../widgets/NotificationItemWidget.dart';
@@ -26,12 +30,44 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   Map<String, dynamic>? _supplierData;
   bool _isLoading = true;
   String _errorMessage = '';
+  int _totalUnreadCount = 0;
+  StreamSubscription<int>? _unreadSubscription;
+  int _pendingRequestCount = 0;
+
 
   final NotificationService _notificationService = NotificationService();
   @override
   void initState() {
     super.initState();
     _fetchSupplierProfile();
+    _startListeningToUnreadMessages();
+    _loadPendingRequestCount();
+  }
+  @override
+  void dispose() {
+    _unreadSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _loadPendingRequestCount() async {
+    try {
+      final pendingCountService = PendingCountService();
+      final count = await pendingCountService.fetchPendingCount();
+      if (mounted) {
+        setState(() {
+          _pendingRequestCount = count;
+        });
+       // print("_pendingRequestCount $_pendingRequestCount");
+      }
+    } catch (e) {
+      print('Error loading pending request count: $e');
+      // You can set a default value or show an error indicator
+      if (mounted) {
+        setState(() {
+          _pendingRequestCount = 0; // Or -1 to indicate error
+        });
+      }
+    }
   }
 
   Future<void> _fetchSupplierProfile() async {
@@ -48,16 +84,36 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       });
     }
   }
+
+  // Add this method to your FirebaseChatService class
+  void _startListeningToUnreadMessages() async {
+    // Initialize Firebase if needed
+    final chatService = FirebaseChatService();
+    if (!chatService.isAuthenticated()) {
+      await chatService.initializeFirebase();
+    }
+
+    // Listen for real-time updates
+    _unreadSubscription = chatService.getTotalUnreadMessagesStream().listen((count) {
+      if (mounted) {
+        setState(() {
+          _totalUnreadCount = count;
+        });
+      }
+    });
+  }
+
   Widget _buildStat(
       String number,
       String label,
       String assetImagePath,
       Color color,
-      VoidCallback onTap,
-      ) {
+      VoidCallback onTap, {
+        int unreadCount = 0, // Add this parameter for unread count
+      }) {
     return GestureDetector(
       onTap: onTap,
-      behavior: HitTestBehavior.opaque, // Ensures taps are registered
+      behavior: HitTestBehavior.opaque,
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -67,18 +123,51 @@ class _supplier_home_pageState extends State<supplier_home_page> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              assetImagePath,
-              height: 48, // Slightly smaller for better fit
-              color: color,
-              fit: BoxFit.contain,
+            // Stack for image with badge
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Your image
+                Image.asset(
+                  assetImagePath,
+                  height: 48,
+                  color: color,
+                  fit: BoxFit.contain,
+                ),
+                // Red bubble badge positioned at top left of image
+                if (unreadCount > 0)
+                  Positioned(
+                    top: -4,    // Adjust to position relative to image
+                    left: -4,   // Adjust to position relative to image
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        unreadCount > 99 ? '99+' : unreadCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 6),
             Text(
               number,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 16, // Slightly smaller for better fit
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -94,6 +183,55 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       ),
     );
   }
+
+  // Widget _buildStat(
+  //     String number,
+  //     String label,
+  //     String assetImagePath,
+  //     Color color,
+  //     VoidCallback onTap,
+  //     )
+  //
+  // {
+  //   return GestureDetector(
+  //     onTap: onTap,
+  //     behavior: HitTestBehavior.opaque, // Ensures taps are registered
+  //     child: Container(
+  //       padding: const EdgeInsets.all(12),
+  //       decoration: BoxDecoration(
+  //         color: const Color(0xFF212A39),
+  //         borderRadius: BorderRadius.circular(12),
+  //       ),
+  //       child: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           Image.asset(
+  //             assetImagePath,
+  //             height: 48, // Slightly smaller for better fit
+  //             color: color,
+  //             fit: BoxFit.contain,
+  //           ),
+  //           const SizedBox(height: 6),
+  //           Text(
+  //             number,
+  //             style: const TextStyle(
+  //               color: Colors.white,
+  //               fontSize: 16, // Slightly smaller for better fit
+  //               fontWeight: FontWeight.bold,
+  //             ),
+  //           ),
+  //           Text(
+  //             label,
+  //             style: const TextStyle(
+  //               color: Colors.white70,
+  //               fontSize: 12,
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
 
   @override
@@ -227,7 +365,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 4.0), // Add spacing
                                 child: _buildStat(
-                                  offeredServicesCount,
+                                  unreadCount: _totalUnreadCount,                                  offeredServicesCount,
                                   "Servicii",
                                   "assets/chat22.png",
                                   Colors.blue,
@@ -319,6 +457,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                               "Alertă SOS",
                               "assets/ass2.png",
                               const Color(0xFFFEF2F2),
+                              count: _pendingRequestCount
                             ),
                           ),
                         ),
@@ -569,12 +708,11 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   }
   // Quick Action Widget with container background + rounded border
   Widget buildQuickAction(
-    String title,
-    String assetImagePath,
-    Color containerBg,
-
-  )
-  {
+      String title,
+      String assetImagePath,
+      Color containerBg, {
+        int count = 0, // Add optional count parameter
+      }) {
     return Padding(
       padding: const EdgeInsets.only(left: 4.0),
       child: Container(
@@ -586,7 +724,40 @@ class _supplier_home_pageState extends State<supplier_home_page> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(assetImagePath, width: 48, height: 48),
+            // Stack for image with red bubble
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Image
+                Image.asset(assetImagePath, width: 48, height: 48),
+                // Red bubble badge at top left of image
+                if (count > 0)
+                  Positioned(
+                    top: -4,    // Position above the image slightly
+                    left: -4,   // Position left of the image slightly
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 20,
+                        minHeight: 20,
+                      ),
+                      child: Text(
+                        count > 99 ? '99+' : count.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: 8),
             Text(
               title.replaceAll(" ", "\n"),
@@ -602,6 +773,41 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       ),
     );
   }
+
+  // Widget buildQuickAction(
+  //   String title,
+  //   String assetImagePath,
+  //   Color containerBg,
+  //
+  // )
+  // {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(left: 4.0),
+  //     child: Container(
+  //       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+  //       decoration: BoxDecoration(
+  //         color: containerBg,
+  //         borderRadius: BorderRadius.circular(16),
+  //       ),
+  //       child: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           Image.asset(assetImagePath, width: 48, height: 48),
+  //           const SizedBox(height: 8),
+  //           Text(
+  //             title.replaceAll(" ", "\n"),
+  //             textAlign: TextAlign.center,
+  //             style: const TextStyle(
+  //               fontSize: 14,
+  //               fontWeight: FontWeight.w500,
+  //               color: Colors.black87,
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   void _markNotificationAsRead(String notificationId) async {
     try {

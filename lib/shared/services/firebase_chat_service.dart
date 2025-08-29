@@ -596,4 +596,35 @@ class FirebaseChatService {
         return 'Sent a message';
     }
   }
+
+  // Add this method to your FirebaseChatService class
+  Stream<int> getTotalUnreadMessagesStream() {
+    if (_cachedUserUuid == null) {
+      return Stream.value(0);
+    }
+
+    return _firestore
+        .collection('conversations')
+        .where('participants', arrayContains: _cachedUserUuid)
+        .snapshots()
+        .map((snapshot) {
+      int totalUnread = 0;
+      for (final doc in snapshot.docs) {
+        final data = doc.data() as Map<String, dynamic>? ?? {};
+        final unreadCounts = (data['unread_counts'] as Map<String, dynamic>?) ?? {};
+        final count = unreadCounts[_cachedUserUuid];
+
+        if (count is int) {
+          totalUnread += count;
+        } else if (count is num) {
+          totalUnread += count.toInt();
+        }
+      }
+      return totalUnread;
+    })
+        .handleError((error) {
+      print('Error in unread messages stream: $error');
+      return 0;
+    });
+  }
 }
