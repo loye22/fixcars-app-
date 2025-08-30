@@ -9,6 +9,7 @@ import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
 import 'package:fixcars/supplier/screens/AddNewServiceScreen.dart';
 import 'package:fixcars/supplier/screens/MyServicesScreen.dart';
 import 'package:fixcars/supplier/screens/RequestsScreen.dart';
+import 'package:fixcars/supplier/screens/waiting_review_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -16,6 +17,7 @@ import '../../shared/services/OneSignalService.dart';
 import '../../shared/services/PendingCountRequestsService.dart';
 import '../../shared/services/api_service.dart';
 import '../../shared/services/firebase_chat_service.dart';
+import '../services/AccountStatusService.dart';
 import '../services/MarkNotificationAsReadService.dart';
 import '../services/SupplierProfileService.dart';
 import '../widgets/NotificationItemWidget.dart';
@@ -36,6 +38,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   int _totalUnreadCount = 0;
   StreamSubscription<int>? _unreadSubscription;
   int _pendingRequestCount = 0;
+  bool isActive = true;
 
   final NotificationService _notificationService = NotificationService();
 
@@ -45,12 +48,35 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     _fetchSupplierProfile();
     _startListeningToUnreadMessages();
     _loadPendingRequestCount();
+    _fetchAccountStatus();
   }
 
   @override
   void dispose() {
     _unreadSubscription?.cancel();
     super.dispose();
+  }
+
+  Future<void> _fetchAccountStatus() async {
+    try {
+      final AccountStatusService service = AccountStatusService();
+      final response = await service.fetchAccountStatus();
+
+      if (response['success'] == true) {
+        setState(() {
+          isActive = response['account_status']['is_active'] as bool;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          'Failed to fetch account status';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _loadPendingRequestCount() async {
@@ -226,328 +252,358 @@ class _supplier_home_pageState extends State<supplier_home_page> {
 
     return InternetConnectivityScreen(
       child: ServerDownWrapper(
-        apiService:ApiService() ,
-        child: Scaffold(
-          backgroundColor: Colors.grey[100],
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    // Dark Header Background
-                    Container(
-                      height: 420,
-                      // Increased height to accommodate quick actions card
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF161E2D),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(24),
-                          bottomRight: Radius.circular(24),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 60,
-                          left: 20,
-                          right: 20,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+        apiService: ApiService(),
+        child:
+            isActive == false
+                ? WaitingReviewScreen()
+                : Scaffold(
+                  backgroundColor: Colors.grey[100],
+                  body: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Stack(
+                          clipBehavior: Clip.none,
                           children: [
-                            // Profile + Status
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 50,
-                                  backgroundImage: NetworkImage(supplierPhotoUrl),
+                            // Dark Header Background
+                            Container(
+                              height: 420,
+                              // Increased height to accommodate quick actions card
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF161E2D),
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(24),
+                                  bottomRight: Radius.circular(24),
                                 ),
-                                const SizedBox(width: 12),
-                                Column(
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 60,
+                                  left: 20,
+                                  right: 20,
+                                ),
+                                child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "Bună, $supplierFullName",
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                  ],
-                                ),
-                                const Spacer(),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    const SizedBox(height: 10),
-                                    GestureDetector(
-                                      onTap: () {
-                                        _showBusinessHoursDialog(
-                                          context,
-                                          businessHours,
-                                          isOpen,
-                                        );
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 4,
+                                    // Profile + Status
+                                    Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 50,
+                                          backgroundImage: NetworkImage(
+                                            supplierPhotoUrl,
+                                          ),
                                         ),
-                                        decoration: BoxDecoration(
-                                          color:
-                                              isOpen
-                                                  ? Color(0xFF1B4239)
-                                                  : Colors.red,
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        child: Row(
+                                        const SizedBox(width: 12),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Image.asset(
-                                              'assets/check2.png',
-                                              width: 18,
-                                            ),
-                                            const SizedBox(width: 10),
                                             Text(
-                                              isOpen ? "În serviciu" : "Închis",
+                                              "Bună, $supplierFullName",
                                               style: const TextStyle(
                                                 color: Colors.white,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 6),
+                                          ],
+                                        ),
+                                        const Spacer(),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            const SizedBox(height: 10),
+                                            GestureDetector(
+                                              onTap: () {
+                                                _showBusinessHoursDialog(
+                                                  context,
+                                                  businessHours,
+                                                  isOpen,
+                                                );
+                                              },
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 4,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      isOpen
+                                                          ? Color(0xFF1B4239)
+                                                          : Colors.red,
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Image.asset(
+                                                      'assets/check2.png',
+                                                      width: 18,
+                                                    ),
+                                                    const SizedBox(width: 10),
+                                                    Text(
+                                                      isOpen
+                                                          ? "În serviciu"
+                                                          : "Închis",
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ],
                                         ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 30),
+
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      // Changed to spaceEvenly for better spacing
+                                      children: [
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 4.0,
+                                            ), // Add spacing
+                                            child: _buildStat(
+                                              unreadCount: _totalUnreadCount,
+                                              offeredServicesCount,
+                                              "Servicii",
+                                              "assets/chat22.png",
+                                              Colors.blue,
+                                              () {
+                                                ///here
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder:
+                                                        (context) =>
+                                                            ConversationListScreen(),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 4.0,
+                                            ),
+                                            child: _buildStat(
+                                              completedRequests,
+                                              "Finalizate",
+                                              "assets/check3.png",
+                                              Colors.green,
+                                              () {
+                                                print("Finalizate apăsat!");
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 4.0,
+                                            ),
+                                            child: _buildStat(
+                                              averageRating,
+                                              "Evaluare",
+                                              "assets/rating4.png",
+                                              Colors.orange,
+                                              () {
+                                                print("Evaluare apăsat!");
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder:
+                                                        (context) =>
+                                                            ReviewScreen(
+                                                              supplierId:
+                                                                  supplierID,
+                                                              hideReviewButton:
+                                                                  true,
+                                                            ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            // Quick Actions Card
+                            Positioned(
+                              top: MediaQuery.of(context).size.height * 0.40,
+                              // Adjusted for better visibility
+                              // top: MediaQuery.of(context).size.height * 0.45, // Adjusted for better visibility
+                              left: 20,
+                              right: 20,
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: 10,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: InkWell(
+                                        onTap: () {
+                                          print("SOS button tapped!");
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) => RequestsScreen(),
+                                            ),
+                                          );
+                                        },
+                                        splashColor: Colors.red.withOpacity(
+                                          0.3,
+                                        ),
+                                        highlightColor: Colors.red.withOpacity(
+                                          0.1,
+                                        ),
+                                        child: buildQuickAction(
+                                          "Alertă SOS",
+                                          "assets/ass2.png",
+                                          const Color(0xFFFEF2F2),
+                                          count: _pendingRequestCount,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: InkWell(
+                                        onTap: () {
+                                          print("Serviciile mele tapped!");
+                                          // Add navigation or action for "Serviciile mele"
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      SupplierProfileScreen(
+                                                        userId: supplierID,
+                                                      ),
+                                            ),
+                                          );
+                                        },
+                                        child: buildQuickAction(
+                                          "Serviciile mele",
+                                          "assets/ass1.png",
+                                          const Color(0xFFEFF6FF),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: InkWell(
+                                        onTap: () {
+                                          showContactPopup(context);
+                                        },
+                                        child: buildQuickAction(
+                                          "Adaugă serviciu",
+                                          "assets/ass3.png",
+                                          const Color(0xFFF0FDF4),
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
-                              ],
+                              ),
                             ),
-                            const SizedBox(height: 30),
+                          ],
+                        ),
+                        SizedBox(height: 150),
 
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              // Changed to spaceEvenly for better spacing
+                        Padding(
+                          padding: const EdgeInsets.all(18.0),
+                          child: Container(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 4.0,
-                                    ), // Add spacing
-                                    child: _buildStat(
-                                      unreadCount: _totalUnreadCount,
-                                      offeredServicesCount,
-                                      "Servicii",
-                                      "assets/chat22.png",
-                                      Colors.blue,
-                                      () {
-                                        ///here
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Notificări",
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    InkWell(
+                                      onTap: () {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder:
                                                 (context) =>
-                                                    ConversationListScreen(),
+                                                    NotificationScreen(),
                                           ),
                                         );
                                       },
+                                      child: Text(
+                                        "Vezi toate",
+                                        style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 14,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 4.0,
-                                    ),
-                                    child: _buildStat(
-                                      completedRequests,
-                                      "Finalizate",
-                                      "assets/check3.png",
-                                      Colors.green,
-                                      () {
-                                        print("Finalizate apăsat!");
-                                      },
-                                    ),
+                                const SizedBox(height: 16),
+                                // Display notifications from API
+                                if (notifications.isNotEmpty)
+                                  ...notifications
+                                      .map<Widget>(
+                                        (
+                                          notification,
+                                        ) => NotificationItemWidget(
+                                          notification: notification,
+                                          onTap: () {
+                                            _markNotificationAsRead(
+                                              notification["notification_id"],
+                                            );
+                                          },
+                                        ),
+                                      )
+                                      .toList()
+                                else
+                                  Text(
+                                    "Nu există notificări",
+                                    style: TextStyle(color: Colors.grey),
                                   ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 4.0,
-                                    ),
-                                    child: _buildStat(
-                                      averageRating,
-                                      "Evaluare",
-                                      "assets/rating4.png",
-                                      Colors.orange,
-                                      () {
-                                        print("Evaluare apăsat!");
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder:
-                                                (context) => ReviewScreen(
-                                                  supplierId: supplierID,
-                                                  hideReviewButton: true,
-                                                ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Quick Actions Card
-                    Positioned(
-                      top: MediaQuery.of(context).size.height * 0.40,
-                      // Adjusted for better visibility
-                      // top: MediaQuery.of(context).size.height * 0.45, // Adjusted for better visibility
-                      left: 20,
-                      right: 20,
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {
-                                  print("SOS button tapped!");
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => RequestsScreen(),
-                                    ),
-                                  );
-                                },
-                                splashColor: Colors.red.withOpacity(0.3),
-                                highlightColor: Colors.red.withOpacity(0.1),
-                                child: buildQuickAction(
-                                  "Alertă SOS",
-                                  "assets/ass2.png",
-                                  const Color(0xFFFEF2F2),
-                                  count: _pendingRequestCount,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {
-                                  print("Serviciile mele tapped!");
-                                  // Add navigation or action for "Serviciile mele"
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => SupplierProfileScreen(
-                                            userId: supplierID,
-                                          ),
-                                    ),
-                                  );
-                                },
-                                child: buildQuickAction(
-                                  "Serviciile mele",
-                                  "assets/ass1.png",
-                                  const Color(0xFFEFF6FF),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {
-                                  showContactPopup(context);
-                                },
-                                child: buildQuickAction(
-                                  "Adaugă serviciu",
-                                  "assets/ass3.png",
-                                  const Color(0xFFF0FDF4),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 150),
-
-                Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Notificări",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => NotificationScreen(),
-                                  ),
-                                );
-                              },
-                              child: Text(
-                                "Vezi toate",
-                                style: TextStyle(color: Colors.blue, fontSize: 14),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        // Display notifications from API
-                        if (notifications.isNotEmpty)
-                          ...notifications
-                              .map<Widget>(
-                                (notification) => NotificationItemWidget(
-                                  notification: notification,
-                                  onTap: () {
-                                    _markNotificationAsRead(
-                                      notification["notification_id"],
-                                    );
-                                  },
-                                ),
-                              )
-                              .toList()
-                        else
-                          Text(
-                            "Nu există notificări",
-                            style: TextStyle(color: Colors.grey),
                           ),
+                        ),
                       ],
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

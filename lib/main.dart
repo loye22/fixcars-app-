@@ -92,6 +92,7 @@ class HomePageRedirector extends StatelessWidget {
         final userData = snapshot.data!;
         final userType = userData['user_type'];
 
+
         if (userType == 'client') {
           return client_home_page();
         } else if (userType == 'supplier') {
