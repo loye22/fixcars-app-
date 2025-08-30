@@ -1,4 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
+import 'package:fixcars/shared/screens/Server_down_screen.dart';
+import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -413,356 +415,361 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFF9FAFB),
-      body: Stack(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(16.0),
-            child: _showOtpScreen
-                ? _buildOtpScreen()
-                : SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 40),
-                    Text(
-                      'Înregistrare Furnizor',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    SizedBox(height: 30),
-
-                    // Profile Image
-                    Center(
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () => _showImageSourceDialog(true),
-                            child:Container(
-                              width: 100,
-                              height: 100,
-                              child: DottedBorder(
-                                borderType: BorderType.Circle,
-                                color: Colors.grey,
-                                strokeWidth: 2.0,
-                                dashPattern: const [5, 3], // [dash length, gap length]
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFF3F4F6),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: _profileImage == null
-                                      ? Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Center(child: Image.asset('assets/person.png', width: 30)),
-                                    ],
-                                  )
-                                      : ClipOval(
-                                    child: Image.file(
-                                      _profileImage!,
-                                      fit: BoxFit.cover,
-                                      width: 100,
-                                      height: 100,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          if (_profileImageError != null)
-                            Padding(
-                              padding: EdgeInsets.only(top: 4),
-                              child: Text(
-                                _profileImageError!,
-                                style: TextStyle(color: Colors.red, fontSize: 12),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 20),
-
-                    // Informații de afaceri section
-                    Text(
-                      'Informații de afaceri',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _businessNameController,
-                      label: 'Numele complet al afacerii',
-                      hint: 'Ex: Restaurant Bella',
-                      iconPath: 'assets/business.png',
-                      errorText: _businessNameError,
-                    ),
-                    SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _emailController,
-                      label: 'Adresa de email',
-                      hint: 'Ex: contact@restaurantbella.ro',
-                      iconPath: 'assets/email.png',
-                      keyboardType: TextInputType.emailAddress,
-                      errorText: _emailError,
-                    ),
-                    SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _confirmEmailController,
-                      label: 'Confirmare email',
-                      hint: 'Ex: contact@restaurantbella.ro',
-                      iconPath: 'assets/email.png',
-                      keyboardType: TextInputType.emailAddress,
-                      errorText: _confirmEmailError,
-                    ),
-                    SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _phoneController,
-                      label: 'Număr de telefon',
-                      hint: 'Ex: 0712345678',
-                      iconPath: 'assets/phone.png',
-                      keyboardType: TextInputType.phone,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(10),
-                      ],
-                      errorText: _phoneError,
-                    ),
-                    SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _confirmPhoneController,
-                      label: 'Confirmare număr de telefon',
-                      hint: 'Ex: 0712345678',
-                      iconPath: 'assets/phone.png',
-                      keyboardType: TextInputType.phone,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(10),
-                      ],
-                      errorText: _confirmPhoneError,
-                    ),
-                    SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _passwordController,
-                      label: 'Parolă',
-                      hint: 'Minim 8 caractere',
-                      iconPath: 'assets/loc.png',
-                      obscureText: true,
-                      errorText: _passwordError,
-                    ),
-                    SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _confirmPasswordController,
-                      label: 'Confirmare parolă',
-                      hint: 'Minim 8 caractere',
-                      iconPath: 'assets/loc.png',
-                      obscureText: true,
-                      errorText: _confirmPasswordError,
-                    ),
-
-                    SizedBox(height: 30),
-
-                    // Locație section
-                    Text(
-                      'Locație',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _addressController,
-                      label: 'Adresa afacerii',
-                      hint: 'Ex: Strada Principală nr. 10, București',
-                      iconPath: 'assets/locationd2.png',
-                      errorText: _addressError,
-                    ),
-
-                    SizedBox(height: 30),
-
-                    // Despre afacerea ta section
-                    Text(
-                      'Despre afacerea ta',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    Column(
+    return InternetConnectivityScreen(
+      child: ServerDownWrapper(
+        apiService: ApiService(),
+        child: Scaffold(
+          backgroundColor: Color(0xFFF9FAFB),
+          body: Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: _showOtpScreen
+                    ? _buildOtpScreen()
+                    : SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextField(
-                          controller: _aboutBusinessController,
-                          maxLines: 4,
-                          decoration: InputDecoration(
-                            labelText: 'Spune-ne despre afacerea ta...',
-                            hintText: 'Descrieți serviciile oferite...',
-                            hintStyle: TextStyle(color: Colors.grey),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: BorderSide.none,
-                            ),
+                        SizedBox(height: 40),
+                        Text(
+                          'Înregistrare Furnizor',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
                           ),
                         ),
-                        if (_aboutBusinessError != null)
-                          Padding(
-                            padding: EdgeInsets.only(top: 4),
-                            child: Text(
-                              _aboutBusinessError!,
-                              style: TextStyle(color: Colors.red, fontSize: 12),
-                            ),
-                          ),
-                      ],
-                    ),
+                        SizedBox(height: 30),
 
-                    SizedBox(height: 30),
-
-                    // Fotografii de copertă section
-                    Text(
-                      '1. Fotografii de copertă',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Poți alege până la 5 fotografii pentru copertă.',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    SizedBox(height: 16),
-
-                    // Cover photos grid
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                            childAspectRatio: 1,
-                          ),
-                          itemCount: _coverPhotos.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == _coverPhotos.length) {
-                              return _coverPhotos.length < 5
-                                  ? GestureDetector(
-                                onTap: () => _showImageSourceDialog(false),
-                                child: Container(
+                        // Profile Image
+                        Center(
+                          child: Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () => _showImageSourceDialog(true),
+                                child:Container(
+                                  width: 100,
+                                  height: 100,
                                   child: DottedBorder(
-                                    borderType: BorderType.RRect,
-                                    radius: const Radius.circular(8.0),
+                                    borderType: BorderType.Circle,
                                     color: Colors.grey,
                                     strokeWidth: 2.0,
                                     dashPattern: const [5, 3], // [dash length, gap length]
                                     child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(8.0),
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFFF3F4F6),
+                                        shape: BoxShape.circle,
                                       ),
-                                      child: Center(
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                           Image.asset('assets/img.png' , width:  30 ,),
-                                            SizedBox(height: 4),
-                                            Text(
-                                              'Adaugă fotografie',
-                                              style: TextStyle(fontSize: 10, color: Colors.grey),
-                                            ),
-                                          ],
+                                      child: _profileImage == null
+                                          ? Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Center(child: Image.asset('assets/person.png', width: 30)),
+                                        ],
+                                      )
+                                          : ClipOval(
+                                        child: Image.file(
+                                          _profileImage!,
+                                          fit: BoxFit.cover,
+                                          width: 100,
+                                          height: 100,
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              )
-                                  : SizedBox.shrink();
-                            }
-
-                            return Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: Image.file(
-                                    _coverPhotos[index],
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    height: double.infinity,
+                              ),
+                              if (_profileImageError != null)
+                                Padding(
+                                  padding: EdgeInsets.only(top: 4),
+                                  child: Text(
+                                    _profileImageError!,
+                                    style: TextStyle(color: Colors.red, fontSize: 12),
                                   ),
                                 ),
-                                Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: GestureDetector(
-                                    onTap: () => _removeCoverImage(index),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.black54,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(Icons.close, size: 20, color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                        if (_coverPhotosError != null)
-                          Padding(
-                            padding: EdgeInsets.only(top: 4),
-                            child: Text(
-                              _coverPhotosError!,
-                              style: TextStyle(color: Colors.red, fontSize: 12),
-                            ),
+                            ],
                           ),
+                        ),
+                        SizedBox(height: 20),
+
+                        // Informații de afaceri section
+                        Text(
+                          'Informații de afaceri',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        _buildTextField(
+                          controller: _businessNameController,
+                          label: 'Numele complet al afacerii',
+                          hint: 'Ex: Restaurant Bella',
+                          iconPath: 'assets/business.png',
+                          errorText: _businessNameError,
+                        ),
+                        SizedBox(height: 16),
+                        _buildTextField(
+                          controller: _emailController,
+                          label: 'Adresa de email',
+                          hint: 'Ex: contact@restaurantbella.ro',
+                          iconPath: 'assets/email.png',
+                          keyboardType: TextInputType.emailAddress,
+                          errorText: _emailError,
+                        ),
+                        SizedBox(height: 16),
+                        _buildTextField(
+                          controller: _confirmEmailController,
+                          label: 'Confirmare email',
+                          hint: 'Ex: contact@restaurantbella.ro',
+                          iconPath: 'assets/email.png',
+                          keyboardType: TextInputType.emailAddress,
+                          errorText: _confirmEmailError,
+                        ),
+                        SizedBox(height: 16),
+                        _buildTextField(
+                          controller: _phoneController,
+                          label: 'Număr de telefon',
+                          hint: 'Ex: 0712345678',
+                          iconPath: 'assets/phone.png',
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                          errorText: _phoneError,
+                        ),
+                        SizedBox(height: 16),
+                        _buildTextField(
+                          controller: _confirmPhoneController,
+                          label: 'Confirmare număr de telefon',
+                          hint: 'Ex: 0712345678',
+                          iconPath: 'assets/phone.png',
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                          errorText: _confirmPhoneError,
+                        ),
+                        SizedBox(height: 16),
+                        _buildTextField(
+                          controller: _passwordController,
+                          label: 'Parolă',
+                          hint: 'Minim 8 caractere',
+                          iconPath: 'assets/loc.png',
+                          obscureText: true,
+                          errorText: _passwordError,
+                        ),
+                        SizedBox(height: 16),
+                        _buildTextField(
+                          controller: _confirmPasswordController,
+                          label: 'Confirmare parolă',
+                          hint: 'Minim 8 caractere',
+                          iconPath: 'assets/loc.png',
+                          obscureText: true,
+                          errorText: _confirmPasswordError,
+                        ),
+
+                        SizedBox(height: 30),
+
+                        // Locație section
+                        Text(
+                          'Locație',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        _buildTextField(
+                          controller: _addressController,
+                          label: 'Adresa afacerii',
+                          hint: 'Ex: Strada Principală nr. 10, București',
+                          iconPath: 'assets/locationd2.png',
+                          errorText: _addressError,
+                        ),
+
+                        SizedBox(height: 30),
+
+                        // Despre afacerea ta section
+                        Text(
+                          'Despre afacerea ta',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextField(
+                              controller: _aboutBusinessController,
+                              maxLines: 4,
+                              decoration: InputDecoration(
+                                labelText: 'Spune-ne despre afacerea ta...',
+                                hintText: 'Descrieți serviciile oferite...',
+                                hintStyle: TextStyle(color: Colors.grey),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                            ),
+                            if (_aboutBusinessError != null)
+                              Padding(
+                                padding: EdgeInsets.only(top: 4),
+                                child: Text(
+                                  _aboutBusinessError!,
+                                  style: TextStyle(color: Colors.red, fontSize: 12),
+                                ),
+                              ),
+                          ],
+                        ),
+
+                        SizedBox(height: 30),
+
+                        // Fotografii de copertă section
+                        Text(
+                          '1. Fotografii de copertă',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Poți alege până la 5 fotografii pentru copertă.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        SizedBox(height: 16),
+
+                        // Cover photos grid
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GridView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 8,
+                                mainAxisSpacing: 8,
+                                childAspectRatio: 1,
+                              ),
+                              itemCount: _coverPhotos.length + 1,
+                              itemBuilder: (context, index) {
+                                if (index == _coverPhotos.length) {
+                                  return _coverPhotos.length < 5
+                                      ? GestureDetector(
+                                    onTap: () => _showImageSourceDialog(false),
+                                    child: Container(
+                                      child: DottedBorder(
+                                        borderType: BorderType.RRect,
+                                        radius: const Radius.circular(8.0),
+                                        color: Colors.grey,
+                                        strokeWidth: 2.0,
+                                        dashPattern: const [5, 3], // [dash length, gap length]
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(8.0),
+                                          ),
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                               Image.asset('assets/img.png' , width:  30 ,),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  'Adaugă fotografie',
+                                                  style: TextStyle(fontSize: 10, color: Colors.grey),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                      : SizedBox.shrink();
+                                }
+
+                                return Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      child: Image.file(
+                                        _coverPhotos[index],
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: GestureDetector(
+                                        onTap: () => _removeCoverImage(index),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black54,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(Icons.close, size: 20, color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                            if (_coverPhotosError != null)
+                              Padding(
+                                padding: EdgeInsets.only(top: 4),
+                                child: Text(
+                                  _coverPhotosError!,
+                                  style: TextStyle(color: Colors.red, fontSize: 12),
+                                ),
+                              ),
+                          ],
+                        ),
+
+                        SizedBox(height: 30),
+
+                        ElevatedButton(
+                          onPressed: _isLoading ? null : _onSubmit,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF4B5563),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            minimumSize: Size(double.infinity, 50),
+                          ),
+                          child: Text(
+                            'Finalizare înregistrare',
+                            style: TextStyle(fontSize: 18, color: Colors.white),
+                          ),
+                        ),
+                        SizedBox(height: 30),
                       ],
                     ),
-
-                    SizedBox(height: 30),
-
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _onSubmit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF4B5563),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        minimumSize: Size(double.infinity, 50),
-                      ),
-                      child: Text(
-                        'Finalizare înregistrare',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ),
-                    SizedBox(height: 30),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
-          if (_isLoading)
-            Center(
-              child:LoadingAnimationWidget.threeArchedCircle(color: Color(0xFF4B5563), size: 40),
+              if (_isLoading)
+                Center(
+                  child:LoadingAnimationWidget.threeArchedCircle(color: Color(0xFF4B5563), size: 40),
 
-            ),
-        ],
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

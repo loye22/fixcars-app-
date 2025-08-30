@@ -3,12 +3,15 @@ import 'dart:async';
 import 'package:fixcars/client/screens/ReviewScreen.dart';
 import 'package:fixcars/shared/screens/NotificationScreen.dart';
 import 'package:fixcars/client/screens/SupplierProfileScreen.dart';
+import 'package:fixcars/shared/screens/Server_down_screen.dart';
 import 'package:fixcars/shared/screens/conversation_list_screen.dart';
+import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
 import 'package:fixcars/supplier/screens/AddNewServiceScreen.dart';
 import 'package:fixcars/supplier/screens/MyServicesScreen.dart';
 import 'package:fixcars/supplier/screens/RequestsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../shared/services/OneSignalService.dart';
 import '../../shared/services/PendingCountRequestsService.dart';
 import '../../shared/services/api_service.dart';
@@ -34,8 +37,8 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   StreamSubscription<int>? _unreadSubscription;
   int _pendingRequestCount = 0;
 
-
   final NotificationService _notificationService = NotificationService();
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +46,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     _startListeningToUnreadMessages();
     _loadPendingRequestCount();
   }
+
   @override
   void dispose() {
     _unreadSubscription?.cancel();
@@ -57,7 +61,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
         setState(() {
           _pendingRequestCount = count;
         });
-       // print("_pendingRequestCount $_pendingRequestCount");
+        // print("_pendingRequestCount $_pendingRequestCount");
       }
     } catch (e) {
       print('Error loading pending request count: $e');
@@ -94,7 +98,9 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     }
 
     // Listen for real-time updates
-    _unreadSubscription = chatService.getTotalUnreadMessagesStream().listen((count) {
+    _unreadSubscription = chatService.getTotalUnreadMessagesStream().listen((
+      count,
+    ) {
       if (mounted) {
         setState(() {
           _totalUnreadCount = count;
@@ -104,13 +110,13 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   }
 
   Widget _buildStat(
-      String number,
-      String label,
-      String assetImagePath,
-      Color color,
-      VoidCallback onTap, {
-        int unreadCount = 0, // Add this parameter for unread count
-      }) {
+    String number,
+    String label,
+    String assetImagePath,
+    Color color,
+    VoidCallback onTap, {
+    int unreadCount = 0, // Add this parameter for unread count
+  }) {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -137,8 +143,8 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                 // Red bubble badge positioned at top left of image
                 if (unreadCount > 0)
                   Positioned(
-                    top: -4,    // Adjust to position relative to image
-                    left: -4,   // Adjust to position relative to image
+                    top: -4, // Adjust to position relative to image
+                    left: -4, // Adjust to position relative to image
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
@@ -173,10 +179,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
             ),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
             ),
           ],
         ),
@@ -184,62 +187,17 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     );
   }
 
-  // Widget _buildStat(
-  //     String number,
-  //     String label,
-  //     String assetImagePath,
-  //     Color color,
-  //     VoidCallback onTap,
-  //     )
-  //
-  // {
-  //   return GestureDetector(
-  //     onTap: onTap,
-  //     behavior: HitTestBehavior.opaque, // Ensures taps are registered
-  //     child: Container(
-  //       padding: const EdgeInsets.all(12),
-  //       decoration: BoxDecoration(
-  //         color: const Color(0xFF212A39),
-  //         borderRadius: BorderRadius.circular(12),
-  //       ),
-  //       child: Column(
-  //         mainAxisSize: MainAxisSize.min,
-  //         children: [
-  //           Image.asset(
-  //             assetImagePath,
-  //             height: 48, // Slightly smaller for better fit
-  //             color: color,
-  //             fit: BoxFit.contain,
-  //           ),
-  //           const SizedBox(height: 6),
-  //           Text(
-  //             number,
-  //             style: const TextStyle(
-  //               color: Colors.white,
-  //               fontSize: 16, // Slightly smaller for better fit
-  //               fontWeight: FontWeight.bold,
-  //             ),
-  //           ),
-  //           Text(
-  //             label,
-  //             style: const TextStyle(
-  //               color: Colors.white70,
-  //               fontSize: 12,
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
         backgroundColor: Colors.grey[100],
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: LoadingAnimationWidget.threeArchedCircle(
+            color: Colors.black,
+            size: 34,
+          ),
+        ),
       );
     }
 
@@ -252,7 +210,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
 
     final supplier = _supplierData;
     final isOpen = supplier?['isOpen'] ?? false;
-    final supplierID = supplier?['supplierId'] ??"";
+    final supplierID = supplier?['supplierId'] ?? "";
     final completedRequests = supplier?['completedRequests']?.toString() ?? '0';
     final averageRating =
         supplier?['reviews']?['averageRating']?.toString() ?? '0';
@@ -266,307 +224,339 @@ class _supplier_home_pageState extends State<supplier_home_page> {
         supplier?['supplierFullName'] ?? "404Notfound";
     final businessHours = supplier?['businessHours'] ?? {};
 
-    return Scaffold(
-
-      backgroundColor: Colors.grey[100],
-      body:
-
-      SingleChildScrollView(
-        child: Column(
-          children: [
-
-            Stack(
-              clipBehavior: Clip.none,
+    return InternetConnectivityScreen(
+      child: ServerDownWrapper(
+        apiService:ApiService() ,
+        child: Scaffold(
+          backgroundColor: Colors.grey[100],
+          body: SingleChildScrollView(
+            child: Column(
               children: [
-                // Dark Header Background
-                Container(
-                  height: 420, // Increased height to accommodate quick actions card
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF161E2D),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(24),
-                      bottomRight: Radius.circular(24),
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    // Dark Header Background
+                    Container(
+                      height: 420,
+                      // Increased height to accommodate quick actions card
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF161E2D),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(24),
+                          bottomRight: Radius.circular(24),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          top: 60,
+                          left: 20,
+                          right: 20,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Profile + Status
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 50,
+                                  backgroundImage: NetworkImage(supplierPhotoUrl),
+                                ),
+                                const SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Bună, $supplierFullName",
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                  ],
+                                ),
+                                const Spacer(),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    const SizedBox(height: 10),
+                                    GestureDetector(
+                                      onTap: () {
+                                        _showBusinessHoursDialog(
+                                          context,
+                                          businessHours,
+                                          isOpen,
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              isOpen
+                                                  ? Color(0xFF1B4239)
+                                                  : Colors.red,
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Image.asset(
+                                              'assets/check2.png',
+                                              width: 18,
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Text(
+                                              isOpen ? "În serviciu" : "Închis",
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 30),
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              // Changed to spaceEvenly for better spacing
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4.0,
+                                    ), // Add spacing
+                                    child: _buildStat(
+                                      unreadCount: _totalUnreadCount,
+                                      offeredServicesCount,
+                                      "Servicii",
+                                      "assets/chat22.png",
+                                      Colors.blue,
+                                      () {
+                                        ///here
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) =>
+                                                    ConversationListScreen(),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4.0,
+                                    ),
+                                    child: _buildStat(
+                                      completedRequests,
+                                      "Finalizate",
+                                      "assets/check3.png",
+                                      Colors.green,
+                                      () {
+                                        print("Finalizate apăsat!");
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4.0,
+                                    ),
+                                    child: _buildStat(
+                                      averageRating,
+                                      "Evaluare",
+                                      "assets/rating4.png",
+                                      Colors.orange,
+                                      () {
+                                        print("Evaluare apăsat!");
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) => ReviewScreen(
+                                                  supplierId: supplierID,
+                                                  hideReviewButton: true,
+                                                ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 60,
+                    // Quick Actions Card
+                    Positioned(
+                      top: MediaQuery.of(context).size.height * 0.40,
+                      // Adjusted for better visibility
+                      // top: MediaQuery.of(context).size.height * 0.45, // Adjusted for better visibility
                       left: 20,
                       right: 20,
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 10,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  print("SOS button tapped!");
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RequestsScreen(),
+                                    ),
+                                  );
+                                },
+                                splashColor: Colors.red.withOpacity(0.3),
+                                highlightColor: Colors.red.withOpacity(0.1),
+                                child: buildQuickAction(
+                                  "Alertă SOS",
+                                  "assets/ass2.png",
+                                  const Color(0xFFFEF2F2),
+                                  count: _pendingRequestCount,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  print("Serviciile mele tapped!");
+                                  // Add navigation or action for "Serviciile mele"
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => SupplierProfileScreen(
+                                            userId: supplierID,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                child: buildQuickAction(
+                                  "Serviciile mele",
+                                  "assets/ass1.png",
+                                  const Color(0xFFEFF6FF),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  showContactPopup(context);
+                                },
+                                child: buildQuickAction(
+                                  "Adaugă serviciu",
+                                  "assets/ass3.png",
+                                  const Color(0xFFF0FDF4),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
+                  ],
+                ),
+                SizedBox(height: 150),
+
+                Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Container(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Profile + Status
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundImage: NetworkImage(supplierPhotoUrl),
+                            Text(
+                              "Notificări",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Bună, $supplierFullName",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => NotificationScreen(),
                                   ),
-                                ),
-                                const SizedBox(height: 6),
-                              ],
+                                );
+                              },
+                              child: Text(
+                                "Vezi toate",
+                                style: TextStyle(color: Colors.blue, fontSize: 14),
+                              ),
                             ),
-                            const Spacer(),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                const SizedBox(height: 10),
-                                GestureDetector(
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        // Display notifications from API
+                        if (notifications.isNotEmpty)
+                          ...notifications
+                              .map<Widget>(
+                                (notification) => NotificationItemWidget(
+                                  notification: notification,
                                   onTap: () {
-                                    _showBusinessHoursDialog(context, businessHours, isOpen);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isOpen ? Color(0xFF1B4239) : Colors.red,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Image.asset(
-                                          'assets/check2.png',
-                                          width: 18,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Text(
-                                          isOpen ? "În serviciu" : "Închis",
-                                          style: const TextStyle(color: Colors.white),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 30),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Changed to spaceEvenly for better spacing
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4.0), // Add spacing
-                                child: _buildStat(
-                                  unreadCount: _totalUnreadCount,                                  offeredServicesCount,
-                                  "Servicii",
-                                  "assets/chat22.png",
-                                  Colors.blue,
-                                      () {
-                                    ///here
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => ConversationListScreen()),
-                                        );
-
-
-                                  },
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                child: _buildStat(
-                                  completedRequests,
-                                  "Finalizate",
-                                  "assets/check3.png",
-                                  Colors.green,
-                                      () {
-                                    print("Finalizate apăsat!");
-                                  },
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                child: _buildStat(
-                                  averageRating,
-                                  "Evaluare",
-                                  "assets/rating4.png",
-                                  Colors.orange,
-                                      () {
-                                    print("Evaluare apăsat!");
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => ReviewScreen(supplierId:supplierID , hideReviewButton: true,)),
+                                    _markNotificationAsRead(
+                                      notification["notification_id"],
                                     );
-
                                   },
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Quick Actions Card
-                Positioned(
-                  top: MediaQuery.of(context).size.height * 0.40, // Adjusted for better visibility
-                  // top: MediaQuery.of(context).size.height * 0.45, // Adjusted for better visibility
-                  left: 20,
-                  right: 20,
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              print("SOS button tapped!");
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => RequestsScreen()),
-                              );
-                            },
-                            splashColor: Colors.red.withOpacity(0.3),
-                            highlightColor: Colors.red.withOpacity(0.1),
-                            child: buildQuickAction(
-                              "Alertă SOS",
-                              "assets/ass2.png",
-                              const Color(0xFFFEF2F2),
-                              count: _pendingRequestCount
-                            ),
+                              )
+                              .toList()
+                        else
+                          Text(
+                            "Nu există notificări",
+                            style: TextStyle(color: Colors.grey),
                           ),
-                        ),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              print("Serviciile mele tapped!");
-                              // Add navigation or action for "Serviciile mele"
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        SupplierProfileScreen(userId: supplierID)),
-                              );
-                            },
-                            child: buildQuickAction(
-                              "Serviciile mele",
-                              "assets/ass1.png",
-                              const Color(0xFFEFF6FF),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              showContactPopup(context);
-
-                            },
-                            child: buildQuickAction(
-                              "Adaugă serviciu",
-                              "assets/ass3.png",
-                              const Color(0xFFF0FDF4),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 150),
-
-            Padding(
-              padding: const EdgeInsets.all(18.0),
-              child: Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children:   [
-                        Text(
-                          "Notificări",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        InkWell(
-                          onTap: (){
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => NotificationScreen()),
-                            );
-                          },
-                          child: Text(
-                            "Vezi toate",
-                            style: TextStyle(color: Colors.blue, fontSize: 14),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    // Display notifications from API
-                    if (notifications.isNotEmpty)
-                      ...notifications
-                          .map<Widget>(
-                            (notification) => NotificationItemWidget(
-                              notification: notification,
-                              onTap: () {
-                                _markNotificationAsRead(notification["notification_id"]);
-
-
-
-                              },
-                            ),
-                          )
-                          .toList()
-                    else
-                      Text(
-                        "Nu există notificări",
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-
-
-
-  void _showBusinessHoursDialog(BuildContext context, Map<String, dynamic> businessHours, bool isOpen) {
+  void _showBusinessHoursDialog(
+    BuildContext context,
+    Map<String, dynamic> businessHours,
+    bool isOpen,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -635,7 +625,10 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
                       ),
                       child: Text(
                         "Închide",
@@ -655,7 +648,6 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       },
     );
   }
-
 
   List<Widget> _buildBusinessHoursList(Map<String, dynamic> businessHours) {
     final days = [
@@ -697,22 +689,21 @@ class _supplier_home_pageState extends State<supplier_home_page> {
             ),
             Text(
               isClosed ? 'Închis' : '$openTime - $closeTime',
-              style: TextStyle(
-                color: isClosed ? Colors.red : Colors.green,
-              ),
+              style: TextStyle(color: isClosed ? Colors.red : Colors.green),
             ),
           ],
         ),
       );
     }).toList();
   }
+
   // Quick Action Widget with container background + rounded border
   Widget buildQuickAction(
-      String title,
-      String assetImagePath,
-      Color containerBg, {
-        int count = 0, // Add optional count parameter
-      }) {
+    String title,
+    String assetImagePath,
+    Color containerBg, {
+    int count = 0, // Add optional count parameter
+  }) {
     return Padding(
       padding: const EdgeInsets.only(left: 4.0),
       child: Container(
@@ -733,8 +724,8 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                 // Red bubble badge at top left of image
                 if (count > 0)
                   Positioned(
-                    top: -4,    // Position above the image slightly
-                    left: -4,   // Position left of the image slightly
+                    top: -4, // Position above the image slightly
+                    left: -4, // Position left of the image slightly
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
@@ -820,9 +811,6 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     }
   }
 
-
-
-
   void showContactPopup(BuildContext context) {
     final String email = 'support@fixcars.com';
     final String phone = '+40 721 123 456';
@@ -886,10 +874,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                 const Text(
                   'Pentru a adăuga servicii noi, vă rugăm să ne contactați:',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black54,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
                 ),
 
                 const SizedBox(height: 24),
@@ -909,7 +894,9 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                   icon: Icons.phone,
                   label: 'Telefon',
                   value: phone,
-                  onTap: () => _copyToClipboard(context, phone, 'Număr de telefon'),
+                  onTap:
+                      () =>
+                          _copyToClipboard(context, phone, 'Număr de telefon'),
                 ),
 
                 const SizedBox(height: 24),
@@ -973,10 +960,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                 children: [
                   Text(
                     label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -993,11 +977,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
 
             const SizedBox(width: 8),
 
-            Icon(
-              Icons.content_copy,
-              size: 18,
-              color: Colors.grey.shade500,
-            ),
+            Icon(Icons.content_copy, size: 18, color: Colors.grey.shade500),
           ],
         ),
       ),
@@ -1016,8 +996,4 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       ),
     );
   }
-
-
 }
-
-

@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fixcars/client/screens/client_home_page.dart';
+import 'package:fixcars/shared/screens/Server_down_screen.dart';
 import 'package:fixcars/shared/screens/global_keys.dart';
+import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
 import 'package:fixcars/shared/services/OneSignalService.dart';
 import 'package:fixcars/shared/services/api_service.dart';
 import 'package:fixcars/shared/services/firebase_chat_service.dart';
@@ -63,7 +65,7 @@ class MyApp extends StatelessWidget {
       // home: SupplierSignupScreen(),
       home:
           isAuthenticated
-              ?  HomePageRedirector()
+              ? HomePageRedirector()
               : into_screen(),
     );
   }

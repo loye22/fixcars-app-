@@ -511,5 +511,76 @@ class ApiService {
       throw Exception('Error fetching user info: $e');
     }
   }
+
+
+
+  // Future<bool> isServerReachable() async {
+  //   try {
+  //     print("this is isServerReachable()  start}" );
+  //
+  //     // Use a simple endpoint that should always be available
+  //     final response = await http.get(
+  //       Uri.parse('$_baseUrl/health/'), // You'll need to create this endpoint
+  //       headers: {'Content-Type': 'application/json'},
+  //     ).timeout(const Duration(seconds: 5));
+  //
+  //     print("this is isServerReachable() funtion  ${response.body}" );
+  //     // Consider server reachable if we get any 2xx or 3xx response
+  //     return response.statusCode >= 200 && response.statusCode < 400;
+  //   } on SocketException {
+  //     // No internet connection
+  //     return false;
+  //   } on TimeoutException {
+  //     // Server didn't respond in time
+  //     return false;
+  //   } on HttpException {
+  //     // HTTP error
+  //     return false;
+  //   } catch (e) {
+  //     print('Server health check error: $e');
+  //     return false;
+  //   }
+  // }
+
+  Future<bool> isServerReachable() async {
+    try {
+      print("Checking server reachability...");
+      print("Base URL: $_baseUrl");
+
+      // Create a custom client with better timeout handling
+      final client = http.Client();
+
+      // Use a simple endpoint that should always be available
+      final response = await client.get(
+        Uri.parse('$_baseUrl/health/'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 5), onTimeout: () {
+        print("Server request timed out - server is likely down");
+        return http.Response('Timeout', 408); // Return a custom response
+      });
+
+      print("Server response status: ${response.statusCode}");
+
+      // Consider server reachable if we get any 2xx or 3xx response
+      final isReachable = response.statusCode >= 200 && response.statusCode < 400;
+      print("Server reachable: $isReachable");
+
+      client.close(); // Always close the client
+      return isReachable;
+
+    } on SocketException catch (e) {
+      print("SocketException - No connection to server: $e");
+      return false;
+    } on TimeoutException catch (e) {
+      print("TimeoutException - Server didn't respond in time: $e");
+      return false;
+    } on HttpException catch (e) {
+      print("HttpException - HTTP error: $e");
+      return false;
+    } catch (e) {
+      print('Unexpected error in server health check: $e');
+      return false;
+    }
+  }
 }
 
