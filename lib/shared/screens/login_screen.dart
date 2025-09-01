@@ -1,5 +1,6 @@
 import 'package:fixcars/shared/screens/Server_down_screen.dart';
 import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
+import 'package:fixcars/shared/screens/rest_password_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../services/api_service.dart';
@@ -238,7 +239,12 @@ class _login_screenState extends State<login_screen> with SingleTickerProviderSt
                             Align(
                               alignment: Alignment.center,
                               child: TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => ResetPasswordScreen()),
+                                  );
+                                },
                                 child: Text('Ai uitat parola ?', style: TextStyle(color: Color(0xFF808080))),
                               ),
                             ),

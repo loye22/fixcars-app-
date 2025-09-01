@@ -11,8 +11,8 @@ import 'package:image_picker/image_picker.dart';
 class ApiService {
   // static const String _baseUrl = 'http://10.0.2.2:8000/api'; // Django backend URL
   // static const String _baseMediaUrl = 'http://10.0.2.2:8000/media/'; // Django backend URL
-  static const String _baseUrl = 'http://192.168.1.129:8000/api'; // Django backend URL
-  static const String _baseMediaUrl = 'http://192.168.1.129:8000/media/'; // Django backend URL
+  static const String _baseUrl = 'http://192.168.1.130:8000/api'; // Django backend URL
+  static const String _baseMediaUrl = 'http://192.168.1.130:8000/media/'; // Django backend URL
 
 
 

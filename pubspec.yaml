@@ -53,6 +53,7 @@ dependencies:
   extended_image: ^10.0.1
   latlong2: ^0.9.1
   connectivity_plus: ^6.1.5
+  fluttertoast: ^8.2.12
 
 dev_dependencies:
   flutter_test:
