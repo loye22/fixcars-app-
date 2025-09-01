@@ -2,6 +2,8 @@ import 'package:fixcars/shared/screens/Server_down_screen.dart';
 import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
 import 'package:fixcars/shared/services/api_service.dart';
 import 'package:flutter/material.dart';
+import '../../shared/services/NotificationService.dart';
+import '../../shared/services/firebase_chat_service.dart';
 import 'AutocolantScreen.dart';
 
 import 'DetailingScreen.dart';
@@ -23,6 +25,9 @@ class client_home_page extends StatefulWidget {
 
 class _client_home_pageState extends State<client_home_page> {
   int _currentIndex = 0;
+  bool _hasUnreadNotifications = false; // Add this to track notification status
+  final NotificationService _notificationService = NotificationService(); // Initialize service
+  final FirebaseChatService _chatService = FirebaseChatService(); // Add this
 
   // Screens for each tab
   final List<Widget> _screens = [
@@ -36,6 +41,33 @@ class _client_home_pageState extends State<client_home_page> {
     ConversationListScreen(),
   ];
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _initializeServices();
+  }
+
+  Future<void> _initializeServices() async {
+    try {
+      await _chatService.initializeFirebase(); // Initialize Firebase for chat
+      _fetchNotificationStatus();
+    } catch (e) {
+      print('Error initializing services: $e');
+    }
+  }
+
+  Future<void> _fetchNotificationStatus() async {
+    try {
+      bool hasUnread = await _notificationService.hasUnreadNotifications();
+      setState(() {
+        _hasUnreadNotifications = hasUnread;
+      });
+      print("notifcation $_hasUnreadNotifications");
+    } catch (e) {
+      print('Error fetching notification status: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return InternetConnectivityScreen(
@@ -105,6 +137,7 @@ class _client_home_pageState extends State<client_home_page> {
               icon: Stack(
                 children: [
                   Image.asset('assets/bell.png', width: 24),
+                  if (_hasUnreadNotifications) // Conditionally show red dot
                   Positioned(
                     right: 0,
                     child: Container(
@@ -121,6 +154,7 @@ class _client_home_pageState extends State<client_home_page> {
               activeIcon: Stack(
                 children: [
                   Image.asset('assets/bell.png', width: 24),
+                  if (_hasUnreadNotifications) // Conditionally show red dot
                   Positioned(
                     right: 0,
                     child: Container(
@@ -137,40 +171,91 @@ class _client_home_pageState extends State<client_home_page> {
               label: 'Notificări',
             ),
             BottomNavigationBarItem(
-              icon: Stack(
-                children: [
-                  Image.asset('assets/chat4.png', width: 24),
-                  Positioned(
-                    right: 0,
-                    child: Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                  )
-                ],
+              icon: StreamBuilder<int>(
+                stream: _chatService.getTotalUnreadMessagesStream(),
+                initialData: 0,
+                builder: (context, snapshot) {
+                  bool hasUnreadMessages = snapshot.hasData && snapshot.data! > 0;
+                  return Stack(
+                    children: [
+                      Image.asset('assets/chat4.png', width: 24),
+                      if (hasUnreadMessages)
+                        Positioned(
+                          right: 0,
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
-              activeIcon: Stack(
-                children: [
-                  Image.asset('assets/chat4.png', width: 24),
-                  Positioned(
-                    right: 0,
-                    child: Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                  )
-                ],
+              activeIcon: StreamBuilder<int>(
+                stream: _chatService.getTotalUnreadMessagesStream(),
+                initialData: 0,
+                builder: (context, snapshot) {
+                  bool hasUnreadMessages = snapshot.hasData && snapshot.data! > 0;
+                  return Stack(
+                    children: [
+                      Image.asset('assets/chat4.png', width: 24),
+                      if (hasUnreadMessages)
+                        Positioned(
+                          right: 0,
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
               label: 'Mesaje',
             ),
+            // BottomNavigationBarItem(
+            //   icon: Stack(
+            //     children: [
+            //       Image.asset('assets/chat4.png', width: 24),
+            //       Positioned(
+            //         right: 0,
+            //         child: Container(
+            //           width: 10,
+            //           height: 10,
+            //           decoration: BoxDecoration(
+            //             color: Colors.green,
+            //             borderRadius: BorderRadius.circular(5),
+            //           ),
+            //         ),
+            //       )
+            //     ],
+            //   ),
+            //   activeIcon: Stack(
+            //     children: [
+            //       Image.asset('assets/chat4.png', width: 24),
+            //       Positioned(
+            //         right: 0,
+            //         child: Container(
+            //           width: 10,
+            //           height: 10,
+            //           decoration: BoxDecoration(
+            //             color: Colors.green,
+            //             borderRadius: BorderRadius.circular(5),
+            //           ),
+            //         ),
+            //       )
+            //     ],
+            //   ),
+            //   label: 'Mesaje',
+            // ),
           ],
         ),
       ),
