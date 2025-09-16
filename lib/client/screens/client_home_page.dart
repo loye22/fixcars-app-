@@ -74,6 +74,7 @@ class _client_home_pageState extends State<client_home_page> {
       child: ServerDownWrapper(
         apiService:ApiService() ,
         child: Scaffold(
+
           appBar: _currentIndex == 0
               ? AppBar(
             title: Center(
@@ -85,7 +86,7 @@ class _client_home_pageState extends State<client_home_page> {
             backgroundColor: Color(0xFF4B5563),
           )
               : null,
-          backgroundColor: Color(0xFFFFFFFF),
+          backgroundColor: /*Colors.black*/ Color(0xFFFFFFFF),
           body: _screens[_currentIndex],
           bottomNavigationBar: _buildBottomNavBar(),
         ),
@@ -120,7 +121,7 @@ class _client_home_pageState extends State<client_home_page> {
               _currentIndex = index;
             });
           },
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.white ,//Color(0xFF4B5563),
           selectedItemColor: Color(0xFF4B5563),
           unselectedItemColor: Color(0xFF808080),
           selectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
@@ -368,14 +369,12 @@ class ServiceCard extends StatelessWidget {
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),                ),
                 SizedBox(height: 5),
                 Text(
                   subtitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey),                ),
               ],
             ),
           ),
