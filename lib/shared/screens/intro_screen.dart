@@ -49,13 +49,27 @@ class _into_screenState extends State<into_screen> {
             Expanded(child: SizedBox(height: 10)),
             Card(
               elevation: 5,
-              color: Colors.white,
+              color: Colors.black,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Image.asset('assets/logo.png', height: 100),
-                    Text('Workshop', style: TextStyle(fontSize: 19)),
+                    Container(
+                      // decoration: BoxDecoration(
+                      //     border: Border.all(color: Colors.red)
+                      // ),
+                      child: SizedBox(
+                        height: 250,
+                        child: Image.asset(
+                          'assets/logos/introo.png',
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+
+                  //  Text('Fixcars', style: TextStyle(fontSize: 19 , color: Colors.white)),
                   ],
                 ),
               ),
