@@ -1,0 +1,8 @@
+flutter_launcher_icons:
+  image_path: "assets/logos/t3.png"
+  android: "launcher_icon"
+  min_sdk_android: 21
+  adaptive_icon_background: "#000000" # Solid background color (e.g., white)
+  adaptive_icon_foreground: "assets/logos/t3.png" # Foreground image
+  ios: true
+  remove_alpha_ios: true
