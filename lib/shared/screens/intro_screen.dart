@@ -1,8 +1,321 @@
 import 'package:fixcars/shared/screens/start_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:flutter/services.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 
+
+class TermsAgreementScreen extends StatefulWidget {
+  @override
+  _TermsAgreementScreenState createState() => _TermsAgreementScreenState();
+}
+
+class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
+  bool _isAgreed = false;
+
+  void _showPDF(String pdfPath, String title) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PDFViewerScreen(
+          pdfPath: pdfPath,
+          title: title,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Logo
+                    Container(
+                      height: 120,
+                      child: Image.asset(
+                        'assets/logos/introo.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    SizedBox(height: 40),
+                    
+                    // Title
+                    Text(
+                      'Bun venit la FixCars!',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 20),
+                    
+                    // Subtitle
+                    Text(
+                      'Pentru a continua, vă rugăm să citiți și să acceptați următoarele documente:',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white70,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 30),
+                    
+                    // Agreement text with clickable links
+                    Container(
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[900],
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.grey[700]!),
+                      ),
+                      child: RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            height: 1.5,
+                          ),
+                          children: [
+                            TextSpan(text: 'Sunt de acord cu '),
+                            WidgetSpan(
+                              child: GestureDetector(
+                                onTap: () => _showPDF('assets/docs/terms_and_conditions_ro.pdf', 'Termeni și Condiții'),
+                                child: Text(
+                                  'Termenii și Condițiile',
+                                  style: TextStyle(
+                                    color: Colors.blue[300],
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TextSpan(text: ', '),
+                            WidgetSpan(
+                              child: GestureDetector(
+                                onTap: () => _showPDF('assets/docs/privacy_policy_ro.pdf', 'Politica de Confidențialitate'),
+                                child: Text(
+                                  'Politica de Confidențialitate',
+                                  style: TextStyle(
+                                    color: Colors.blue[300],
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TextSpan(text: ' și '),
+                            WidgetSpan(
+                              child: GestureDetector(
+                                onTap: () => _showPDF('assets/docs/fixcars_community_guidelines_ro.pdf', 'Ghidul Comunității'),
+                                child: Text(
+                                  'Ghidul Comunității',
+                                  style: TextStyle(
+                                    color: Colors.blue[300],
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TextSpan(text: ' ale aplicației FixCars.'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    
+                    // Checkbox
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Checkbox(
+                          value: _isAgreed,
+                          onChanged: (value) {
+                            setState(() {
+                              _isAgreed = value ?? false;
+                            });
+                          },
+                          activeColor: Colors.blue,
+                        ),
+                        Expanded(
+                          child: Text(
+                            'Am citit și accept termenii de mai sus',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Continue button
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _isAgreed
+                      ? () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => OnboardingScreen1()),
+                          );
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _isAgreed ? Colors.blue : Colors.grey,
+                    foregroundColor: Colors.white,
+                    textStyle: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  child: Text('CONTINUĂ'),
+                ),
+              ),
+              SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PDFViewerScreen extends StatefulWidget {
+  final String pdfPath;
+  final String title;
+
+  const PDFViewerScreen({
+    Key? key,
+    required this.pdfPath,
+    required this.title,
+  }) : super(key: key);
+
+  @override
+  _PDFViewerScreenState createState() => _PDFViewerScreenState();
+}
+
+class _PDFViewerScreenState extends State<PDFViewerScreen> {
+  String? localPath;
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPDF();
+  }
+
+  Future<void> _loadPDF() async {
+    try {
+      // Load the asset as bytes
+      final ByteData data = await rootBundle.load(widget.pdfPath);
+      
+      // Get the temporary directory
+      final Directory tempDir = await getTemporaryDirectory();
+      final String tempPath = '${tempDir.path}/${widget.title.replaceAll(' ', '_')}.pdf';
+      
+      // Write the bytes to a temporary file
+      final File tempFile = File(tempPath);
+      await tempFile.writeAsBytes(data.buffer.asUint8List());
+      
+      setState(() {
+        localPath = tempPath;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Error loading PDF: $e';
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+      ),
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error, size: 64, color: Colors.red),
+                      SizedBox(height: 16),
+                      Text(
+                        errorMessage!,
+                        style: TextStyle(fontSize: 16),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('Înapoi'),
+                      ),
+                    ],
+                  ),
+                )
+              : localPath != null
+                  ? PDFView(
+                      filePath: localPath!,
+                      enableSwipe: true,
+                      swipeHorizontal: false,
+                      autoSpacing: false,
+                      pageSnap: true,
+                      pageFling: true,
+                      onRender: (pages) {
+                        // PDF loaded
+                      },
+                      onViewCreated: (PDFViewController controller) {
+                        // PDF view created
+                      },
+                      onPageChanged: (page, total) {
+                        // Page changed
+                      },
+                      onError: (error) {
+                        print('PDF Error: $error');
+                        setState(() {
+                          errorMessage = 'Error displaying PDF: $error';
+                        });
+                      },
+                    )
+                  : Center(
+                      child: Text('PDF not found'),
+                    ),
+    );
+  }
+}
 
 class into_screen extends StatefulWidget {
   @override
@@ -25,7 +338,7 @@ class _into_screenState extends State<into_screen> {
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
-              OnboardingScreen1(),
+              TermsAgreementScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(
               opacity: animation,

@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'dart:io';
 import 'package:fixcars/shared/services/OneSignalService.dart';
@@ -11,8 +12,12 @@ import 'package:image_picker/image_picker.dart';
 class ApiService {
   // static const String _baseUrl = 'http://10.0.2.2:8000/api'; // Django backend URL
   // static const String _baseMediaUrl = 'http://10.0.2.2:8000/media/'; // Django backend URL
-  static const String _baseUrl = 'http://192.168.1.129:8000/api'; // Django backend URL
-  static const String _baseMediaUrl = 'http://192.168.1.129:8000/media/'; // Django backend URL
+
+  // static const String _baseUrl = 'http://192.168.1.129:8000/api'; // Django backend URL
+  // static const String _baseMediaUrl = 'http://192.168.1.129:8000/media/'; // Django backend URL
+
+  static const String _baseUrl = 'http://157.180.127.178/api'; // Django backend URL
+  static const String _baseMediaUrl = 'http://157.180.127.178/media/'; // Django backend URL
 
 
 
@@ -499,7 +504,7 @@ class ApiService {
     }
   }
 
-/// refactor this asn place it in the firebase servisesce
+  /// refactor this asn place it in the firebase servisesce
   Future<Map<String, dynamic>> getUserInfo(String userId) async {
     try {
       final response = await authenticatedGet('$_baseUrl/user/$userId/');
@@ -583,4 +588,3 @@ class ApiService {
     }
   }
 }
-

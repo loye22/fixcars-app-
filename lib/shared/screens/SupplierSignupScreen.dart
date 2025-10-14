@@ -199,16 +199,16 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
 
     // Perform supplier signup with trimmed text fields
     final signupResult = await ApiService().supplierSignup(
-      fullName: _businessNameController.text.trim(),
-      email: _emailController.text.trim(),
-      password: _passwordController.text.trim(),
-      phone: _phoneController.text.trim(),
-      photoUrl: profilePhotoUrl,
-      coverPhotosUrls: coverPhotoUrls,
-      latitude: latitude,
-      longitude: longitude,
-      bio: _aboutBusinessController.text.trim(),
-      address: _addressController.text.trim()
+        fullName: _businessNameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        phone: _phoneController.text.trim(),
+        photoUrl: profilePhotoUrl,
+        coverPhotosUrls: coverPhotoUrls,
+        latitude: latitude,
+        longitude: longitude,
+        bio: _aboutBusinessController.text.trim(),
+        address: _addressController.text.trim()
     );
 
     setState(() {
@@ -684,7 +684,7 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
                                             child: Column(
                                               mainAxisAlignment: MainAxisAlignment.center,
                                               children: [
-                                               Image.asset('assets/img.png' , width:  30 ,),
+                                                Image.asset('assets/img.png' , width:  30 ,),
                                                 SizedBox(height: 4),
                                                 Text(
                                                   'Adaugă fotografie',
