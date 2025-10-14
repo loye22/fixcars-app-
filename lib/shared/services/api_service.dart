@@ -184,7 +184,7 @@ class ApiService {
           'email': email,
           'password': password,
           'phone': phone,
-          'photo_url': _baseMediaUrl + photoUrl,
+          'photo_url': photoUrl,
         }),
       ).timeout(Duration(seconds: 10));
 
@@ -475,8 +475,8 @@ class ApiService {
           'email': email,
           'password': password,
           'phone': phone,
-          'photo_url': _baseMediaUrl + photoUrl,
-          'cover_photos_urls': coverPhotosUrls.map((photo) => _baseMediaUrl + photo).toList(),
+          'photo_url': photoUrl,
+          'cover_photos_urls': coverPhotosUrls,
           'latitude': latitude,
           'longitude': longitude,
           'bio': bio,

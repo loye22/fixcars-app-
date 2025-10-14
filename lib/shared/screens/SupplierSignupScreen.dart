@@ -179,6 +179,10 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
       );
       return;
     }
+    print("===========================================================");
+    print("profileUploadResult");
+    print(profileUploadResult);
+    print(profileUploadResult['data']['file_url']);
     final profilePhotoUrl = profileUploadResult['data']['file_url'];
 
     // Upload cover photos
