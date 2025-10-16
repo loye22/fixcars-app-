@@ -157,7 +157,6 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
       );
       latitude = position.latitude;
       longitude = position.longitude;
-
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -168,51 +167,70 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
       return;
     }
 
-    // Upload profile image
-    final profileUploadResult = await ApiService().uploadFile(_profileImage!);
-    if (!profileUploadResult['success']) {
-      setState(() {
-        _isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Eroare la încărcarea imaginii de profil: ${profileUploadResult['error']}')),
-      );
-      return;
-    }
-    print("===========================================================");
-    print("profileUploadResult");
-    print(profileUploadResult);
-    print(profileUploadResult['data']['file_url']);
-    final profilePhotoUrl = profileUploadResult['data']['file_url'];
+    print("========================DEBUG=============================");
 
-    // Upload cover photos
-    List<String> coverPhotoUrls = [];
-    for (var photo in _coverPhotos) {
-      final uploadResult = await ApiService().uploadFile(photo);
-      if (!uploadResult['success']) {
+    // Upload profile image
+    String? profilePhotoUrl;
+    if (_profileImage != null) {
+      final profileUploadResult = await ApiService().uploadFile(_profileImage!);
+      print("Profile Upload Result: $profileUploadResult");
+      if (!profileUploadResult['success']) {
         setState(() {
           _isLoading = false;
+          _profileImageError = 'Eroare la încărcarea imaginii de profil: ${profileUploadResult['error']}';
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Eroare la încărcarea fotografiilor: ${uploadResult['error']}')),
+          SnackBar(content: Text('Eroare la încărcarea imaginii de profil: ${profileUploadResult['error']}')),
         );
         return;
       }
-      coverPhotoUrls.add(uploadResult['data']['file_url']);
+      profilePhotoUrl = profileUploadResult['data']['file_url'];
+    }
+
+    // Upload cover photos (continue even if some fail)
+    List<String> coverPhotoUrls = [];
+    List<String> failedUploads = [];
+    for (var photo in _coverPhotos) {
+      final uploadResult = await ApiService().uploadFile(photo);
+      print("Cover Photo Upload Result: $uploadResult");
+      if (uploadResult['success']) {
+        coverPhotoUrls.add(uploadResult['data']['file_url']);
+      } else {
+        failedUploads.add(uploadResult['error']);
+      }
+    }
+
+    // If some cover photos failed, inform the user but proceed
+    if (failedUploads.isNotEmpty) {
+      setState(() {
+        _coverPhotosError = 'Unele fotografii nu au fost încărcate: ${failedUploads.join(", ")}';
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unele fotografii nu au fost încărcate. Continuăm cu imaginile încărcate.')),
+      );
+    }
+
+    // Proceed with signup even if no cover photos were uploaded successfully
+    if (profilePhotoUrl == null) {
+      setState(() {
+        _isLoading = false;
+        _profileImageError = 'Imaginea de profil este obligatorie';
+      });
+      return;
     }
 
     // Perform supplier signup with trimmed text fields
     final signupResult = await ApiService().supplierSignup(
-        fullName: _businessNameController.text.trim(),
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-        phone: _phoneController.text.trim(),
-        photoUrl: profilePhotoUrl,
-        coverPhotosUrls: coverPhotoUrls,
-        latitude: latitude,
-        longitude: longitude,
-        bio: _aboutBusinessController.text.trim(),
-        address: _addressController.text.trim()
+      fullName: _businessNameController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+      phone: _phoneController.text.trim(),
+      photoUrl: profilePhotoUrl,
+      coverPhotosUrls: coverPhotoUrls,
+      latitude: latitude,
+      longitude: longitude,
+      bio: _aboutBusinessController.text.trim(),
+      address: _addressController.text.trim(),
     );
 
     setState(() {
@@ -233,6 +251,116 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
       );
     }
   }
+  // Future<void> _onSubmit() async {
+  //   if (!_validateForm()) {
+  //     return;
+  //   }
+  //
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+  //
+  //   // Get current location - REQUIRED
+  //   double latitude;
+  //   double longitude;
+  //
+  //   try {
+  //     bool hasPermission = await _checkLocationPermission();
+  //     if (!hasPermission) {
+  //       setState(() {
+  //         _isLoading = false;
+  //       });
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Permisiunea de localizare este obligatorie pentru înregistrare.')),
+  //       );
+  //       return;
+  //     }
+  //
+  //     Position position = await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high,
+  //     );
+  //     latitude = position.latitude;
+  //     longitude = position.longitude;
+  //
+  //   } catch (e) {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Eroare la obținerea locației: $e. Vă rugăm să încercați din nou.')),
+  //     );
+  //     return;
+  //   }
+  //
+  //   print("========================DEBUG=============================");
+  //
+  //   // Upload profile image
+  //   final profileUploadResult = await ApiService().uploadFile(_profileImage!);
+  //   if (!profileUploadResult['success']) {
+  //
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Eroare la încărcarea imaginii de profil: ${profileUploadResult['error']}')),
+  //     );
+  //     return;
+  //   }
+  //
+  //   print(profileUploadResult['data']['file_url']);
+  //   final profilePhotoUrl = profileUploadResult['data']['file_url'];
+  //
+  //   // Upload cover photos
+  //   List<String> coverPhotoUrls = [];
+  //   for (var photo in _coverPhotos) {
+  //     final uploadResult = await ApiService().uploadFile(photo);
+  //     if (!uploadResult['success']) {
+  //       setState(() {
+  //         _isLoading = false;
+  //       });
+  //       print("==============================Error ======================================");
+  //       print(uploadResult);
+  //
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Eroare la încărcarea fotografiilor: ${uploadResult['error']}')),
+  //       );
+  //       return;
+  //     }
+  //     coverPhotoUrls.add(uploadResult['data']['file_url']);
+  //   }
+  //
+  //   // Perform supplier signup with trimmed text fields
+  //   final signupResult = await ApiService().supplierSignup(
+  //       fullName: _businessNameController.text.trim(),
+  //       email: _emailController.text.trim(),
+  //       password: _passwordController.text.trim(),
+  //       phone: _phoneController.text.trim(),
+  //       photoUrl: profilePhotoUrl,
+  //       coverPhotosUrls: coverPhotoUrls,
+  //       latitude: latitude,
+  //       longitude: longitude,
+  //       bio: _aboutBusinessController.text.trim(),
+  //       address: _addressController.text.trim()
+  //   );
+  //
+  //   setState(() {
+  //     _isLoading = false;
+  //   });
+  //
+  //   if (signupResult['success'] || signupResult['data']?['user_id'] != null) {
+  //     setState(() {
+  //       _userId = signupResult['data']['user_id'];
+  //       _showOtpScreen = true;
+  //     });
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text(signupResult['data']['message'] ?? 'Vă rugăm să verificați OTP-ul.')),
+  //     );
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text(signupResult['error'] ?? 'Eroare la înregistrare')),
+  //     );
+  //   }
+  // }
 
 
   bool _validateForm() {

@@ -16,8 +16,8 @@ class ApiService {
   // static const String _baseUrl = 'http://192.168.1.129:8000/api'; // Django backend URL
   // static const String _baseMediaUrl = 'http://192.168.1.129:8000/media/'; // Django backend URL
 
-  static const String _baseUrl = 'http://157.180.127.178/api'; // Django backend URL
-  static const String _baseMediaUrl = 'http://157.180.127.178/media/'; // Django backend URL
+  static const String _baseUrl = 'https://www.app.fixcars.ro/api'; // Django backend URL
+  static const String _baseMediaUrl = 'https://www.app.fixcars.ro/media/'; // Django backend URL
 
 
 
@@ -208,36 +208,132 @@ class ApiService {
     }
   }
 
-  // File Upload API
+  // // File Upload API
+  // Future<Map<String, dynamic>> uploadFile(File file) async {
+  //   try {
+  //     var request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/upload-file/'));
+  //     request.files.add(
+  //       await http.MultipartFile.fromPath(
+  //         'file',
+  //         file.path,
+  //         contentType: MediaType('image', file.path.split('.').last),
+  //       ),
+  //     );
+  //     final streamedResponse = await request.send().timeout(Duration(seconds: 10));
+  //     final response = await http.Response.fromStream(streamedResponse);
+  //     final data = jsonDecode(response.body);
+  //
+  //     print("===========================================================");
+  //     print("profileUploadResult");
+  //     print(response);
+  //
+  //     if (response.statusCode == 201) {
+  //       return {'success': true, 'data': data};
+  //     }
+  //     return {
+  //       'success': false,
+  //       'error': '${data['error'] ?? data['message'] ?? 'Eroare necunoscută de la server'}. Răspuns server: ${response.body}'
+  //     };
+  //   } catch (e) {
+  //     return {
+  //       'success': false,
+  //       'error': e is SocketException
+  //           ? 'Fără conexiune la internet. Detalii: $e'
+  //           : e is TimeoutException
+  //           ? 'Cererea a expirat. Detalii: $e'
+  //           : 'Eroare de rețea: $e'
+  //     };
+  //   }
+  // }
+
   Future<Map<String, dynamic>> uploadFile(File file) async {
     try {
+      // Validate file existence
+      if (!file.existsSync()) {
+        return {
+          'success': false,
+          'error': 'Fișierul nu există: ${file.path}',
+        };
+      }
+
+      // Prepare the multipart request
       var request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/upload-file/'));
       request.files.add(
         await http.MultipartFile.fromPath(
           'file',
           file.path,
-          contentType: MediaType('image', file.path.split('.').last),
+          contentType: MediaType('image', file.path.split('.').last.toLowerCase()),
         ),
       );
-      final streamedResponse = await request.send().timeout(Duration(seconds: 10));
-      final response = await http.Response.fromStream(streamedResponse);
-      final data = jsonDecode(response.body);
 
-      if (response.statusCode == 201) {
-        return {'success': true, 'data': data};
+      // Add headers if needed (e.g., authentication)
+      request.headers['Accept'] = 'application/json';
+
+      // Send request with timeout
+      final streamedResponse = await request.send().timeout(Duration(seconds: 15));
+      final response = await http.Response.fromStream(streamedResponse);
+
+      // Log response for debugging
+      print("===========================================================");
+      print("uploadFile Response");
+      print("Status: ${response.statusCode}");
+      print("Headers: ${response.headers}");
+      print("Body: ${response.body.length > 1000 ? response.body.substring(0, 1000) : response.body}");
+      print("===========================================================");
+
+      // Check HTTP status code
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        // Verify content type
+        final contentType = response.headers['content-type'] ?? '';
+        if (!contentType.contains('application/json')) {
+          return {
+            'success': false,
+            'error': 'Răspunsul serverului nu este JSON. Content-Type: $contentType',
+            'responseBody': response.body,
+          };
+        }
+
+        try {
+          final data = jsonDecode(response.body);
+          return {'success': true, 'data': data};
+        } catch (e) {
+          return {
+            'success': false,
+            'error': 'Eroare la parsarea JSON: $e',
+            'responseBody': response.body,
+          };
+        }
+      } else {
+        // Handle non-201 status codes
+        String errorMessage = 'Eroare server: ${response.statusCode} ${response.reasonPhrase}';
+        try {
+          final data = jsonDecode(response.body);
+          errorMessage = data['error'] ?? data['message'] ?? errorMessage;
+        } catch (_) {
+          // Non-JSON response
+          errorMessage = 'Răspuns invalid de la server (nu este JSON): ${response.body}';
+        }
+        return {
+          'success': false,
+          'error': errorMessage,
+          'statusCode': response.statusCode,
+          'responseBody': response.body,
+        };
       }
+    } on SocketException catch (e) {
       return {
         'success': false,
-        'error': '${data['error'] ?? data['message'] ?? 'Eroare necunoscută de la server'}. Răspuns server: ${response.body}'
+        'error': 'Fără conexiune la internet. Detalii: $e',
+      };
+    } on TimeoutException catch (e) {
+      return {
+        'success': false,
+        'error': 'Cererea a expirat. Detalii: $e',
       };
     } catch (e) {
       return {
         'success': false,
-        'error': e is SocketException
-            ? 'Fără conexiune la internet. Detalii: $e'
-            : e is TimeoutException
-            ? 'Cererea a expirat. Detalii: $e'
-            : 'Eroare de rețea: $e'
+        'error': 'Eroare neașteptată: $e',
       };
     }
   }
