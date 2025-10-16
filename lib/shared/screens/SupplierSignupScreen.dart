@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:io';
 import 'package:pinput/pinput.dart';
+import '../services/ImageService.dart';
 import '../services/api_service.dart';
 import 'login_screen.dart';
 
@@ -67,22 +68,57 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
   Future<void> _pickProfileImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
     if (pickedFile != null) {
-      setState(() {
-        _profileImage = File(pickedFile.path);
-        _profileImageError = null;
-      });
+      final imageService = ImageService();
+      final compressedFile = await imageService.compressImage(File(pickedFile.path));
+      if (compressedFile != null) {
+        setState(() {
+          _profileImage = compressedFile;
+          _profileImageError = null;
+        });
+      } else {
+        setState(() {
+          _profileImageError = 'Eroare la compresia imaginii';
+        });
+      }
     }
   }
 
   Future<void> _pickCoverImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
     if (pickedFile != null && _coverPhotos.length < 5) {
-      setState(() {
-        _coverPhotos.add(File(pickedFile.path));
-        _coverPhotosError = null;
-      });
+      final imageService = ImageService();
+      final compressedFile = await imageService.compressImage(File(pickedFile.path));
+      if (compressedFile != null) {
+        setState(() {
+          _coverPhotos.add(compressedFile);
+          _coverPhotosError = null;
+        });
+      } else {
+        setState(() {
+          _coverPhotosError = 'Eroare la compresia imaginii';
+        });
+      }
     }
   }
+  // Future<void> _pickProfileImage(ImageSource source) async {
+  //   final pickedFile = await _picker.pickImage(source: source);
+  //   if (pickedFile != null) {
+  //     setState(() {
+  //       _profileImage = File(pickedFile.path);
+  //       _profileImageError = null;
+  //     });
+  //   }
+  // }
+  //
+  // Future<void> _pickCoverImage(ImageSource source) async {
+  //   final pickedFile = await _picker.pickImage(source: source);
+  //   if (pickedFile != null && _coverPhotos.length < 5) {
+  //     setState(() {
+  //       _coverPhotos.add(File(pickedFile.path));
+  //       _coverPhotosError = null;
+  //     });
+  //   }
+  // }
 
   void _removeProfileImage() {
     setState(() {
@@ -136,10 +172,9 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
       _isLoading = true;
     });
 
-    // Get current location - REQUIRED
+    // Get location
     double latitude;
     double longitude;
-
     try {
       bool hasPermission = await _checkLocationPermission();
       if (!hasPermission) {
@@ -147,11 +182,10 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
           _isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Permisiunea de localizare este obligatorie pentru înregistrare.')),
+          SnackBar(content: Text('Permisiunea de localizare este obligatorie.')),
         );
         return;
       }
-
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
@@ -162,17 +196,18 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Eroare la obținerea locației: $e. Vă rugăm să încercați din nou.')),
+        SnackBar(content: Text('Eroare la obținerea locației: $e')),
       );
       return;
     }
 
-    print("========================DEBUG=============================");
+    // Initialize ImageService
+    final imageService = ImageService();
 
     // Upload profile image
     String? profilePhotoUrl;
     if (_profileImage != null) {
-      final profileUploadResult = await ApiService().uploadFile(_profileImage!);
+      final profileUploadResult = await imageService.uploadFile(_profileImage!, ApiService.baseUrl);
       print("Profile Upload Result: $profileUploadResult");
       if (!profileUploadResult['success']) {
         setState(() {
@@ -187,11 +222,11 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
       profilePhotoUrl = profileUploadResult['data']['file_url'];
     }
 
-    // Upload cover photos (continue even if some fail)
+    // Upload cover photos (continue on failure)
     List<String> coverPhotoUrls = [];
     List<String> failedUploads = [];
     for (var photo in _coverPhotos) {
-      final uploadResult = await ApiService().uploadFile(photo);
+      final uploadResult = await imageService.uploadFile(photo, ApiService.baseUrl);
       print("Cover Photo Upload Result: $uploadResult");
       if (uploadResult['success']) {
         coverPhotoUrls.add(uploadResult['data']['file_url']);
@@ -200,7 +235,6 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
       }
     }
 
-    // If some cover photos failed, inform the user but proceed
     if (failedUploads.isNotEmpty) {
       setState(() {
         _coverPhotosError = 'Unele fotografii nu au fost încărcate: ${failedUploads.join(", ")}';
@@ -210,7 +244,6 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
       );
     }
 
-    // Proceed with signup even if no cover photos were uploaded successfully
     if (profilePhotoUrl == null) {
       setState(() {
         _isLoading = false;
@@ -219,7 +252,7 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
       return;
     }
 
-    // Perform supplier signup with trimmed text fields
+    // Perform signup
     final signupResult = await ApiService().supplierSignup(
       fullName: _businessNameController.text.trim(),
       email: _emailController.text.trim(),
@@ -281,7 +314,6 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
   //     );
   //     latitude = position.latitude;
   //     longitude = position.longitude;
-  //
   //   } catch (e) {
   //     setState(() {
   //       _isLoading = false;
@@ -295,52 +327,67 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
   //   print("========================DEBUG=============================");
   //
   //   // Upload profile image
-  //   final profileUploadResult = await ApiService().uploadFile(_profileImage!);
-  //   if (!profileUploadResult['success']) {
-  //
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Eroare la încărcarea imaginii de profil: ${profileUploadResult['error']}')),
-  //     );
-  //     return;
-  //   }
-  //
-  //   print(profileUploadResult['data']['file_url']);
-  //   final profilePhotoUrl = profileUploadResult['data']['file_url'];
-  //
-  //   // Upload cover photos
-  //   List<String> coverPhotoUrls = [];
-  //   for (var photo in _coverPhotos) {
-  //     final uploadResult = await ApiService().uploadFile(photo);
-  //     if (!uploadResult['success']) {
+  //   String? profilePhotoUrl;
+  //   if (_profileImage != null) {
+  //     final profileUploadResult = await ApiService().uploadFile(_profileImage!);
+  //     print("Profile Upload Result: $profileUploadResult");
+  //     if (!profileUploadResult['success']) {
   //       setState(() {
   //         _isLoading = false;
+  //         _profileImageError = 'Eroare la încărcarea imaginii de profil: ${profileUploadResult['error']}';
   //       });
-  //       print("==============================Error ======================================");
-  //       print(uploadResult);
-  //
   //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('Eroare la încărcarea fotografiilor: ${uploadResult['error']}')),
+  //         SnackBar(content: Text('Eroare la încărcarea imaginii de profil: ${profileUploadResult['error']}')),
   //       );
   //       return;
   //     }
-  //     coverPhotoUrls.add(uploadResult['data']['file_url']);
+  //     profilePhotoUrl = profileUploadResult['data']['file_url'];
+  //   }
+  //
+  //   // Upload cover photos (continue even if some fail)
+  //   List<String> coverPhotoUrls = [];
+  //   List<String> failedUploads = [];
+  //   for (var photo in _coverPhotos) {
+  //     final uploadResult = await ApiService().uploadFile(photo);
+  //     print("Cover Photo Upload Result: $uploadResult");
+  //     if (uploadResult['success']) {
+  //       coverPhotoUrls.add(uploadResult['data']['file_url']);
+  //     } else {
+  //       failedUploads.add(uploadResult['error']);
+  //     }
+  //   }
+  //
+  //   // If some cover photos failed, inform the user but proceed
+  //   if (failedUploads.isNotEmpty) {
+  //     setState(() {
+  //       _coverPhotosError = 'Unele fotografii nu au fost încărcate: ${failedUploads.join(", ")}';
+  //     });
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Unele fotografii nu au fost încărcate. Continuăm cu imaginile încărcate.')),
+  //     );
+  //   }
+  //
+  //   // Proceed with signup even if no cover photos were uploaded successfully
+  //   if (profilePhotoUrl == null) {
+  //     setState(() {
+  //       _isLoading = false;
+  //       _profileImageError = 'Imaginea de profil este obligatorie';
+  //     });
+  //     return;
   //   }
   //
   //   // Perform supplier signup with trimmed text fields
   //   final signupResult = await ApiService().supplierSignup(
-  //       fullName: _businessNameController.text.trim(),
-  //       email: _emailController.text.trim(),
-  //       password: _passwordController.text.trim(),
-  //       phone: _phoneController.text.trim(),
-  //       photoUrl: profilePhotoUrl,
-  //       coverPhotosUrls: coverPhotoUrls,
-  //       latitude: latitude,
-  //       longitude: longitude,
-  //       bio: _aboutBusinessController.text.trim(),
-  //       address: _addressController.text.trim()
+  //     fullName: _businessNameController.text.trim(),
+  //     email: _emailController.text.trim(),
+  //     password: _passwordController.text.trim(),
+  //     phone: _phoneController.text.trim(),
+  //     photoUrl: profilePhotoUrl,
+  //     coverPhotosUrls: coverPhotoUrls,
+  //     latitude: latitude,
+  //     longitude: longitude,
+  //     bio: _aboutBusinessController.text.trim(),
+  //     address: _addressController.text.trim(),
   //   );
   //
   //   setState(() {
@@ -361,6 +408,7 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
   //     );
   //   }
   // }
+
 
 
   bool _validateForm() {
