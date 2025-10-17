@@ -257,10 +257,11 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                       ),
-                                      onPressed: () => NavigationService.navigateTo(
+                                      onPressed: ()
+                                      => NavigationService.navigateTo(
                                         context: context,
-                                        latitude: double.tryParse(profileData!['services']['lat'].toString()) ?? 0.0,
-                                        longitude: double.tryParse(profileData!['services']['lng'].toString()) ?? 0.0,
+                                        latitude: double.tryParse(profileData!['userProfile']['latitude'].toString()) ?? 0.0,
+                                        longitude: double.tryParse(profileData!['userProfile']['longitude'].toString()) ?? 0.0,
                                         locationName: profileData?['userProfile']['business_address']?.toString(),
                                       ),
                                     ),

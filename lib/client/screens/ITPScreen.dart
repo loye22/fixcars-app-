@@ -507,11 +507,13 @@ class MechanicServicesList extends StatelessWidget {
 
     return Column(
       children: services.map((service) {
+        print("*************************");
+        print(service);
         return BusinessCardWidget(
           businessName: service['supplier_name'] ?? 'Unknown',
           rating: (service['review_score'] as num?)?.toDouble() ?? 0.0,
           reviewCount: service['total_reviews'] ?? 0,
-          distance: "${service['distance_km'] ?? 0.0} km",
+          distance: "${service['distance_km'] ?? 999.0} km",
           location: service['supplier_address'] ?? 'Unknown',
           isAvailable: service['is_open'] ?? false,
           profileUrl: service['supplier_photo'] ?? '',
