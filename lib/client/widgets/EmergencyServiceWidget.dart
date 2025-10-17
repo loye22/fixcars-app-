@@ -103,9 +103,11 @@ class EmergencyServiceCard extends StatelessWidget {
                     children: [
                       Icon(Icons.location_on, color: Colors.grey[600], size: 16),
                       const SizedBox(width: 4),
-                      Text(
-                        '$distance • $location',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                      Flexible(
+                        child: Text(
+                          '$distance • $location',
+                          style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                        ),
                       ),
                     ],
                   ),
