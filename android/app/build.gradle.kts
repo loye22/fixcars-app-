@@ -43,13 +43,6 @@ android {
         versionName = flutter.versionName
     }
 
-    buildTypes {
-        release {
-            // Use release signing config when key.properties is provided
-            signingConfig = if (keystoreProperties.isNotEmpty()) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
-        }
-    }
-
     signingConfigs {
         if (keystoreProperties.isNotEmpty()) {
             create("release") {
@@ -58,6 +51,13 @@ android {
                 keyAlias = keystoreProperties["keyAlias"] as String
                 keyPassword = keystoreProperties["keyPassword"] as String
             }
+        }
+    }
+
+    buildTypes {
+        release {
+            // Use release signing config when key.properties is provided
+            signingConfig = if (keystoreProperties.isNotEmpty()) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
         }
     }
 }
