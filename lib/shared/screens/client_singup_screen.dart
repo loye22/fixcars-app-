@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:pinput/pinput.dart';
 import '../services/api_service.dart';
+import '../services/ImageService.dart';
 import 'login_screen.dart';
 
 class client_singup_screen extends StatefulWidget {
@@ -44,10 +45,18 @@ class _client_singup_screenState extends State<client_singup_screen> {
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
     if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-        _validateForm();
-      });
+      final imageService = ImageService();
+      final compressedFile = await imageService.compressImage(File(pickedFile.path));
+      if (compressedFile != null) {
+        setState(() {
+          _selectedImage = compressedFile;
+          _validateForm();
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'Eroare la compresia imaginii';
+        });
+      }
     }
   }
 
@@ -107,8 +116,9 @@ class _client_singup_screenState extends State<client_singup_screen> {
       return;
     }
 
-    // Upload image
-    final uploadResult = await ApiService().uploadFile(_selectedImage!);
+    // Upload image using ImageService
+    final imageService = ImageService();
+    final uploadResult = await imageService.uploadFile(_selectedImage!, ApiService.baseUrl);
     if (!uploadResult['success']) {
       setState(() {
         _isLoading = false;
