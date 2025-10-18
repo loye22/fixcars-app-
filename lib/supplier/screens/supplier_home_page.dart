@@ -13,6 +13,7 @@ import 'package:fixcars/supplier/screens/waiting_review_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import '../../shared/screens/aboutUsScreen.dart';
 import '../../shared/services/OneSignalService.dart';
 import '../../shared/services/PendingCountRequestsService.dart';
 import '../../shared/services/api_service.dart';
@@ -285,59 +286,134 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     // Profile + Status
+                                    // Row(
+                                    //   children: [
+                                    //     CircleAvatar(
+                                    //       radius: 50,
+                                    //       backgroundImage: NetworkImage(
+                                    //         supplierPhotoUrl,
+                                    //       ),
+                                    //     ),
+                                    //     const SizedBox(width: 12),
+                                    //     Column(
+                                    //       crossAxisAlignment:
+                                    //           CrossAxisAlignment.start,
+                                    //       children: [
+                                    //         Text(
+                                    //           "Bună, $supplierFullName",
+                                    //           style: const TextStyle(
+                                    //             color: Colors.white,
+                                    //             fontSize: 18,
+                                    //             fontWeight: FontWeight.bold,
+                                    //           ),
+                                    //         ),
+                                    //         const SizedBox(height: 6),
+                                    //       ],
+                                    //     ),
+                                    //     const Spacer(),
+                                    //     Column(
+                                    //       crossAxisAlignment:
+                                    //           CrossAxisAlignment.end,
+                                    //       children: [
+                                    //         const SizedBox(height: 10),
+                                    //         GestureDetector(
+                                    //           onTap: () {
+                                    //             _showBusinessHoursDialog(
+                                    //               context,
+                                    //               businessHours,
+                                    //               isOpen,
+                                    //             );
+                                    //           },
+                                    //           child: Container(
+                                    //             padding:
+                                    //                 const EdgeInsets.symmetric(
+                                    //                   horizontal: 10,
+                                    //                   vertical: 4,
+                                    //                 ),
+                                    //             decoration: BoxDecoration(
+                                    //               color:
+                                    //                   isOpen
+                                    //                       ? Color(0xFF1B4239)
+                                    //                       : Colors.red,
+                                    //               borderRadius:
+                                    //                   BorderRadius.circular(20),
+                                    //             ),
+                                    //             child: Row(
+                                    //               children: [
+                                    //                 Image.asset(
+                                    //                   'assets/check2.png',
+                                    //                   width: 18,
+                                    //                 ),
+                                    //                 const SizedBox(width: 10),
+                                    //                 Text(
+                                    //                   isOpen
+                                    //                       ? "În serviciu"
+                                    //                       : "Închis",
+                                    //                   style: const TextStyle(
+                                    //                     color: Colors.white,
+                                    //                   ),
+                                    //                 ),
+                                    //               ],
+                                    //             ),
+                                    //           ),
+                                    //         ),
+                                    //       ],
+                                    //     ),
+                                    //   ],
+                                    // ),
                                     Row(
                                       children: [
-                                        CircleAvatar(
-                                          radius: 50,
-                                          backgroundImage: NetworkImage(
-                                            supplierPhotoUrl,
+                                        GestureDetector(
+                                          onTap: (){
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => AboutUsScreen()),
+                                            );
+
+                                          },
+                                          child: CircleAvatar(
+                                            radius: 50,
+                                            backgroundImage: NetworkImage(supplierPhotoUrl),
                                           ),
                                         ),
                                         const SizedBox(width: 12),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Bună, $supplierFullName",
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
+                                        Expanded( // Keeps the Column flexible to prevent overflow
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Bună, $supplierFullName",
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                softWrap: true, // Enables text wrapping (default is true, but explicit for clarity)
                                               ),
-                                            ),
-                                            const SizedBox(height: 6),
-                                          ],
+                                              const SizedBox(height: 6),
+                                            ],
+                                          ),
                                         ),
-                                        const Spacer(),
+                                        const SizedBox(width: 12), // Controlled spacing
                                         Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
+                                          crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
                                             const SizedBox(height: 10),
                                             GestureDetector(
                                               onTap: () {
-                                                _showBusinessHoursDialog(
-                                                  context,
-                                                  businessHours,
-                                                  isOpen,
-                                                );
+                                                _showBusinessHoursDialog(context, businessHours, isOpen);
                                               },
                                               child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 4,
-                                                    ),
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 4,
+                                                ),
                                                 decoration: BoxDecoration(
-                                                  color:
-                                                      isOpen
-                                                          ? Color(0xFF1B4239)
-                                                          : Colors.red,
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
+                                                  color: isOpen ? Color(0xFF1B4239) : Colors.red,
+                                                  borderRadius: BorderRadius.circular(20),
                                                 ),
                                                 child: Row(
+                                                  mainAxisSize: MainAxisSize.min, // Minimal space for the Row
                                                   children: [
                                                     Image.asset(
                                                       'assets/check2.png',
@@ -345,12 +421,11 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                                     ),
                                                     const SizedBox(width: 10),
                                                     Text(
-                                                      isOpen
-                                                          ? "În serviciu"
-                                                          : "Închis",
+                                                      isOpen ? "În serviciu" : "Închis",
                                                       style: const TextStyle(
                                                         color: Colors.white,
                                                       ),
+                                                      softWrap: true, // Enables text wrapping
                                                     ),
                                                   ],
                                                 ),
@@ -360,6 +435,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                         ),
                                       ],
                                     ),
+
                                     const SizedBox(height: 30),
 
                                     Row(
@@ -375,7 +451,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                             child: _buildStat(
                                               unreadCount: _totalUnreadCount,
                                               offeredServicesCount,
-                                              "Servicii",
+                                              "Mesaje",
                                               "assets/chat22.png",
                                               Colors.blue,
                                               () {
@@ -869,7 +945,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
 
   void showContactPopup(BuildContext context) {
     final String email = 'support@fixcars.com';
-    final String phone = '+40 721 123 456';
+    final String phone = '+40 766 910 195';
 
     showDialog(
       context: context,
