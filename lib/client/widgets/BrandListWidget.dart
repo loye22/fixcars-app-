@@ -64,6 +64,15 @@ class _BrandSelectorWidgetState extends State<BrandSelectorWidget> {
     widget.onBrandSelected(selectedBrand);
   }
 
+  void _resetFilters() {
+    setState(() {
+      _searchController.clear();
+      _selectedBrandId = null;
+      _filteredBrands = _allBrands;
+    });
+    widget.onBrandSelected(null);
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -75,10 +84,54 @@ class _BrandSelectorWidgetState extends State<BrandSelectorWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Reset button
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Selectează marcă automobil',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF4B5563),
+              ),
+            ),
+            GestureDetector(
+              onTap: _resetFilters,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Color(0xFF6B7280),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.refresh,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'Resetare',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12),
         TextField(
           controller: _searchController,
           decoration: InputDecoration(
-            hintText: 'Selectează marcă automobil',
+            hintText: 'Caută marcă...',
             hintStyle: TextStyle(color: Color(0xFFCCCCCC)),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
