@@ -15,6 +15,7 @@ import 'TractariScreen.dart';
 import 'TuningScreen.dart';
 import 'VulcanizareScreen.dart';
 import '../../shared/screens/conversation_list_screen.dart';
+import '../../shared/screens/aboutUsScreen.dart';
 
 
 
@@ -39,6 +40,9 @@ class _client_home_pageState extends State<client_home_page> {
 
     // Chat screen
     ConversationListScreen(),
+
+    // About Us screen
+    AboutUsScreen(),
   ];
 
   @override
@@ -221,6 +225,11 @@ class _client_home_pageState extends State<client_home_page> {
                 },
               ),
               label: 'Mesaje',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings) , //Image.asset('assets/setting.png', width: 24),
+              activeIcon:  Icon(Icons.settings_suggest_outlined) , // Image.asset('assets/setting.png', width: 24),
+              label: 'Despre',
             ),
             // BottomNavigationBarItem(
             //   icon: Stack(
