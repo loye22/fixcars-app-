@@ -8,6 +8,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../client/screens/SupplierProfileScreen.dart';
 import '../services/api_service.dart';
 import '../services/firebase_chat_service.dart';
+import '../services/ImageService.dart';
 
 class ChatScreen extends StatefulWidget {
   final String otherUserUuid;
@@ -20,6 +21,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final FirebaseChatService _chatService = FirebaseChatService();
+  final ImageService _imageService = ImageService();
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   String? _replyToMessageText;
@@ -86,11 +88,18 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 );
               },
-              child: Card(
-                color: Colors.white,
-                elevation: 8.0,
-                shape: RoundedRectangleBorder(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(12.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8.0,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Padding(
                   padding: EdgeInsets.only(top: 40, bottom: 20),
@@ -143,12 +152,18 @@ class _ChatScreenState extends State<ChatScreen> {
                                     color: Color(0xFF000000),
                                   ),
                                 ),
-                                Text(
-                                  "De obicei, îți răspunde în mai puțin de 10 minute",
-                                  style: TextStyle(
-                                    fontSize: 12.0,
-                                    color: Colors.grey[600],
-                                    fontStyle: FontStyle.italic,
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "De obicei, îți răspunde în mai puțin de 10 minute",
+                                    style: TextStyle(
+                                      fontSize: 12.0,
+                                      color: Colors.grey[600],
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
                                   ),
                                 ),
                               ],
@@ -414,29 +429,47 @@ class _ChatScreenState extends State<ChatScreen> {
                                                       BorderRadius.circular(8),
                                                   child: Image.network(
                                                     mediaUrl,
-                                                    width:
-                                                        200, // Define a fixed width
+                                                    width: 200,
                                                     height: 200,
-                                                    loadingBuilder:
-                                                        (_, _, _) => Padding(
-                                                          padding:
-                                                              const EdgeInsets.all(
-                                                                58.0,
-                                                              ),
-                                                          child: Container(
-                                                            child: LoadingAnimationWidget.threeArchedCircle(
-                                                              color:
-                                                                  isMe
-                                                                      ? Color(
-                                                                        0xFFFFFFFF,
-                                                                      )
-                                                                      : Color(
-                                                                        0xFF1E40AF,
-                                                                      ),
-                                                              size: 24,
-                                                            ),
+                                                    fit: BoxFit.cover,
+                                                    loadingBuilder: (context, child, loadingProgress) {
+                                                      if (loadingProgress == null) {
+                                                        return child;
+                                                      }
+                                                      return Container(
+                                                        width: 200,
+                                                        height: 200,
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.grey[300],
+                                                          borderRadius: BorderRadius.circular(8),
+                                                        ),
+                                                        child: Center(
+                                                          child: CircularProgressIndicator(
+                                                            value: loadingProgress.expectedTotalBytes != null
+                                                                ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                                                : null,
+                                                            color: isMe ? Color(0xFFFFFFFF) : Color(0xFF1E40AF),
                                                           ),
                                                         ),
+                                                      );
+                                                    },
+                                                    errorBuilder: (context, error, stackTrace) {
+                                                      return Container(
+                                                        width: 200,
+                                                        height: 200,
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.grey[300],
+                                                          borderRadius: BorderRadius.circular(8),
+                                                        ),
+                                                        child: Center(
+                                                          child: Icon(
+                                                            Icons.error_outline,
+                                                            color: isMe ? Color(0xFFFFFFFF) : Color(0xFF1E40AF),
+                                                            size: 40,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
                                                   ),
                                                 ),
                                               ),
@@ -551,13 +584,24 @@ class _ChatScreenState extends State<ChatScreen> {
       imageQuality: 80,
     );
     if (picked == null) return;
-    final file = File(picked.path);
+    
+    // Compress the image before sending
+    final originalFile = File(picked.path);
+    final compressedFile = await _imageService.compressImage(originalFile);
+    
+    if (compressedFile == null) {
+      // If compression fails, use original file
+      print('Image compression failed, using original file');
+    }
+    
+    final fileToSend = compressedFile ?? originalFile;
+    
     await _ensureConversation();
     if (_conversationId == null) return;
     final myUuid = _chatService.userUuid ?? '';
     await _chatService.sendImageMessage(
       conversationId: _conversationId!,
-      imageFile: file,
+      imageFile: fileToSend,
       caption: '',
       participants: [myUuid, widget.otherUserUuid],
       replyTo: _replyToMessageText,
@@ -579,13 +623,24 @@ class _ChatScreenState extends State<ChatScreen> {
       imageQuality: 80,
     );
     if (picked == null) return;
-    final file = File(picked.path);
+    
+    // Compress the image before sending
+    final originalFile = File(picked.path);
+    final compressedFile = await _imageService.compressImage(originalFile);
+    
+    if (compressedFile == null) {
+      // If compression fails, use original file
+      print('Image compression failed, using original file');
+    }
+    
+    final fileToSend = compressedFile ?? originalFile;
+    
     await _ensureConversation();
     if (_conversationId == null) return;
     final myUuid = _chatService.userUuid ?? '';
     await _chatService.sendImageMessage(
       conversationId: _conversationId!,
-      imageFile: file,
+      imageFile: fileToSend,
       caption: '',
       participants: [myUuid, widget.otherUserUuid],
       replyTo: _replyToMessageText,
@@ -630,13 +685,24 @@ class _ChatScreenState extends State<ChatScreen> {
       imageQuality: 80,
     );
     if (picked == null) return;
-    final file = File(picked.path);
+    
+    // Compress the image before sending
+    final originalFile = File(picked.path);
+    final compressedFile = await _imageService.compressImage(originalFile);
+    
+    if (compressedFile == null) {
+      // If compression fails, use original file
+      print('Image compression failed, using original file');
+    }
+    
+    final fileToSend = compressedFile ?? originalFile;
+    
     await _ensureConversation();
     if (_conversationId == null) return;
     final myUuid = _chatService.userUuid ?? '';
     await _chatService.sendImageMessage(
       conversationId: _conversationId!,
-      imageFile: file,
+      imageFile: fileToSend,
       caption: '',
       participants: [myUuid, widget.otherUserUuid],
       replyTo: _replyToMessageText,

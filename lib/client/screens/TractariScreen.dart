@@ -518,18 +518,6 @@ class MechanicServicesList extends StatelessWidget {
 
         );
 
-        // return BusinessCardWidget(
-        //   businessName: service['supplier_name'] ?? 'Unknown',
-        //   rating: (service['review_score'] as num?)?.toDouble() ?? 0.0,
-        //   reviewCount: service['total_reviews'] ?? 0,
-        //   distance: "${service['distance_km'] ?? 0.0} km",
-        //   location: service['supplier_address'] ?? 'Unknown',
-        //   isAvailable: service['is_open'] ?? false,
-        //   profileUrl: service['supplier_photo'] ?? '',
-        //   servicesUrl: service['photo_url'] ?? '',
-        //   carBrandUrl: service['brand_photo'] ?? '',
-        //   supplierID: service['supplier_id'] ?? '',
-        // );
       }).toList(),
     );
   }
