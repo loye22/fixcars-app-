@@ -574,6 +574,7 @@ class _client_singup_screenState extends State<client_singup_screen> {
                           style: TextStyle(fontSize: 18, color: Colors.white),
                         ),
                       ),
+                      SizedBox(height: 50,)
                     ],
                   ),
                 ),

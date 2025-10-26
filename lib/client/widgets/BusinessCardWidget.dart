@@ -106,7 +106,7 @@ class BusinessCardWidget extends StatelessWidget {
 
                           // Text with conditional color
                           Text(
-                            isAvailable ? 'Disponibil acum' : 'Nu este disponibil',
+                            isAvailable ? 'Deschis' : 'închis',
                             style: TextStyle(
                               color: isAvailable ? Color(0xFF16A34A) : Color(0xFFFF4141),
                               fontWeight: FontWeight.w700,

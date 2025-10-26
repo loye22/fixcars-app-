@@ -21,7 +21,7 @@ class PasswordResetService {
       } else {
         return {
           'success': false,
-          'message': 'Eroare server: ${response.statusCode}',
+          'message': 'Eroare server: ${response.statusCode} >> "\n" ${response.body}',
         };
       }
     } catch (e) {

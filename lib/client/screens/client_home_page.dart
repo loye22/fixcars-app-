@@ -363,29 +363,49 @@ class ServiceCard extends StatelessWidget {
         ),
         child: Padding(
           padding: EdgeInsets.all(10),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image.asset(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                flex: 3,
+                child: Image.asset(
                   imageAsset,
                   width: imageSize,
                   height: imageSize,
                   fit: BoxFit.contain,
                 ),
-                SizedBox(height: 10),
-                Text(
+              ),
+              SizedBox(height: 8),
+              Flexible(
+                flex: 2,
+                child: Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),                ),
-                SizedBox(height: 5),
-                Text(
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold, 
+                    fontSize: 14,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              SizedBox(height: 4),
+              Flexible(
+                flex: 1,
+                child: Text(
                   subtitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: Colors.grey),                ),
-              ],
-            ),
+                  style: TextStyle(
+                    fontSize: 11, 
+                    color: Colors.grey,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ),
       ),

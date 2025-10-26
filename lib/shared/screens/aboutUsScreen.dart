@@ -192,7 +192,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Color(0xFF4B5563),
+        backgroundColor: Color(0xFF1C2526),
         elevation: 0,
         centerTitle: true,
       ),
@@ -206,14 +206,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
               width: double.infinity,
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF4B5563),
-                    Color(0xFF6B7280),
-                  ],
-                ),
+            color: Color(0xFF1C2526),
                 borderRadius: BorderRadius.circular(15),
                 boxShadow: [
                   BoxShadow(

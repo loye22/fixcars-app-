@@ -936,7 +936,7 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),
-                        SizedBox(height: 100),
+                        SizedBox(height: 150),
                       ],
                     ),
                   ),

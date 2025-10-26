@@ -132,7 +132,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> with SingleTi
                             controller: _emailController,
                             onChanged: _validateEmail,
                             style: TextStyle(color: Colors.white),
-                            maxLength: 30,
+                            maxLength: 50,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30.0),
