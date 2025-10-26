@@ -11,7 +11,7 @@ class start_screen extends StatelessWidget {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/intro4.png'),
+            image: AssetImage('assets/bbbb.jpg'),
             fit: BoxFit.cover,
           ),
         ),
@@ -19,7 +19,9 @@ class start_screen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(height: 300,) ,
+              SizedBox(height: 200,) ,
+              Image.asset('assets/logos/t3.png' , width: 200,) ,
+              SizedBox(height: 20,) ,
               Text(
                 'Bine ai venit la Fixcars',
                 style: TextStyle(

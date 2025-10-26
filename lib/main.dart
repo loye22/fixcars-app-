@@ -14,6 +14,7 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   final apiService = ApiService();
 
   bool isAuthenticated = false;
@@ -34,12 +35,15 @@ void main() async {
 
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(MyApp(isAuthenticated: isAuthenticated));
 
   // Check if user is logged in and initialize OneSignal if they are
   if (await apiService.isLoggedIn()) {
     await OneSignalService.initializeOneSignal();
   }
+
+  runApp(MyApp(isAuthenticated: isAuthenticated));
+
+
 }
 // change
 

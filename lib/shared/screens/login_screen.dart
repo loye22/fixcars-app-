@@ -174,7 +174,7 @@ class _login_screenState extends State<login_screen> with SingleTickerProviderSt
                               controller: _emailController,
                               onChanged: _validateEmail,
                               style: TextStyle(color: Colors.white),
-                              maxLength: 30,
+                              maxLength: 50,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(30.0),
@@ -201,7 +201,7 @@ class _login_screenState extends State<login_screen> with SingleTickerProviderSt
                             ),
                             SizedBox(height: 20),
                             TextField(
-                              maxLength: 30,
+                              maxLength: 50,
                               controller: _passwordController,
                               obscureText: _obscurePassword,
                               style: TextStyle(color: Colors.white),

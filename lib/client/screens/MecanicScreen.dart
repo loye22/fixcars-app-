@@ -231,16 +231,50 @@ class _MecanicScreenState extends State<MecanicScreen> {
             children: [
               Text(
                 _error!,
-                style: TextStyle(color: Colors.red),
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _fetchData,
-                child: Text('Încearcă din nou'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[800], // Dark gray background
+                  foregroundColor: Colors.white, // White text/icon color
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12), // Rounded corners
+                  ),
+                  elevation: 2, // Subtle shadow for depth
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                child: const Text('Încearcă din nou'),
               ),
             ],
           ),
+          // child: Column(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: [
+          //     Text(
+          //       _error!,
+          //       style: TextStyle(color: Colors.red),
+          //       textAlign: TextAlign.center,
+          //     ),
+          //     SizedBox(height: 16),
+          //     ElevatedButton(
+          //       onPressed: _fetchData,
+          //       child: Text('Încearcă din nou'),
+          //     ),
+          //   ],
+          // ),
         )
             : SingleChildScrollView(
           child: Column(

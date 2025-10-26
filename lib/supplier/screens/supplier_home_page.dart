@@ -185,7 +185,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                       child: Text(
                         unreadCount > 99 ? '99+' : unreadCount.toString(),
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: Colors.red,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
@@ -449,8 +449,8 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                               horizontal: 4.0,
                                             ), // Add spacing
                                             child: _buildStat(
-                                              unreadCount: _totalUnreadCount,
-                                              offeredServicesCount,
+                                              unreadCount: _totalUnreadCount ,
+                                              _totalUnreadCount.toString(),
                                               "Mesaje",
                                               "assets/chat22.png",
                                               Colors.blue,

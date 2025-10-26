@@ -22,9 +22,14 @@ class OneSignalService {
         // Handle navigation based on notification data
       });
 
+      print("DUBUG ############################### ");
+
       // Get player ID and register with backend
       OneSignal.User.pushSubscription.addObserver((state) {
+        print("DUBUG ########################### OneSignal.User.pushSubscription.addObserver ");
         if (state.current.id != null) {
+          print("DUBUG ###############################  ${state.current.id}");
+
           _registerDevice(state.current.id!);
         }
       });
@@ -38,10 +43,13 @@ class OneSignalService {
   static Future<void> _registerDevice(String playerId) async {
     try {
       // Use your existing authenticatedPost method
+
       final response = await _apiService.authenticatedPost(
         '${ApiService.baseUrl}/register-device/',
         {'player_id': playerId},
       );
+
+
 
       if (response.statusCode == 200) {
         print('Device registered successfully with backend');
