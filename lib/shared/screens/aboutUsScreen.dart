@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/DeleteAccountService.dart';
 import '../services/api_service.dart';
 import 'start_screen.dart';
 
@@ -309,7 +310,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
               child: ElevatedButton(
                 onPressed: _logout,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFEF4444),
+                  backgroundColor: Color(0xFF000000),
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
@@ -333,8 +334,121 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
               ),
             ),
             
+            SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 8,
+                        title: Text(
+                          'Șterge contul',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        content: Text(
+                          'Această acțiune va programa ștergerea contului tău în 2 săptămâni.\n\n'
+                              'După ce ștergerea este efectuată, acțiunea este ireversibilă.\n\n'
+                              'În această perioadă de 2 săptămâni, poți anula ștergerea contactând suportul la:\n'
+                              'support@fixcars.ro',
+                          style: TextStyle(
+                            color: Colors.black54,
+                            height: 1.5,
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text(
+                              'Anulează',
+                              style: TextStyle(color: Colors.grey[700]),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () async {
+                              Navigator.of(context).pop(); // Închide dialogul
+
+                              try {
+                                final result = await DeleteAccountService().deleteAccount();
+
+                                // Afișează mesaj de succes
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(result['message'] ?? 'Contul a fost programat pentru ștergere'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+
+
+
+                                // Apel logout
+                                // Clear all authentication data using ApiService
+                                await ApiService().clearAllData();
+
+                                // Navigate to start screen using MaterialPageRoute
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => start_screen()),
+                                      (Route<dynamic> route) => false,
+                                );
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Eroare: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFFEF4444),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: Text('Confirmă'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFEF4444),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 3,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Șterge contul',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
             SizedBox(height: 30),
-            
+
             // App Info Section
             Container(
               width: double.infinity,

@@ -12,6 +12,7 @@ import 'package:fixcars/supplier/screens/RequestsScreen.dart';
 import 'package:fixcars/supplier/screens/waiting_review_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../shared/screens/aboutUsScreen.dart';
 import '../../shared/services/OneSignalService.dart';
@@ -285,60 +286,60 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Profile + Status
+
                                     // Row(
                                     //   children: [
-                                    //     CircleAvatar(
-                                    //       radius: 50,
-                                    //       backgroundImage: NetworkImage(
-                                    //         supplierPhotoUrl,
+                                    //     GestureDetector(
+                                    //       onTap: (){
+                                    //         Navigator.push(
+                                    //           context,
+                                    //           MaterialPageRoute(builder: (context) => AboutUsScreen()),
+                                    //         );
+                                    //
+                                    //       },
+                                    //       child: CircleAvatar(
+                                    //         radius: 50,
+                                    //         backgroundImage: NetworkImage(supplierPhotoUrl),
                                     //       ),
                                     //     ),
                                     //     const SizedBox(width: 12),
-                                    //     Column(
-                                    //       crossAxisAlignment:
-                                    //           CrossAxisAlignment.start,
-                                    //       children: [
-                                    //         Text(
-                                    //           "Bună, $supplierFullName",
-                                    //           style: const TextStyle(
-                                    //             color: Colors.white,
-                                    //             fontSize: 18,
-                                    //             fontWeight: FontWeight.bold,
+                                    //     Expanded( // Keeps the Column flexible to prevent overflow
+                                    //       child: Column(
+                                    //         crossAxisAlignment: CrossAxisAlignment.start,
+                                    //         children: [
+                                    //           Text(
+                                    //             "Bună, $supplierFullName",
+                                    //             style: const TextStyle(
+                                    //               color: Colors.white,
+                                    //               fontSize: 18,
+                                    //               fontWeight: FontWeight.bold,
+                                    //             ),
+                                    //             softWrap: true, // Enables text wrapping (default is true, but explicit for clarity)
                                     //           ),
-                                    //         ),
-                                    //         const SizedBox(height: 6),
-                                    //       ],
+                                    //           const SizedBox(height: 6),
+                                    //         ],
+                                    //       ),
                                     //     ),
-                                    //     const Spacer(),
+                                    //     const SizedBox(width: 12), // Controlled spacing
                                     //     Column(
-                                    //       crossAxisAlignment:
-                                    //           CrossAxisAlignment.end,
+                                    //       crossAxisAlignment: CrossAxisAlignment.end,
                                     //       children: [
                                     //         const SizedBox(height: 10),
                                     //         GestureDetector(
                                     //           onTap: () {
-                                    //             _showBusinessHoursDialog(
-                                    //               context,
-                                    //               businessHours,
-                                    //               isOpen,
-                                    //             );
+                                    //             _showBusinessHoursDialog(context, businessHours, isOpen);
                                     //           },
                                     //           child: Container(
-                                    //             padding:
-                                    //                 const EdgeInsets.symmetric(
-                                    //                   horizontal: 10,
-                                    //                   vertical: 4,
-                                    //                 ),
+                                    //             padding: const EdgeInsets.symmetric(
+                                    //               horizontal: 10,
+                                    //               vertical: 4,
+                                    //             ),
                                     //             decoration: BoxDecoration(
-                                    //               color:
-                                    //                   isOpen
-                                    //                       ? Color(0xFF1B4239)
-                                    //                       : Colors.red,
-                                    //               borderRadius:
-                                    //                   BorderRadius.circular(20),
+                                    //               color: isOpen ? Color(0xFF1B4239) : Colors.red,
+                                    //               borderRadius: BorderRadius.circular(20),
                                     //             ),
                                     //             child: Row(
+                                    //               mainAxisSize: MainAxisSize.min, // Minimal space for the Row
                                     //               children: [
                                     //                 Image.asset(
                                     //                   'assets/check2.png',
@@ -346,12 +347,11 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                     //                 ),
                                     //                 const SizedBox(width: 10),
                                     //                 Text(
-                                    //                   isOpen
-                                    //                       ? "În serviciu"
-                                    //                       : "Închis",
+                                    //                   isOpen ? "În serviciu" : "Închis",
                                     //                   style: const TextStyle(
                                     //                     color: Colors.white,
                                     //                   ),
+                                    //                   softWrap: true, // Enables text wrapping
                                     //                 ),
                                     //               ],
                                     //             ),
@@ -361,23 +361,47 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                     //     ),
                                     //   ],
                                     // ),
+
                                     Row(
                                       children: [
                                         GestureDetector(
-                                          onTap: (){
+                                          onTap: () {
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(builder: (context) => AboutUsScreen()),
                                             );
-
                                           },
-                                          child: CircleAvatar(
-                                            radius: 50,
-                                            backgroundImage: NetworkImage(supplierPhotoUrl),
+                                          child: SizedBox(
+                                            height: 100,
+                                            width: 100,
+                                            child: Animate(
+                                              effects: [
+                                                RotateEffect(
+                                                  duration: 2.seconds,
+                                                  curve: Curves.linear,
+
+                                                ),
+                                              ],
+                                              child: Container(
+                                                padding: const EdgeInsets.all(4), // border thickness
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  gradient: const LinearGradient(
+                                                    colors: [Color(0xFF6A11CB), Color(0xFF2575FC)],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                ),
+                                                child: CircleAvatar(
+                                                  radius: 46, // slightly smaller to fit inside the border
+                                                  backgroundImage: NetworkImage(supplierPhotoUrl),
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(width: 12),
-                                        Expanded( // Keeps the Column flexible to prevent overflow
+                                        Expanded(
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
@@ -388,13 +412,12 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                                   fontSize: 18,
                                                   fontWeight: FontWeight.bold,
                                                 ),
-                                                softWrap: true, // Enables text wrapping (default is true, but explicit for clarity)
                                               ),
                                               const SizedBox(height: 6),
                                             ],
                                           ),
                                         ),
-                                        const SizedBox(width: 12), // Controlled spacing
+                                        const SizedBox(width: 12),
                                         Column(
                                           crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
@@ -404,16 +427,13 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                                 _showBusinessHoursDialog(context, businessHours, isOpen);
                                               },
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10,
-                                                  vertical: 4,
-                                                ),
+                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                                 decoration: BoxDecoration(
-                                                  color: isOpen ? Color(0xFF1B4239) : Colors.red,
+                                                  color: isOpen ? const Color(0xFF1B4239) : Colors.red,
                                                   borderRadius: BorderRadius.circular(20),
                                                 ),
                                                 child: Row(
-                                                  mainAxisSize: MainAxisSize.min, // Minimal space for the Row
+                                                  mainAxisSize: MainAxisSize.min,
                                                   children: [
                                                     Image.asset(
                                                       'assets/check2.png',
@@ -422,10 +442,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                                     const SizedBox(width: 10),
                                                     Text(
                                                       isOpen ? "În serviciu" : "Închis",
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                      ),
-                                                      softWrap: true, // Enables text wrapping
+                                                      style: const TextStyle(color: Colors.white),
                                                     ),
                                                   ],
                                                 ),
@@ -436,7 +453,15 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                       ],
                                     ),
 
-                                    const SizedBox(height: 30),
+
+
+
+
+
+
+
+
+                                    SizedBox(height: 30),
 
                                     Row(
                                       mainAxisAlignment:
