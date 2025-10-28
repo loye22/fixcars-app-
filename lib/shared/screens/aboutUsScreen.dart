@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../supplier/services/ReferralService.dart';
 import '../services/DeleteAccountService.dart';
 import '../services/api_service.dart';
 import 'start_screen.dart';
@@ -14,6 +15,14 @@ class AboutUsScreen extends StatefulWidget {
 }
 
 class _AboutUsScreenState extends State<AboutUsScreen> {
+  // ADDED FOR REFERRAL
+  final TextEditingController _referralController = TextEditingController();
+  bool _showReferralField = true;
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
+  GlobalKey<ScaffoldMessengerState>();
+  bool _isSubmitting = false;
+
+
   void _showPDF(String pdfPath, String title) {
     Navigator.push(
       context,
@@ -135,349 +144,463 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
     }
   }
 
+// ADDED FOR REFERRAL: Submit referral
+  Future<void> _submitReferral() async {
+    final email = _referralController.text.trim();
 
-  // Future<void> _logout() async {
-  //   // Show confirmation dialog
-  //   bool? shouldLogout = await showDialog<bool>(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text('Deconectare'),
-  //         content: Text('Ești sigur că vrei să te deconectezi?'),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () => Navigator.of(context).pop(false),
-  //             child: Text('Anulează'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () => Navigator.of(context).pop(true),
-  //             child: Text('Deconectează'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  //
-  //   if (shouldLogout == true) {
-  //     try {
-  //       // Clear all authentication data using ApiService
-  //       await ApiService().clearAllData();
-  //
-  //       // Navigate to start screen using MaterialPageRoute
-  //       Navigator.pushAndRemoveUntil(
-  //         context,
-  //         MaterialPageRoute(builder: (context) => start_screen()),
-  //         (Route<dynamic> route) => false,
-  //       );
-  //     } catch (e) {
-  //       print('Error during logout: $e');
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text('Eroare la deconectare: $e'),
-  //           backgroundColor: Colors.red,
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
+    if (email.isEmpty || !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+      _showToast('Te rugăm să introduci o adresă de email validă.',
+          background: Colors.orange);
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _showReferralField = false; // Hide field during submission
+    });
+
+    try {
+      final result = await ReferralService().referByEmail(email);
+
+      if (result['success'] == true) {
+        final msg = result['message'] ?? 'Referral înregistrat cu succes!';
+        _showToast(msg, background: Colors.green);
+
+        // Only clear on success
+        _referralController.clear();
+      } else {
+        final err = result['error'] ?? 'Eroare necunoscută';
+        _showToast(err, background: Colors.red);
+
+        // Keep the email in the field on error
+        setState(() => _showReferralField = true);
+      }
+    } catch (e) {
+      _showToast('Eroare de rețea: $e', background: Colors.red);
+
+      // Keep the email on network error too
+      setState(() => _showReferralField = true);
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+  // ADDED FOR REFERRAL: Toast helper
+  void _showToast(String message, {Color background = Colors.grey}) {
+    _scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+    _scaffoldMessengerKey.currentState?.showSnackBar(
+
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
+        backgroundColor: background,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: EdgeInsets.all(16),
+        duration: Duration(seconds: 5),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _referralController.dispose(); // ADDED FOR REFERRAL
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          'Despre Noi',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+    return ScaffoldMessenger(
+      key: _scaffoldMessengerKey, // ADDED FOR REFERRAL
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Text(
+            'Despre Noi',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          backgroundColor: Color(0xFF1C2526),
+          elevation: 0,
+          centerTitle: true,
         ),
-        backgroundColor: Color(0xFF1C2526),
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header Section
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-            color: Color(0xFF1C2526),
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  // Logo
-                  Container(
-                    height: 80,
-                    child: Image.asset(
-                      'assets/logos/introo.png',
-                      fit: BoxFit.contain,
+        body: SingleChildScrollView(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header Section
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+              color: Color(0xFF1C2526),
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
                     ),
-                  ),
-                  SizedBox(height: 15),
-                  Text(
-                    'FixCars',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Servicii auto eficiente pentru o călătorie mai lină înainte',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white70,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Made by Charlotte for IT Services SRL',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white60,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            SizedBox(height: 30),
-            
-            // Action Buttons Section
-            Text(
-              'Documente și Acțiuni',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF4B5563),
-              ),
-            ),
-            SizedBox(height: 15),
-            
-            // Terms & Conditions Button
-            _buildActionButton(
-              icon: Icons.description,
-              title: 'Termeni și Condiții',
-              subtitle: 'Citește termenii și condițiile aplicației',
-              onTap: () => _showPDF('assets/docs/terms_and_conditions_ro.pdf', 'Termeni și Condiții'),
-              color: Color(0xFF3B82F6),
-            ),
-            
-            SizedBox(height: 15),
-            
-            // Privacy Policy Button
-            _buildActionButton(
-              icon: Icons.privacy_tip,
-              title: 'Politica de Confidențialitate',
-              subtitle: 'Informații despre protecția datelor tale',
-              onTap: () => _showPDF('assets/docs/privacy_policy_ro.pdf', 'Politica de Confidențialitate'),
-              color: Color(0xFF10B981),
-            ),
-            
-            SizedBox(height: 15),
-            
-            // Community Guidelines Button
-            _buildActionButton(
-              icon: Icons.people,
-              title: 'Ghidul Comunității',
-              subtitle: 'Reguli și ghiduri pentru comunitatea FixCars',
-              onTap: () => _showPDF('assets/docs/fixcars_community_guidelines_ro.pdf', 'Ghidul Comunității'),
-              color: Color(0xFF8B5CF6),
-            ),
-            
-            SizedBox(height: 25),
-            
-            // Logout Button
-            Container(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _logout,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF000000),
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 3,
+                  ],
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Column(
                   children: [
-
+                    // Logo
+                    Container(
+                      height: 80,
+                      child: Image.asset(
+                        'assets/logos/introo.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    SizedBox(height: 15),
                     Text(
-                      'Logout',
+                      'FixCars',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Servicii auto eficiente pentru o călătorie mai lină înainte',
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        color: Colors.white70,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Made by Charlotte for IT Services SRL',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white60,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-            
-            SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+              
+              SizedBox(height: 30),
+              
+              // Action Buttons Section
+              Text(
+                'Documente și Acțiuni',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF4B5563),
+                ),
+              ),
+              SizedBox(height: 15),
+              
+              // Terms & Conditions Button
+              _buildActionButton(
+                icon: Icons.description,
+                title: 'Termeni și Condiții',
+                subtitle: 'Citește termenii și condițiile aplicației',
+                onTap: () => _showPDF('assets/docs/terms_and_conditions_ro.pdf', 'Termeni și Condiții'),
+                color: Color(0xFF3B82F6),
+              ),
+              
+              SizedBox(height: 15),
+              
+              // Privacy Policy Button
+              _buildActionButton(
+                icon: Icons.privacy_tip,
+                title: 'Politica de Confidențialitate',
+                subtitle: 'Informații despre protecția datelor tale',
+                onTap: () => _showPDF('assets/docs/privacy_policy_ro.pdf', 'Politica de Confidențialitate'),
+                color: Color(0xFF10B981),
+              ),
+              
+              SizedBox(height: 15),
+              
+              // Community Guidelines Button
+              _buildActionButton(
+                icon: Icons.people,
+                title: 'Ghidul Comunității',
+                subtitle: 'Reguli și ghiduri pentru comunitatea FixCars',
+                onTap: () => _showPDF('assets/docs/fixcars_community_guidelines_ro.pdf', 'Ghidul Comunității'),
+                color: Color(0xFF8B5CF6),
+              ),
+              
+              SizedBox(height: 25),
+              
+              // Logout Button
+              Container(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _logout,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF000000),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 3,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+      
+                      Text(
+                        'Logout',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
-                        elevation: 8,
-                        title: Text(
-                          'Șterge contul',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                        ),
-                        content: Text(
-                          'Această acțiune va programa ștergerea contului tău în 2 săptămâni.\n\n'
-                              'După ce ștergerea este efectuată, acțiunea este ireversibilă.\n\n'
-                              'În această perioadă de 2 săptămâni, poți anula ștergerea contactând suportul la:\n'
-                              'support@fixcars.ro',
-                          style: TextStyle(
-                            color: Colors.black54,
-                            height: 1.5,
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: Text(
-                              'Anulează',
-                              style: TextStyle(color: Colors.grey[700]),
+                          elevation: 8,
+                          title: Text(
+                            'Șterge contul',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
                             ),
                           ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              Navigator.of(context).pop(); // Închide dialogul
-
-                              try {
-                                final result = await DeleteAccountService().deleteAccount();
-
-                                // Afișează mesaj de succes
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(result['message'] ?? 'Contul a fost programat pentru ștergere'),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-
-
-
-                                // Apel logout
-                                // Clear all authentication data using ApiService
-                                await ApiService().clearAllData();
-
-                                // Navigate to start screen using MaterialPageRoute
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => start_screen()),
-                                      (Route<dynamic> route) => false,
-                                );
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Eroare: $e'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFFEF4444),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                          content: Text(
+                            'Această acțiune va programa ștergerea contului tău în 2 săptămâni.\n\n'
+                                'După ce ștergerea este efectuată, acțiunea este ireversibilă.\n\n'
+                                'În această perioadă de 2 săptămâni, poți anula ștergerea contactând suportul la:\n'
+                                'support@fixcars.ro',
+                            style: TextStyle(
+                              color: Colors.black54,
+                              height: 1.5,
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text(
+                                'Anulează',
+                                style: TextStyle(color: Colors.grey[700]),
                               ),
                             ),
-                            child: Text('Confirmă'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFEF4444),
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                            ElevatedButton(
+                              onPressed: () async {
+                                Navigator.of(context).pop(); // Închide dialogul
+      
+                                try {
+                                  final result = await DeleteAccountService().deleteAccount();
+      
+                                  // Afișează mesaj de succes
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(result['message'] ?? 'Contul a fost programat pentru ștergere'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+      
+      
+      
+                                  // Apel logout
+                                  // Clear all authentication data using ApiService
+                                  await ApiService().clearAllData();
+      
+                                  // Navigate to start screen using MaterialPageRoute
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => start_screen()),
+                                        (Route<dynamic> route) => false,
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Eroare: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFFEF4444),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Text('Confirmă'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFEF4444),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 3,
                   ),
-                  elevation: 3,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Șterge contul',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              ),
+      
+              SizedBox(height: 30),
+      
+              // App Info Section
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Color(0xFFE5E7EB)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Șterge contul',
+                      'Informații Aplicație',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        color: Color(0xFF4B5563),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    _buildInfoRow('Versiune', '1.0.0'),
+                    _buildInfoRow('Platformă', 'Android & iOS'),
+                    _buildInfoRow('Dezvoltator', 'Charlotte for IT Services SRL'),
+                    _buildInfoRow('Anul', '2024'),
+                  ],
+                ),
+              ),
+              // ADDED FOR REFERRAL: Referral Section with Button
+              if (_showReferralField) ...[
+                SizedBox(height: 30),
+                Row(
+                  children: [
+                    Text(
+                      'Recomandat de',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF4B5563),
+                      ),
+                    ),
+                    InfoIcon()
+                  ],
+                ),
+                SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _referralController,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.go,
+                        enabled: !_isSubmitting,
+                        decoration: InputDecoration(
+                          hintText: 'Adresa de email',
+                          hintStyle: TextStyle(color: Colors.grey[500]),
+                          filled: true,
+                          fillColor: Colors.grey[50],
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                            BorderSide(color: Colors.grey.shade300),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                            BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                            BorderSide(color: Color(0xFF3B82F6), width: 2),
+                          ),
+                        ),
+                        onSubmitted: (_) => _submitReferral(),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    SizedBox(
+                      width: 100,
+                      child: ElevatedButton(
+                        onPressed: _isSubmitting ? null : _submitReferral,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF3B82F6),
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                        child: _isSubmitting
+                            ? SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white),
+                          ),
+                        )
+                            : Text(
+                          'Trimite',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ),
+              ],
 
-            SizedBox(height: 30),
 
-            // App Info Section
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Color(0xFFF9FAFB),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Color(0xFFE5E7EB)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Informații Aplicație',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF4B5563),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  _buildInfoRow('Versiune', '1.0.0'),
-                  _buildInfoRow('Platformă', 'Android & iOS'),
-                  _buildInfoRow('Dezvoltator', 'Charlotte for IT Services SRL'),
-                  _buildInfoRow('Anul', '2024'),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -695,6 +818,80 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                   : Center(
                       child: Text('PDF not found'),
                     ),
+    );
+  }
+}
+
+
+class InfoIcon extends StatelessWidget {
+  const InfoIcon({super.key});
+
+  void _showPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.info_outline,
+                  size: 50,
+                  color: Colors.blueAccent,
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  'Information / Informație',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  'For FixCar employees only – used to track referral counts.\n\n'
+                      'Doar pentru angajații FixCar – folosit pentru a urmări numărul de recomandări.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.blueAccent,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.question_mark , size: 15,),
+      onPressed: () => _showPopup(context),
+      tooltip: 'Informație',
     );
   }
 }

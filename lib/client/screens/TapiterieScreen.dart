@@ -201,8 +201,14 @@ class _TapiterieScreenState extends State<TapiterieScreen> {
           ),
         ),
         backgroundColor: Color(0xFF4B5563),
-        automaticallyImplyLeading: false, // default is true
-      ),
+         automaticallyImplyLeading: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        elevation: 0, // makes it look cleaner
+
+        foregroundColor: Colors.white,      ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: _isLocationLoading || _isLoading

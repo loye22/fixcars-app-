@@ -202,7 +202,14 @@ class _TractariScreenState extends State<TractariScreen> {
           ),
         ),
         backgroundColor: Color(0xFFDC2626),
-        automaticallyImplyLeading: false, // default is true
+        automaticallyImplyLeading: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        elevation: 0, // makes it look cleaner
+
+        foregroundColor: Colors.white,// default is true
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
