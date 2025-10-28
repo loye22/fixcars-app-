@@ -12,9 +12,9 @@ class LocationPermissionGate extends StatefulWidget {
 class _LocationPermissionGateState extends State<LocationPermissionGate> {
   bool _checking = true;
   bool _granted = false;
-  bool _permanentlyDenied = false;   // NEW
+  bool _permanentlyDenied = false;
   String? _message;
-  bool _requestInProgress = false;  // debounce
+  bool _requestInProgress = false;
 
   @override
   void initState() {
@@ -33,47 +33,42 @@ class _LocationPermissionGateState extends State<LocationPermissionGate> {
     });
 
     try {
-      // 1. Service enabled?
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         setState(() {
           _granted = false;
           _checking = false;
           _permanentlyDenied = false;
-          _message = 'Please enable Location Services (GPS).';
+          _message = 'Vă rugăm să activați Serviciile de Localizare (GPS).';
         });
         _requestInProgress = false;
         return;
       }
 
-      // 2. Current permission
       LocationPermission permission = await Geolocator.checkPermission();
 
-      // If already denied forever → go straight to settings UI
       if (permission == LocationPermission.deniedForever) {
         setState(() {
           _granted = false;
           _checking = false;
           _permanentlyDenied = true;
           _message =
-          'Permission permanently denied. Open Settings to allow location.';
+          'Permisiunea este respinsă permanent. Deschideți Setările pentru a permite localizarea.';
         });
         _requestInProgress = false;
         return;
       }
 
-      // 3. If simply denied → ask again
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
 
-      // 4. Evaluate the result of the request
       if (permission == LocationPermission.denied) {
         setState(() {
           _granted = false;
           _checking = false;
           _permanentlyDenied = false;
-          _message = 'Location permission is required to continue.';
+          _message = 'Permisiunea de localizare este necesară pentru a continua.';
         });
       } else if (permission == LocationPermission.deniedForever) {
         setState(() {
@@ -81,7 +76,7 @@ class _LocationPermissionGateState extends State<LocationPermissionGate> {
           _checking = false;
           _permanentlyDenied = true;
           _message =
-          'Permission permanently denied. Open Settings to allow location.';
+          'Permisiunea este respinsă permanent. Deschideți Setările pentru a permite localizarea.';
         });
       } else {
         setState(() {
@@ -94,30 +89,26 @@ class _LocationPermissionGateState extends State<LocationPermissionGate> {
         _granted = false;
         _checking = false;
         _permanentlyDenied = false;
-        _message = 'Error checking permission: $e';
+        _message = 'Eroare la verificarea permisiunii: $e';
       });
     } finally {
       _requestInProgress = false;
     }
   }
 
-
-
-
   Future<void> _openSettings() async {
     await Geolocator.openAppSettings();
     await Geolocator.openLocationSettings();
-    // After returning from settings, re-check the permission
     _ensurePermission();
   }
 
   // ────────────────────────────────────────────────────────────────
-  // Your exact requested message (with intentional typos)
+  // Mesajul personalizat cu greșeli intenționate (tradus în română)
   // ────────────────────────────────────────────────────────────────
   static const String _customMessage =
-      "plocaion permission is requsiret to use the app please take look at out termis and contion ans privisy polisy for more info how do we use your location";
+      "permisiunea de locație este necesară pentru a utiliza aplicația te rugăm să consulți termenii și condițiile noastre și politica de confidențialitate pentru mai multe informații despre cum folosim locația ta";
 
-  // Silver palette
+  // Paletă argintie
   static const Color silver = Color(0xFFD0D0D0);
   static const Color lightSilver = Color(0xFFE5E5E5);
   static const Color darkSilver = Color(0xFF9E9E9E);
@@ -125,9 +116,6 @@ class _LocationPermissionGateState extends State<LocationPermissionGate> {
 
   @override
   Widget build(BuildContext context) {
-    // -----------------------------------------------------------------
-    // 1. Loading
-    // -----------------------------------------------------------------
     if (_checking) {
       return const Scaffold(
         backgroundColor: bgBlack,
@@ -140,16 +128,10 @@ class _LocationPermissionGateState extends State<LocationPermissionGate> {
       );
     }
 
-    // -----------------------------------------------------------------
-    // 2. Permission granted → show child
-    // -----------------------------------------------------------------
     if (_granted) {
       return widget.child;
     }
 
-    // -----------------------------------------------------------------
-    // 3. Permission denied (normal or forever)
-    // -----------------------------------------------------------------
     return Scaffold(
       backgroundColor: bgBlack,
       body: SafeArea(
@@ -159,7 +141,7 @@ class _LocationPermissionGateState extends State<LocationPermissionGate> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Icon
+              // Iconiță
               Container(
                 padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
@@ -177,9 +159,9 @@ class _LocationPermissionGateState extends State<LocationPermissionGate> {
               ),
               const SizedBox(height: 36),
 
-              // Title
+              // Titlu
               const Text(
-                'Location Permission Required',
+                'Permisiune de Localizare Necesară',
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
@@ -190,7 +172,7 @@ class _LocationPermissionGateState extends State<LocationPermissionGate> {
               ),
               const SizedBox(height: 14),
 
-              // Message (custom or dynamic)
+              // Mesaj (dinamic sau personalizat)
               Text(
                 _message ?? _customMessage,
                 style: const TextStyle(
@@ -202,13 +184,11 @@ class _LocationPermissionGateState extends State<LocationPermissionGate> {
               ),
               const SizedBox(height: 48),
 
-              // -----------------------------------------------------------------
-              // Buttons – change layout based on permanent denial
-              // -----------------------------------------------------------------
+              // Butoane – aspect diferit dacă e respins permanent
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Allow button – **disabled** when permanently denied
+                  // Buton "Permite" – dezactivat dacă e respins permanent
                   if (!_permanentlyDenied)
                     ElevatedButton(
                       onPressed: _requestInProgress ? null : _ensurePermission,
@@ -223,16 +203,15 @@ class _LocationPermissionGateState extends State<LocationPermissionGate> {
                         shadowColor: silver.withOpacity(0.4),
                       ),
                       child: const Text(
-                        'Allow',
+                        'Permite',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                     ),
 
-                  // Spacer only when both buttons are shown
                   if (!_permanentlyDenied) const SizedBox(width: 18),
 
-                  // Open Settings – always visible (especially when permanent)
+                  // Deschide Setări – întotdeauna vizibil
                   OutlinedButton(
                     onPressed: _openSettings,
                     style: OutlinedButton.styleFrom(
@@ -244,7 +223,7 @@ class _LocationPermissionGateState extends State<LocationPermissionGate> {
                           borderRadius: BorderRadius.circular(14)),
                     ),
                     child: const Text(
-                      'Open Settings',
+                      'Deschide Setări',
                       style: TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w600),
                     ),
