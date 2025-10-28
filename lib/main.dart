@@ -9,6 +9,7 @@ import 'package:fixcars/supplier/screens/supplier_home_page.dart';
 import 'package:fixcars/shared/screens/intro_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:fixcars/shared/widgets/location_permission_gate.dart';
 
 import 'firebase_options.dart';
 
@@ -67,10 +68,8 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       theme: ThemeData(textTheme: baseTextTheme),
       // home: SupplierSignupScreen(),
-      home:
-          isAuthenticated
-              ? HomePageRedirector()
-              : into_screen(),
+      home: LocationPermissionGate(
+          child: isAuthenticated ? HomePageRedirector() : into_screen()),
     );
   }
 }
