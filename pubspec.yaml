@@ -59,6 +59,7 @@ dependencies:
   flutter_image_compress: ^2.4.0
   mime: ^1.0.5
   flutter_animate: ^4.5.2
+  showcaseview: ^5.0.1
 
 dev_dependencies:
   flutter_test:
