@@ -374,28 +374,12 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                           child: SizedBox(
                                             height: 100,
                                             width: 100,
-                                            child: Animate(
-                                              effects: [
-                                                RotateEffect(
-                                                  duration: 2.seconds,
-                                                  curve: Curves.linear,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(4), // border thickness
 
-                                                ),
-                                              ],
-                                              child: Container(
-                                                padding: const EdgeInsets.all(4), // border thickness
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  gradient: const LinearGradient(
-                                                    colors: [Color(0xFF6A11CB), Color(0xFF2575FC)],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                ),
-                                                child: CircleAvatar(
-                                                  radius: 46, // slightly smaller to fit inside the border
-                                                  backgroundImage: NetworkImage(supplierPhotoUrl),
-                                                ),
+                                              child: CircleAvatar(
+                                                radius: 46, // slightly smaller to fit inside the border
+                                                backgroundImage: NetworkImage(supplierPhotoUrl),
                                               ),
                                             ),
                                           ),

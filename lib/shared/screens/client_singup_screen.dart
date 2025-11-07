@@ -531,6 +531,21 @@ class _client_singup_screenState extends State<client_singup_screen> {
                           LengthLimitingTextInputFormatter(10),
                         ],
                         decoration: InputDecoration(
+                          suffixIcon: GestureDetector(
+                            onTap: () => _showPhoneInfo(context),
+                            child: Container(
+                              margin: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFF3F4F6), // Very light gray (elegant background)
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.help_outline_rounded,
+                                color: Color(0xFF4B5563), // Your requested color
+                                size: 18,
+                              ),
+                            ),
+                          ),
                           labelText: 'Număr de telefon',
                           hintText: 'Ex: 0712345678',
                           hintStyle: TextStyle(color: Colors.grey),
@@ -549,7 +564,7 @@ class _client_singup_screenState extends State<client_singup_screen> {
                             borderSide: BorderSide.none,
                           ),
                         ),
-                      ),
+                      ), /// here
                       if (_errorMessage != null)
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 10),
@@ -585,6 +600,93 @@ class _client_singup_screenState extends State<client_singup_screen> {
                 ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showPhoneInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Responsive width: max 90% of screen, min 280
+            double maxWidth = constraints.maxWidth > 400 ? 360 : constraints.maxWidth * 0.9;
+
+            return ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxWidth),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title with icon
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF3F4F6),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.help_outline_rounded,
+                            color: Color(0xFF4B5563),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            'De ce avem nevoie de numărul tău de telefon?',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1F2937),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Responsive text - wraps perfectly
+                    const Text(
+                      'Numărul tău de telefon este folosit doar pentru serviciile de tractare auto și asistență SOS. În rest, nu va fi partajat cu nimeni.',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF4B5563),
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Close button
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFF4B5563),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        ),
+                        child: const Text(
+                          'Am înțeles',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
