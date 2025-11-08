@@ -56,7 +56,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   final GlobalKey _addServiceKey = GlobalKey();
   final GlobalKey _notificationsKey = GlobalKey();
   final GlobalKey _viewAllNotificationsKey = GlobalKey();
-
+  Timer? _pendingCountTimer;
   final NotificationService _notificationService = NotificationService();
 
   @override
@@ -65,8 +65,19 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     _fetchSupplierProfile();
     _startListeningToUnreadMessages();
     _loadPendingRequestCount();
+    _startPendingCountPolling();      // ← start polling
     _fetchAccountStatus();
     _initializeShowcase();
+  }
+
+  void _startPendingCountPolling() {
+    // Load immediately, then every 5 seconds
+    _loadPendingRequestCount();
+
+    _pendingCountTimer = Timer.periodic(
+      const Duration(seconds: 5),
+          (_) => _loadPendingRequestCount(),
+    );
   }
 
   void _initializeShowcase() async {
@@ -137,72 +148,11 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       }
     });
   }
-  // void _initializeShowcase() {
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     final shouldShowTutorial = true;
-  //
-  //     if (shouldShowTutorial && mounted) {
-  //       ShowcaseView.register(
-  //         blurValue: 1,
-  //         autoPlayDelay: const Duration(seconds: 5),
-  //         globalTooltipActionConfig: const TooltipActionConfig(
-  //           position: TooltipActionPosition.inside,
-  //           alignment: MainAxisAlignment.spaceBetween,
-  //           actionGap: 20,
-  //         ),
-  //         globalTooltipActions: [
-  //           TooltipActionButton(
-  //             type: TooltipDefaultActionType.previous,
-  //             textStyle: const TextStyle(
-  //               color: Colors.black87,
-  //               fontWeight: FontWeight.w600,
-  //             ),
-  //             backgroundColor: Colors.grey[100],
-  //             border: Border.all(color: Colors.grey[300]!),
-  //           ),
-  //           TooltipActionButton(
-  //             type: TooltipDefaultActionType.next,
-  //             textStyle: const TextStyle(
-  //               color: Colors.white,
-  //               fontWeight: FontWeight.w600,
-  //             ),
-  //             backgroundColor: Colors.blue[700],
-  //           ),
-  //         ],
-  //         onStart: (index, key) {
-  //           log('Tutorial început: $index, $key');
-  //         },
-  //         onComplete: (index, key) {
-  //           log('Tutorial completat: $index, $key');
-  //         },
-  //         onDismiss: (key) {
-  //           log('Tutorial închis la: $key');
-  //         },
-  //       );
-  //
-  //       Future.delayed(const Duration(milliseconds: 800), () {
-  //         if (mounted) {
-  //           ShowcaseView.get().startShowCase([
-  //             _profileImageKey,
-  //             _businessHoursKey,
-  //             _messagesKey,
-  //             _completedKey,
-  //             _ratingKey,
-  //             _sosAlertKey,
-  //             _myServicesKey,
-  //             _addServiceKey,
-  //             _notificationsKey,
-  //             _viewAllNotificationsKey,
-  //           ]);
-  //         }
-  //       });
-  //     }
-  //   });
-  // }
 
   @override
   void dispose() {
     _unreadSubscription?.cancel();
+    _pendingCountTimer?.cancel();
     ShowcaseView.get().unregister();
     super.dispose();
   }
@@ -213,21 +163,51 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       final response = await service.fetchAccountStatus();
 
       if (response['success'] == true) {
-        setState(() {
-          isActive = response['account_status']['is_active'] as bool;
-          _isLoading = false;
-        });
+        if (mounted) {  // ← ADD THIS
+          setState(() {
+            isActive = response['account_status']['is_active'] as bool;
+            _isLoading = false;
+          });
+        }
       } else {
-        setState(() {
-          'Nu s-a putut verifica starea contului';
-        });
+        if (mounted) {  // ← AND THIS
+          setState(() {
+            _errorMessage = 'Nu s-a putut verifica starea contului';
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {  // ← AND THIS
+        setState(() {
+          _errorMessage = 'Eroare la verificarea contului: $e';
+          _isLoading = false;
+        });
+      }
     }
   }
+
+  // Future<void> _fetchAccountStatus() async {
+  //   try {
+  //     final AccountStatusService service = AccountStatusService();
+  //     final response = await service.fetchAccountStatus();
+  //
+  //     if (response['success'] == true) {
+  //       setState(() {
+  //         isActive = response['account_status']['is_active'] as bool;
+  //         _isLoading = false;
+  //       });
+  //     } else {
+  //       setState(() {
+  //         'Nu s-a putut verifica starea contului';
+  //       });
+  //     }
+  //   } catch (e) {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   }
+  // }
 
   void _loadPendingRequestCount() async {
     try {
@@ -877,49 +857,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                 heroTag: "helpButton",
               ),
               SizedBox(height: 10),
-              if (_pendingRequestCount > 0)
-                FloatingActionButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RequestsScreen(),
-                      ),
-                    );
-                  },
-                  child: Stack(
-                    children: [
-                      Icon(Icons.warning_amber, color: Colors.white),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
-                          child: Text(
-                            _pendingRequestCount > 99 ? '99+' : _pendingRequestCount.toString(),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  backgroundColor: Colors.orange[700],
-                  tooltip: 'Cereri urgente',
-                  heroTag: "sosButton",
-                ),
+
             ],
           ),
         ),
