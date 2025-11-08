@@ -5,6 +5,7 @@ import 'package:fixcars/client/screens/client_home_page.dart';
 import 'package:fixcars/shared/services/OneSignalService.dart';
 import 'package:fixcars/shared/services/api_service.dart';
 import 'package:fixcars/shared/services/firebase_chat_service.dart';
+import 'package:fixcars/supplier/screens/AddNewServiceScreen.dart';
 import 'package:fixcars/supplier/screens/supplier_home_page.dart';
 import 'package:fixcars/shared/screens/intro_screen.dart';
 import 'package:flutter/material.dart';
@@ -68,7 +69,8 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       theme: ThemeData(textTheme: baseTextTheme),
       // home: SupplierSignupScreen(),
-      home: LocationPermissionGate(
+      home:
+      LocationPermissionGate(
           child: isAuthenticated ? HomePageRedirector() : into_screen()),
     );
   }

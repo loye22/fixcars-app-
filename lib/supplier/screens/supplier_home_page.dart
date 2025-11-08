@@ -725,7 +725,13 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                 ),
                                 child: InkWell(
                                   onTap: () {
-                                    showContactPopup(context);
+                                   // showContactPopup(context);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const AddNewServiceScreen(),
+                                      ),
+                                    );
                                   },
                                   child: buildQuickAction(
                                     "Adaugă serviciu",
