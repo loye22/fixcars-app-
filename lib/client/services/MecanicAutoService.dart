@@ -4,6 +4,17 @@ import 'package:http/http.dart' as http;
 import '../../shared/services/api_service.dart';
 import 'AddressService.dart';
 
+// enum AutoService {
+//   mecanic_auto,
+//   autocolant_folie_auto,
+//   detailing_auto_profesionist,
+//   itp,
+//   tapiterie_auto,
+//   vulcanizare_auto_mobila,
+//   tractari_auto,
+//   tuning_auto,
+// }
+
 enum AutoService {
   mecanic_auto,
   autocolant_folie_auto,
@@ -13,6 +24,10 @@ enum AutoService {
   vulcanizare_auto_mobila,
   tractari_auto,
   tuning_auto,
+  spalatorie_auto,
+  climatizare_auto,
+  caroserie_si_vopsitorie,
+  electrica_auto,
 }
 
 class MecanicAutoService {

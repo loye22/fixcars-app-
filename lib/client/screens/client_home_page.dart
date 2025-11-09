@@ -1,3 +1,7 @@
+import 'package:fixcars/client/screens/CaroserieSiVopsitorieScreen.dart';
+import 'package:fixcars/client/screens/ClimatizareAutoScreen.dart';
+import 'package:fixcars/client/screens/ElectricaAutoScreen.dart';
+import 'package:fixcars/client/screens/SpalatorieAutoScreen.dart';
 import 'package:fixcars/shared/screens/Server_down_screen.dart';
 import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
 import 'package:fixcars/shared/services/api_service.dart';
@@ -331,6 +335,34 @@ class _HomeContent extends StatelessWidget {
           title: 'Upgrade pentru Mașină',
           subtitle: 'Tuning Auto',
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPermissionGate(child: TuningScreen()))),
+        ),
+
+        ServiceCard(
+          imageAsset: 'assets/logos/1.png',
+          title: 'Electrica Auto',
+          subtitle: 'Electrica Auto',
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPermissionGate(child: ElectricaAutoScreen()))),
+        ),
+
+        ServiceCard(
+          imageAsset: 'assets/logos/1.png',
+          title: 'Caroserie Si Vopsitorie',
+          subtitle: 'Caroserie Si Vopsitorie',
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPermissionGate(child: CaroserieSiVopsitorieScreen()))),
+        ),
+
+        ServiceCard(
+          imageAsset: 'assets/logos/1.png',
+          title: 'Climatizare Auto',
+          subtitle: 'Climatizare Auto',
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPermissionGate(child: ClimatizareAutoScreen()))),
+        ),
+
+        ServiceCard(
+          imageAsset: 'assets/logos/1.png',
+          title: 'Spalatorie Auto',
+          subtitle: 'Spalatorie Auto',
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPermissionGate(child: SpalatorieAutoScreen()))),
         ),
       ],
     );
