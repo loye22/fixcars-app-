@@ -1,27 +1,67 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:fixcars/shared/services/api_service.dart';
 
-import '../../shared/services/api_service.dart';
-class SupplierOptionsService {
+class AddNewService {
   final ApiService _apiService = ApiService();
 
-  Future<Map<String, dynamic>> fetchSupplierOptions() async {
+  Future<Map<String, dynamic>> addSupplierBrandService({
+    required String brandId,
+    required List<String> serviceIds,
+    required String city,
+    required String sector,
+    required double latitude,
+    required double longitude,
+    required double price,
+  }) async {
     try {
-      final String url = '${ApiService.baseUrl}/supplier-brand-service-options/';
-      final http.Response response = await _apiService.authenticatedGet(url);
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> decodedJson = json.decode(response.body);
-        if (decodedJson['success'] != true) {
-          throw Exception('API returned success: false');
-        }
-        return decodedJson['data'] as Map<String, dynamic>;
+
+      final Map<String, dynamic> requestBody = {
+        'brand_id': brandId,
+        'service_ids': serviceIds,
+        'city': city,
+        'sector': sector,
+        'latitude': latitude,
+        'longitude': longitude,
+        'price': price, // Send as number, not string
+      };
+
+      // Remove price if it's 0 (optional field)
+      if (price == 0.0) {
+        requestBody.remove('price');
+      }
+
+      // Use the authenticatedPost method from ApiService
+      final response = await _apiService.authenticatedPost(
+        '${ApiService.baseUrl}/supplier-brand-services/',
+        requestBody,
+      );
+
+
+
+      final responseData = jsonDecode(response.body);
+
+
+
+      if (response.statusCode == 201) {
+        return {
+          'success': true,
+          'message': responseData['message'] ?? 'Serviciu adăugat cu succes!',
+          'data': responseData['data'],
+        };
       } else {
-        throw Exception(
-            'Failed to load options: ${response.statusCode} – ${response.body}');
+        return {
+          'success': false,
+          'error': responseData['error'] ?? 'Eroare necunoscută',
+          'details': responseData['details'],
+        };
       }
     } catch (e) {
-      throw Exception('Error fetching options: $e');
+      return {
+        'success': false,
+        'error': 'Eroare de rețea: $e',
+      };
     }
   }
 }

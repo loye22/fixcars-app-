@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:fixcars/client/screens/ReviewScreen.dart';
+import 'package:fixcars/shared/screens/BusinessLocationPermissionGate.dart';
 import 'package:fixcars/shared/screens/NotificationScreen.dart';
 import 'package:fixcars/client/screens/SupplierProfileScreen.dart';
 import 'package:fixcars/shared/screens/Server_down_screen.dart';
 import 'package:fixcars/shared/screens/conversation_list_screen.dart';
 import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
+import 'package:fixcars/shared/widgets/location_permission_gate.dart';
 import 'package:fixcars/supplier/screens/AddNewServiceScreen.dart';
 import 'package:fixcars/supplier/screens/MyServicesScreen.dart';
 import 'package:fixcars/supplier/screens/RequestsScreen.dart';
@@ -729,7 +731,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => const AddNewServiceScreen(),
+                                        builder: (context) =>  BusinessLocationPermissionGate(child: AddNewServiceScreen()),
                                       ),
                                     );
                                   },
