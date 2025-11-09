@@ -182,6 +182,21 @@ class _LocationPermissionGateState extends State<LocationPermissionGate> {
                 ),
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 24),
+
+              // Textul adăugat explicativ
+              const Text(
+                'De ce avem nevoie de locația ta?\n'
+                    'Serviciile din aplicație folosesc locația ta pentru a-ți arăta cele mai apropiate servicii. '
+                    'Fără aceasta, nu îți putem afișa rezultatele din apropiere. '
+                    'Locația ta nu va fi partajată cu nimeni — este folosită doar pentru a-ți arăta serviciile din zonă.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: lightSilver,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 48),
 
               // Butoane – aspect diferit dacă e respins permanent

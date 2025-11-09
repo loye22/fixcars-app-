@@ -4,6 +4,7 @@ import 'package:fixcars/shared/services/api_service.dart';
 import 'package:flutter/material.dart';
 import '../../shared/services/NotificationService.dart';
 import '../../shared/services/firebase_chat_service.dart';
+import '../../shared/widgets/location_permission_gate.dart';
 import 'AutocolantScreen.dart';
 
 import 'DetailingScreen.dart';
@@ -287,49 +288,49 @@ class _HomeContent extends StatelessWidget {
           imageAsset: 'assets/mechanic.png',
           title: 'Mecanic Auto',
           subtitle: 'Mecanic Auto',
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => MecanicScreen())),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPermissionGate(child: MecanicScreen()))),
         ),
         ServiceCard(
           imageAsset: 'assets/peeling.png',
           title: 'Autocolant & Folie Auto',
           subtitle: 'Servicii de Înfoliere',
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AutocolantScreen())),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPermissionGate(child: AutocolantScreen()))),
         ),
         ServiceCard(
           imageAsset: 'assets/car-polish.png',
           title: 'Detaliing Auto Profesional',
           subtitle: 'Detaliere Auto',
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DetailingScreen())),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPermissionGate(child: DetailingScreen()))),
         ),
         ServiceCard(
           imageAsset: 'assets/search.png',
           title: 'ITP',
           subtitle: 'Inspecție Tehnică Periodică',
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ITPScreen())),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPermissionGate(child: ITPScreen()))),
         ),
         ServiceCard(
           imageAsset: 'assets/cleaning.png',
           title: 'Tapiterie Auto Profesională',
           subtitle: 'Tapiterie Auto',
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => TapiterieScreen())),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPermissionGate(child: TapiterieScreen()))),
         ),
         ServiceCard(
           imageAsset: 'assets/flat-tire.png',
           title: 'Vulcanizare Auto Mobilă',
           subtitle: 'Servicii de Anvelope',
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => VulcanizareScreen())),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPermissionGate(child: VulcanizareScreen()))),
         ),
         ServiceCard(
           imageAsset: 'assets/towing-vehicle.png',
           title: 'Tractări Auto cu Platformă',
           subtitle: 'Tractări Auto',
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => TractariScreen())),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPermissionGate(child: TractariScreen()))),
         ),
         ServiceCard(
           imageAsset: 'assets/upgrade.png',
           title: 'Upgrade pentru Mașină',
           subtitle: 'Tuning Auto',
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => TuningScreen())),
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPermissionGate(child: TuningScreen()))),
         ),
       ],
     );

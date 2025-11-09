@@ -70,8 +70,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(textTheme: baseTextTheme),
       // home: SupplierSignupScreen(),
       home:
-      LocationPermissionGate(
-          child: isAuthenticated ? HomePageRedirector() : into_screen()),
+      isAuthenticated ? HomePageRedirector() : into_screen(),
     );
   }
 }
