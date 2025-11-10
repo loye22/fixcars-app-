@@ -9,11 +9,14 @@ class OneSignalService {
   static Future<void> initializeOneSignal() async {
     try {
       // Initialize with your App ID only
-      await OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+
+
+    //  await OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
       OneSignal.initialize("ac3a9463-87dc-4dda-becd-fb4d0c4382cc");
 
       // Request notification permission
       OneSignal.Notifications.requestPermission(true);
+
 
       // Handle notification clicks
       OneSignal.Notifications.addClickListener((event) {
@@ -22,13 +25,10 @@ class OneSignalService {
         // Handle navigation based on notification data
       });
 
-      print("DUBUG ############################### ");
 
       // Get player ID and register with backend
       OneSignal.User.pushSubscription.addObserver((state) {
-        print("DUBUG ########################### OneSignal.User.pushSubscription.addObserver ");
         if (state.current.id != null) {
-          print("DUBUG ###############################  ${state.current.id}");
 
           _registerDevice(state.current.id!);
         }

@@ -7,6 +7,9 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 
+	<key>OneSignal_app_groups_key</key>
+    <string>group.com.fixcars.app.onesignal</string>
+
 	<key>NSContactsUsageDescription</key>
     <string>Your phone number is required to contact suppliers or mechanics for orders or AAA service requests.</string>
 
