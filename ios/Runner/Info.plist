@@ -6,13 +6,6 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-
-	<key>OneSignal_app_groups_key</key>
-    <string>group.com.fixcars.app.onesignal</string>
-
-	<key>NSContactsUsageDescription</key>
-    <string>Your phone number is required to contact suppliers or mechanics for orders or AAA service requests.</string>
-
 	<key>CFBundleDisplayName</key>
 	<string>Fixcars</string>
 	<key>CFBundleExecutable</key>
@@ -42,15 +35,18 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Your location is required to find nearby mechanics and provide AAA (towing) services when requested.</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Your location is required to find nearby mechanics and provide AAA (towing) services when requested.</string>
-
 	<key>NSCameraUsageDescription</key>
 	<string>This app needs access to camera to take photos for chat messages</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Your phone number is required to contact suppliers or mechanics for orders or AAA service requests.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Your location is required to find nearby mechanics and provide AAA (towing) services when requested.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Your location is required to find nearby mechanics and provide AAA (towing) services when requested.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs access to photo library to select images for chat messages</string>
+	<key>OneSignal_app_groups_key</key>
+	<string>group.com.fixcars.app.onesignal</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
