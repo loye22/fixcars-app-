@@ -284,10 +284,11 @@ class _HomeContent extends StatelessWidget {
     {'title': 'CLIMATIZARE AUTO', 'screen': () => LocationPermissionGate(child: ClimatizareAutoScreen())},
     {'title': 'AUTOCOLANT & FOLIE', 'screen': () => LocationPermissionGate(child: AutocolantScreen())},
     {'title': 'TAPIȚERIE AUTO', 'screen': () => LocationPermissionGate(child: TapiterieScreen())},
+    {'title': 'SPĂLĂTORIE AUTO', 'screen': () => LocationPermissionGate(child: SpalatorieAutoScreen())},
     {'title': 'DETAILING AUTO', 'screen': () => LocationPermissionGate(child: DetailingScreen())},
     {'title': 'ITP', 'screen': () => LocationPermissionGate(child: ITPScreen())},
     {'title': 'TRACTĂRI AUTO', 'screen': () => LocationPermissionGate(child: TractariScreen())},
-    {'title': 'SPĂLĂTORIE AUTO', 'screen': () => LocationPermissionGate(child: SpalatorieAutoScreen())},
+
   ];
 
   @override
@@ -320,7 +321,7 @@ class _HomeContent extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
+           //   const SizedBox(height: 12),
               Container(
                 width: 60,
                 height: 2,
