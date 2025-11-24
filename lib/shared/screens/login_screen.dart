@@ -2,6 +2,7 @@ import 'package:fixcars/shared/screens/Server_down_screen.dart';
 import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
 import 'package:fixcars/shared/screens/rest_password_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../services/api_service.dart';
 import '../../client/screens/client_home_page.dart';
@@ -171,6 +172,9 @@ class _login_screenState extends State<login_screen> with SingleTickerProviderSt
                             ),
                             SizedBox(height: 40),
                             TextField(
+                              inputFormatters: [
+                                FilteringTextInputFormatter.deny(RegExp(r'\s')), // Blocks ALL whitespace
+                              ],
                               controller: _emailController,
                               onChanged: _validateEmail,
                               style: TextStyle(color: Colors.white),

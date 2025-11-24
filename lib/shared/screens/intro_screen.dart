@@ -38,133 +38,136 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
           child: Column(
             children: [
               Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Logo
-                    Container(
-                      height: 120,
-                      child: Image.asset(
-                        'assets/logos/introo.png',
-                        fit: BoxFit.contain,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 100,) ,
+                      // Logo
+                      Container(
+                        height: 120,
+                        child: Image.asset(
+                          'assets/logos/introo.png',
+                          fit: BoxFit.contain,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 40),
-                    
-                    // Title
-                    Text(
-                      'Bun venit la FixCars!',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 20),
-                    
-                    // Subtitle
-                    Text(
-                      'Pentru a continua, vă rugăm să citiți și să acceptați următoarele documente:',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white70,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 30),
-                    
-                    // Agreement text with clickable links
-                    Container(
-                      padding: EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[900],
-                        borderRadius: BorderRadius.circular(15),
-                        border: Border.all(color: Colors.grey[700]!),
-                      ),
-                      child: RichText(
+                      SizedBox(height: 40),
+                      
+                      // Title
+                      Text(
+                        'Bun venit la FixCars!',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                         textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            height: 1.5,
-                          ),
-                          children: [
-                            TextSpan(text: 'Sunt de acord cu '),
-                            WidgetSpan(
-                              child: GestureDetector(
-                                onTap: () => _showPDF('assets/docs/terms_and_conditions_ro.pdf', 'Termeni și Condiții'),
-                                child: Text(
-                                  'Termenii și Condițiile',
-                                  style: TextStyle(
-                                    color: Colors.blue[300],
-                                    decoration: TextDecoration.underline,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TextSpan(text: ', '),
-                            WidgetSpan(
-                              child: GestureDetector(
-                                onTap: () => _showPDF('assets/docs/privacy_policy_ro.pdf', 'Politica de Confidențialitate'),
-                                child: Text(
-                                  'Politica de Confidențialitate',
-                                  style: TextStyle(
-                                    color: Colors.blue[300],
-                                    decoration: TextDecoration.underline,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TextSpan(text: ' și '),
-                            WidgetSpan(
-                              child: GestureDetector(
-                                onTap: () => _showPDF('assets/docs/fixcars_community_guidelines_ro.pdf', 'Ghidul Comunității'),
-                                child: Text(
-                                  'Ghidul Comunității',
-                                  style: TextStyle(
-                                    color: Colors.blue[300],
-                                    decoration: TextDecoration.underline,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TextSpan(text: ' ale aplicației FixCars.'),
-                          ],
-                        ),
                       ),
-                    ),
-                    SizedBox(height: 30),
-                    
-                    // Checkbox
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Checkbox(
-                          value: _isAgreed,
-                          onChanged: (value) {
-                            setState(() {
-                              _isAgreed = value ?? false;
-                            });
-                          },
-                          activeColor: Colors.blue,
+                      SizedBox(height: 20),
+                      
+                      // Subtitle
+                      Text(
+                        'Pentru a continua, vă rugăm să citiți și să acceptați următoarele documente:',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white70,
                         ),
-                        Expanded(
-                          child: Text(
-                            'Am citit și accept termenii de mai sus',
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 30),
+                      
+                      // Agreement text with clickable links
+                      Container(
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[900],
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: Colors.grey[700]!),
+                        ),
+                        child: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.white,
+                              height: 1.5,
                             ),
+                            children: [
+                              TextSpan(text: 'Sunt de acord cu '),
+                              WidgetSpan(
+                                child: GestureDetector(
+                                  onTap: () => _showPDF('assets/docs/terms_and_conditions_ro.pdf', 'Termeni și Condiții'),
+                                  child: Text(
+                                    'Termenii și Condițiile',
+                                    style: TextStyle(
+                                      color: Colors.blue[300],
+                                      decoration: TextDecoration.underline,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              TextSpan(text: ', '),
+                              WidgetSpan(
+                                child: GestureDetector(
+                                  onTap: () => _showPDF('assets/docs/privacy_policy_ro.pdf', 'Politica de Confidențialitate'),
+                                  child: Text(
+                                    'Politica de Confidențialitate',
+                                    style: TextStyle(
+                                      color: Colors.blue[300],
+                                      decoration: TextDecoration.underline,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              TextSpan(text: ' și '),
+                              WidgetSpan(
+                                child: GestureDetector(
+                                  onTap: () => _showPDF('assets/docs/fixcars_community_guidelines_ro.pdf', 'Ghidul Comunității'),
+                                  child: Text(
+                                    'Ghidul Comunității',
+                                    style: TextStyle(
+                                      color: Colors.blue[300],
+                                      decoration: TextDecoration.underline,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              TextSpan(text: ' ale aplicației FixCars.'),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      SizedBox(height: 30),
+                      
+                      // Checkbox
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Checkbox(
+                            value: _isAgreed,
+                            onChanged: (value) {
+                              setState(() {
+                                _isAgreed = value ?? false;
+                              });
+                            },
+                            activeColor: Colors.blue,
+                          ),
+                          Expanded(
+                            child: Text(
+                              'Am citit și accept termenii de mai sus',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               
