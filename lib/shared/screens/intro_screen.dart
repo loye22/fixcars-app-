@@ -55,7 +55,7 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
                       
                       // Title
                       Text(
-                        'Bun venit la FixCars!',
+                        'Bun venit la FixCar!',
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,

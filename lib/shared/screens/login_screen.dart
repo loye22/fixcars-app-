@@ -1,6 +1,7 @@
 import 'package:fixcars/shared/screens/Server_down_screen.dart';
 import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
 import 'package:fixcars/shared/screens/rest_password_screen.dart';
+import 'package:fixcars/shared/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -270,6 +271,28 @@ class _login_screenState extends State<login_screen> with SingleTickerProviderSt
                                 minimumSize: Size(double.infinity, 50),
                               ),
                               child: Text('LOGIN', style: TextStyle(fontSize: 18, color: Colors.white)),
+                            ),
+                            SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => signup_screen()),
+                                );
+
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF808080),
+                                foregroundColor: Colors.white,
+                                minimumSize: Size(double.infinity, 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                              ),
+                              child: Text(
+                                'SIGNUP',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
                             ),
                             SizedBox(height: 20),
                             Text(

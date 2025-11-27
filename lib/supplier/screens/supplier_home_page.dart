@@ -841,33 +841,33 @@ class _supplier_home_pageState extends State<supplier_home_page> {
               ],
             ),
           ),
-          floatingActionButton: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              FloatingActionButton(
-                onPressed: () {
-                  ShowcaseView.get().startShowCase([
-                    _profileImageKey,
-                    _businessHoursKey,
-                    _messagesKey,
-                    _completedKey,
-                    _ratingKey,
-                    _sosAlertKey,
-                    _myServicesKey,
-                    _addServiceKey,
-                    _notificationsKey,
-                    _viewAllNotificationsKey,
-                  ]);
-                },
-                child: Icon(Icons.help_outline, color: Colors.white),
-                backgroundColor: Colors.blue[700],
-                tooltip: 'Arată tutorialul',
-                heroTag: "helpButton",
-              ),
-              SizedBox(height: 10),
-
-            ],
-          ),
+          // floatingActionButton: Column(
+          //   mainAxisAlignment: MainAxisAlignment.end,
+          //   children: [
+          //     FloatingActionButton(
+          //       onPressed: () {
+          //         ShowcaseView.get().startShowCase([
+          //           _profileImageKey,
+          //           _businessHoursKey,
+          //           _messagesKey,
+          //           _completedKey,
+          //           _ratingKey,
+          //           _sosAlertKey,
+          //           _myServicesKey,
+          //           _addServiceKey,
+          //           _notificationsKey,
+          //           _viewAllNotificationsKey,
+          //         ]);
+          //       },
+          //       child: Icon(Icons.help_outline, color: Colors.white),
+          //       backgroundColor: Colors.blue[700],
+          //       tooltip: 'Arată tutorialul',
+          //       heroTag: "helpButton",
+          //     ),
+          //     SizedBox(height: 10),
+          //
+          //   ],
+          // ),
         ),
       ),
     );
