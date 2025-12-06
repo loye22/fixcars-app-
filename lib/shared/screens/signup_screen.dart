@@ -12,15 +12,22 @@ class signup_screen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/logo.png', // Replace with your car icon asset
-              height: 100,
+            Container(
+              padding: EdgeInsets.all(19),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(30)
+              ),
+              child: Image.asset(
+                'assets/logos/introo.png', // Replace with your car icon asset
+                height: 100,
+              ),
             ),
-            SizedBox(height: 20),
-            Text(
-              'Auto Rescue',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blueGrey[700]),
-            ),
+            // SizedBox(height: 20),
+            // Text(
+            //   'Auto Rescue',
+            //   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blueGrey[700]),
+            // ),
             SizedBox(height: 5),
             Text(
               'Soluția ta completă pentru servicii auto',

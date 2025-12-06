@@ -443,7 +443,7 @@ class OnboardingScreen1 extends StatelessWidget {
           children: [
             SizedBox(height: 100),
             Text(
-              'FIXCARS',
+              'FIXCAR',
               style: TextStyle(
                 fontSize: 40,
                 color: Colors.white,
