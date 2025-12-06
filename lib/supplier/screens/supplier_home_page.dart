@@ -77,7 +77,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     _loadPendingRequestCount();
 
     _pendingCountTimer = Timer.periodic(
-      const Duration(seconds: 5),
+      const Duration(seconds: 15),
           (_) => _loadPendingRequestCount(),
     );
   }

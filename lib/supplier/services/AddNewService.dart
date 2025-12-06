@@ -5,56 +5,105 @@ import 'package:fixcars/shared/services/api_service.dart';
 class AddNewService {
   final ApiService _apiService = ApiService();
 
+  // New method for bulk creation with the updated payload format
+  // Future<Map<String, dynamic>> addSupplierBrandServiceBulk({
+  //   required String city,
+  //   required String sector,
+  //   required double latitude,
+  //   required double longitude,
+  //   required List<Map<String, dynamic>> payloads,
+  // }) async
+  //
+  // {
+  //   try {
+  //     final Map<String, dynamic> requestBody = {
+  //       "total_payloads": payloads.length,
+  //       "shared_location": {
+  //         "city": city,
+  //         "sector": sector,
+  //         "latitude": latitude,
+  //         "longitude": longitude,
+  //         "is_real_location": true,
+  //       },
+  //       "payloads": payloads,
+  //       "metadata": {
+  //         "price": 0.0,
+  //         "created_at": DateTime.now().toIso8601String(),
+  //       },
+  //     };
+  //
+  //     // Use the authenticatedPost method from ApiService
+  //     final response = await _apiService.authenticatedPost(
+  //       '${ApiService.baseUrl}/supplier-brand-services/bulk/',
+  //       // Note: added /bulk/
+  //       requestBody,
+  //     );
+  //
+  //     final responseData = jsonDecode(response.body);
+  //
+  //     if (response.statusCode == 201) {
+  //       return {
+  //         'success': true,
+  //         'message': responseData['message'] ?? 'Servicii adăugate cu succes!',
+  //         'created_count': responseData['created_count'] ?? 0,
+  //         'data': responseData['data'] ?? [],
+  //       };
+  //     } else {
+  //       return {
+  //         'success': false,
+  //         'error': responseData['error'] ?? 'Eroare necunoscută',
+  //         'duplicate_errors': responseData['duplicate_errors'] ?? [],
+  //       };
+  //     }
+  //   } catch (e) {
+  //     return {'success': false, 'error': 'Eroare de rețea: $e'};
+  //   }
+  // }
+
+
   Future<Map<String, dynamic>> addSupplierBrandService({
-    required String brandId,
-    required List<String> serviceIds,
     required String city,
     required String sector,
     required double latitude,
     required double longitude,
-    required double price,
+    required List<Map<String, dynamic>> payloads,
   }) async {
     try {
-
-
       final Map<String, dynamic> requestBody = {
-        'brand_id': brandId,
-        'service_ids': serviceIds,
-        'city': city,
-        'sector': sector,
-        'latitude': latitude,
-        'longitude': longitude,
-        'price': price, // Send as number, not string
+        "total_payloads": payloads.length,
+        "shared_location": {
+          "city": city,
+          "sector": sector,
+          "latitude": latitude,
+          "longitude": longitude,
+          "is_real_location": true,
+        },
+        "payloads": payloads,
+        "metadata": {
+          "price": 0.0,
+          "created_at": DateTime.now().toIso8601String(),
+        }
       };
 
-      // Remove price if it's 0 (optional field)
-      if (price == 0.0) {
-        requestBody.remove('price');
-      }
-
-      // Use the authenticatedPost method from ApiService
       final response = await _apiService.authenticatedPost(
-        '${ApiService.baseUrl}/supplier-brand-services/',
+        '${ApiService.baseUrl}/supplier-brand-services/', // Note the /bulk/ endpoint
         requestBody,
       );
 
-
-
       final responseData = jsonDecode(response.body);
-
-
 
       if (response.statusCode == 201) {
         return {
           'success': true,
-          'message': responseData['message'] ?? 'Serviciu adăugat cu succes!',
-          'data': responseData['data'],
+          'message': responseData['message'] ?? 'Servicii adăugate cu succes!',
+          'created_count': responseData['created_count'] ?? 0,
+          'data': responseData['data'] ?? [],
         };
       } else {
         return {
           'success': false,
           'error': responseData['error'] ?? 'Eroare necunoscută',
-          'details': responseData['details'],
+          'duplicate_errors': responseData['duplicate_errors'] ?? [],
         };
       }
     } catch (e) {
@@ -64,4 +113,5 @@ class AddNewService {
       };
     }
   }
+
 }
