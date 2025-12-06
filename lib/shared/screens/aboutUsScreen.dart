@@ -262,7 +262,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                     ),
                     SizedBox(height: 15),
                     Text(
-                      'FixCars',
+                      'FixCar',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,

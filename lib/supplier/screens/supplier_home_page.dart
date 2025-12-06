@@ -639,108 +639,59 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            // --- Alertă SOS Button ---
                             Expanded(
-                              child: Showcase(
-                                key: _sosAlertKey,
-                                title: "Alertă SOS",
-                                description: "Cereri urgente de la clienți. Bulina roșie arată câte cereri noi ai care necesită acțiune imediată.",
-                                tooltipBackgroundColor: Colors.white,
-                                titleTextStyle: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                                descTextStyle: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black54,
-                                ),
-                                child: InkWell(
-                                  onTap: () {
-                                    print("SOS button tapped!");
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => RequestsScreen(),
-                                      ),
-                                    );
-                                  },
-                                  splashColor: Colors.red.withOpacity(0.3),
-                                  highlightColor: Colors.red.withOpacity(0.1),
-                                  child: buildQuickAction(
-                                    "Alertă SOS",
-                                    "assets/ass2.png",
-                                    const Color(0xFFFEF2F2),
-                                    count: _pendingRequestCount,
-                                  ),
-                                ),
+                              child: buildQuickAction(
+                                "Alertă SOS",
+                                "assets/ass2.png",
+                                const Color(0xFFFEF2F2),
+                                count: _pendingRequestCount,
+                                onTap: () { // Navigation logic moved here
+                                  print("SOS button tapped!");
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RequestsScreen(),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
+
+                            // --- Serviciile mele Button ---
                             Expanded(
-                              child: Showcase(
-                                key: _myServicesKey,
-                                title: "Serviciile Mele",
-                                description: "Gestionează serviciile oferite, prețurile și disponibilitatea. Aici poți actualiza oferta ta.",
-                                tooltipBackgroundColor: Colors.white,
-                                titleTextStyle: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                                descTextStyle: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black54,
-                                ),
-                                child: InkWell(
-                                  onTap: () {
-                                    print("Serviciile mele tapped!");
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => SupplierProfileScreen(
-                                          userId: supplierID,
-                                        ),
+                              child: buildQuickAction(
+                                "Serviciile mele",
+                                "assets/ass1.png",
+                                const Color(0xFFEFF6FF),
+                                onTap: () { // Navigation logic moved here
+                                  print("Serviciile mele tapped!");
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SupplierProfileScreen(
+                                        userId: supplierID,
                                       ),
-                                    );
-                                  },
-                                  child: buildQuickAction(
-                                    "Serviciile mele",
-                                    "assets/ass1.png",
-                                    const Color(0xFFEFF6FF),
-                                  ),
-                                ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
+
+                            // --- Adaugă serviciu Button ---
                             Expanded(
-                              child: Showcase(
-                                key: _addServiceKey,
-                                title: "Adaugă Serviciu",
-                                description: "Vrei să oferi un serviciu nou? Contactează echipa noastră pentru a-ți extinde gama de servicii.",
-                                tooltipBackgroundColor: Colors.white,
-                                titleTextStyle: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                                descTextStyle: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black54,
-                                ),
-                                child: InkWell(
-                                  onTap: () {
-                                   // showContactPopup(context);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>  BusinessLocationPermissionGate(child: AddNewServiceScreen()),
-                                      ),
-                                    );
-                                  },
-                                  child: buildQuickAction(
-                                    "Adaugă serviciu",
-                                    "assets/ass3.png",
-                                    const Color(0xFFF0FDF4),
-                                  ),
-                                ),
+                              child: buildQuickAction(
+                                "Adaugă serviciu",
+                                "assets/ass3.png",
+                                const Color(0xFFF0FDF4),
+                                onTap: () { // Navigation logic moved here
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>  BusinessLocationPermissionGate(child: AddNewServiceScreen()),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ],
@@ -1022,60 +973,67 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       String assetImagePath,
       Color containerBg, {
         int count = 0,
+        required VoidCallback onTap, // ADDED required onTap callback
       }) {
     return Padding(
       padding: const EdgeInsets.only(left: 4.0),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-        decoration: BoxDecoration(
-          color: containerBg,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Image.asset(assetImagePath, width: 48, height: 48),
-                if (count > 0)
-                  Positioned(
-                    top: -4,
-                    left: -4,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 20,
-                        minHeight: 20,
-                      ),
-                      child: Text(
-                        count > 99 ? '99+' : count.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+      // Wrap the whole structure in GestureDetector to capture all taps
+      child: GestureDetector(
+        onTap: onTap,
+        // Wrap with a SizedBox to ensure it expands to fit the Padding width/height
+        // or rely on the inner container's padding to define the tap area.
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          decoration: BoxDecoration(
+            color: containerBg,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Keep column size minimal
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Image.asset(assetImagePath, width: 48, height: 48),
+                  if (count > 0)
+                    Positioned(
+                      top: -4,
+                      left: -4,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
                         ),
-                        textAlign: TextAlign.center,
+                        constraints: const BoxConstraints(
+                          minWidth: 20,
+                          minHeight: 20,
+                        ),
+                        child: Text(
+                          count > 99 ? '99+' : count.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title.replaceAll(" ", "\n"),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                title.replaceAll(" ", "\n"),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
