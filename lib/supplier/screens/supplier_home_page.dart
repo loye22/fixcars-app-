@@ -8,19 +8,15 @@ import 'package:fixcars/client/screens/SupplierProfileScreen.dart';
 import 'package:fixcars/shared/screens/Server_down_screen.dart';
 import 'package:fixcars/shared/screens/conversation_list_screen.dart';
 import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
-import 'package:fixcars/shared/widgets/location_permission_gate.dart';
 import 'package:fixcars/supplier/screens/AddNewServiceScreen.dart';
-import 'package:fixcars/supplier/screens/MyServicesScreen.dart';
 import 'package:fixcars/supplier/screens/RequestsScreen.dart';
 import 'package:fixcars/supplier/screens/waiting_review_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../shared/screens/aboutUsScreen.dart';
-import '../../shared/services/OneSignalService.dart';
 import '../../shared/services/PendingCountRequestsService.dart';
 import '../../shared/services/api_service.dart';
 import '../../shared/services/firebase_chat_service.dart';
@@ -60,6 +56,10 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   final GlobalKey _viewAllNotificationsKey = GlobalKey();
   Timer? _pendingCountTimer;
   final NotificationService _notificationService = NotificationService();
+
+
+
+
 
   @override
   void initState() {
@@ -998,103 +998,9 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     );
   }
 
-  void _showBusinessHoursDialog(
-      BuildContext context,
-      Map<String, dynamic> businessHours,
-      bool isOpen,
-      ) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Program de lucru",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[800],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ..._buildBusinessHoursList(businessHours),
-                const SizedBox(height: 16),
-                Divider(),
-                const SizedBox(height: 8),
-                Text(
-                  "Pentru a modifica programul de lucru, vă rugăm să contactați echipa noastră de support la support@fixcars.ro",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      gradient: LinearGradient(
-                        colors: [Colors.blue.shade700, Colors.blue.shade500],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.withOpacity(0.3),
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                      ),
-                      child: Text(
-                        "Închide",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
+
+  /// Elegant implementation of the business hours list
   List<Widget> _buildBusinessHoursList(Map<String, dynamic> businessHours) {
     final days = [
       {'key': 'monday', 'label': 'Luni'},
@@ -1106,41 +1012,382 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       {'key': 'sunday', 'label': 'Duminică'},
     ];
 
+    String formatTime(String timeString) {
+      if (timeString.length >= 5) {
+        return timeString.substring(0, 5);
+      }
+      return timeString;
+    }
+
     return days.map((day) {
       final dayData = businessHours[day['key']];
-      final isClosed = dayData['closed'] ?? true;
+      final isClosed = dayData?['closed'] ?? true;
 
-      String formatTime(String timeString) {
-        if (timeString.length >= 5) {
-          return timeString.substring(0, 5);
-        }
-        return timeString;
-      }
-
-      final openTime = isClosed ? '' : formatTime(dayData['open'] ?? '');
-      final closeTime = isClosed ? '' : formatTime(dayData['close'] ?? '');
+      final openTime = isClosed ? '' : formatTime(dayData?['open'] ?? '');
+      final closeTime = isClosed ? '' : formatTime(dayData?['close'] ?? '');
 
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               day['label']!,
               style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+                color: Colors.grey.shade800,
               ),
             ),
             Text(
               isClosed ? 'Închis' : '$openTime - $closeTime',
-              style: TextStyle(color: isClosed ? Colors.red : Colors.green),
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: isClosed ? FontWeight.w700 : FontWeight.w600,
+                color: isClosed ? Color(0xFFE53935) : Color(0xFF4CAF50),
+              ),
             ),
           ],
         ),
       );
     }).toList();
   }
+
+  /// The main elegant dialog function with black button and iOS-style icons
+  void _showBusinessHoursDialog(
+      BuildContext context,
+      Map<String, dynamic> businessHours,
+      bool isOpen,
+      ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.12),
+                  blurRadius: 35,
+                  spreadRadius: 2,
+                  offset: Offset(0, 15),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // --- HEADER (Icon + Title) ---
+                Row(
+                  children: [
+                    // Using 'Access Time' icon for a clean, iOS-like clock
+                    Icon(
+                      Icons.access_time_filled,
+                      color:  Color(0xFF1E88E5),
+                      size: 28,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      "Program de Lucru",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.grey.shade900,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // --- STATUS INDICATOR ---
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: isOpen ? Color(0xFF4CAF50).withOpacity(0.1) : Color(0xFFE53935).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Using filled circle icons for an iOS-like look
+                      Icon(
+                        isOpen ? Icons.check_circle : Icons.cancel,
+                        color: isOpen ? Color(0xFF4CAF50) : Color(0xFFE53935),
+                        size: 18,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        isOpen ? "Deschis Acum" : "Închis Momentan",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: isOpen ? Color(0xFF4CAF50) : Color(0xFFE53935),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // --- BUSINESS HOURS LIST ---
+                ..._buildBusinessHoursList(businessHours),
+
+                const SizedBox(height: 24),
+                Divider(
+                  color: Colors.grey.shade300,
+                  thickness: 1,
+                ),
+                const SizedBox(height: 16),
+
+                // --- SUPPORT MESSAGE ---
+                Text(
+                  "Pentru a modifica programul de lucru, vă rugăm să contactați echipa noastră de support la support@fixcars.ro",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade600,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // --- ACTIONS (EDIT + CLOSE BUTTONS) ---
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // 1. EDIT BUTTON (Placeholder for implementation)
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        // TODO: Implement the logic to edit business hours
+                        print('Edit button pressed!');
+                      },
+                      icon: Icon(
+                        Icons.edit, // Clean edit icon
+                        size: 20,
+                        color:  Color(0xFF1E88E5),
+                      ),
+                      label: Text(
+                        "Editează",
+                        style: TextStyle(
+                          color:  Color(0xFF1E88E5),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.grey.shade300, width: 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    // 2. CLOSE BUTTON (Black, elegant design)
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color:  Color(0xFF212121), // Solid Black background
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 10,
+                            offset: Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.transparent, // Keep transparent for the container color
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          "Închide",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  //
+  // void _showBusinessHoursDialog(
+  //     BuildContext context,
+  //     Map<String, dynamic> businessHours,
+  //     bool isOpen,
+  //     )
+  // {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return Dialog(
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(16.0),
+  //         ),
+  //         elevation: 0,
+  //         backgroundColor: Colors.transparent,
+  //         child: Container(
+  //           padding: const EdgeInsets.all(20),
+  //           decoration: BoxDecoration(
+  //             color: Colors.white,
+  //             borderRadius: BorderRadius.circular(16),
+  //           ),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Text(
+  //                 "Program de lucru",
+  //                 style: TextStyle(
+  //                   fontSize: 20,
+  //                   fontWeight: FontWeight.bold,
+  //                   color: Colors.grey[800],
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 16),
+  //               ..._buildBusinessHoursList(businessHours),
+  //               const SizedBox(height: 16),
+  //               Divider(),
+  //               const SizedBox(height: 8),
+  //               Text(
+  //                 "Pentru a modifica programul de lucru, vă rugăm să contactați echipa noastră de support la support@fixcars.ro",
+  //                 style: TextStyle(
+  //                   fontSize: 14,
+  //                   color: Colors.grey[600],
+  //                   fontStyle: FontStyle.italic,
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 16),
+  //               Align(
+  //                 alignment: Alignment.centerRight,
+  //                 child: Container(
+  //                   decoration: BoxDecoration(
+  //                     borderRadius: BorderRadius.circular(8),
+  //                     gradient: LinearGradient(
+  //                       colors: [Colors.blue.shade700, Colors.blue.shade500],
+  //                       begin: Alignment.topLeft,
+  //                       end: Alignment.bottomRight,
+  //                     ),
+  //                     boxShadow: [
+  //                       BoxShadow(
+  //                         color: Colors.blue.withOpacity(0.3),
+  //                         blurRadius: 4,
+  //                         offset: Offset(0, 2),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   child: TextButton(
+  //                     onPressed: () {
+  //                       Navigator.of(context).pop();
+  //                     },
+  //                     style: TextButton.styleFrom(
+  //                       backgroundColor: Colors.transparent,
+  //                       shape: RoundedRectangleBorder(
+  //                         borderRadius: BorderRadius.circular(8),
+  //                       ),
+  //                       padding: const EdgeInsets.symmetric(
+  //                         horizontal: 20,
+  //                         vertical: 10,
+  //                       ),
+  //                     ),
+  //                     child: Text(
+  //                       "Închide",
+  //                       style: TextStyle(
+  //                         color: Colors.white,
+  //                         fontWeight: FontWeight.bold,
+  //                         fontSize: 16,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+  //
+  // List<Widget> _buildBusinessHoursList(Map<String, dynamic> businessHours) {
+  //   final days = [
+  //     {'key': 'monday', 'label': 'Luni'},
+  //     {'key': 'tuesday', 'label': 'Marți'},
+  //     {'key': 'wednesday', 'label': 'Miercuri'},
+  //     {'key': 'thursday', 'label': 'Joi'},
+  //     {'key': 'friday', 'label': 'Vineri'},
+  //     {'key': 'saturday', 'label': 'Sâmbătă'},
+  //     {'key': 'sunday', 'label': 'Duminică'},
+  //   ];
+  //
+  //   return days.map((day) {
+  //     final dayData = businessHours[day['key']];
+  //     final isClosed = dayData['closed'] ?? true;
+  //
+  //     String formatTime(String timeString) {
+  //       if (timeString.length >= 5) {
+  //         return timeString.substring(0, 5);
+  //       }
+  //       return timeString;
+  //     }
+  //
+  //     final openTime = isClosed ? '' : formatTime(dayData['open'] ?? '');
+  //     final closeTime = isClosed ? '' : formatTime(dayData['close'] ?? '');
+  //
+  //     return Padding(
+  //       padding: const EdgeInsets.symmetric(vertical: 4.0),
+  //       child: Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //         children: [
+  //           Text(
+  //             day['label']!,
+  //             style: TextStyle(
+  //               fontWeight: FontWeight.w500,
+  //               color: Colors.grey[700],
+  //             ),
+  //           ),
+  //           Text(
+  //             isClosed ? 'Închis' : '$openTime - $closeTime',
+  //             style: TextStyle(color: isClosed ? Colors.red : Colors.green),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   }).toList();
+  // }
 
   Widget buildQuickAction(
       String title,
