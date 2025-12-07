@@ -11,6 +11,7 @@ import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
 import 'package:fixcars/supplier/screens/AddNewServiceScreen.dart';
 import 'package:fixcars/supplier/screens/RequestsScreen.dart';
 import 'package:fixcars/supplier/screens/waiting_review_screen.dart';
+import 'package:fixcars/supplier/widgets/BusinessHoursBottomSheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -1166,9 +1167,18 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                     // 1. EDIT BUTTON (Placeholder for implementation)
                     OutlinedButton.icon(
                       onPressed: () {
-                        // TODO: Implement the logic to edit business hours
-                        print('Edit button pressed!');
+                        Navigator.of(context).pop(); // Optional: close the main popup
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (_) => const BusinessHoursBottomSheet(),
+                        );
                       },
+                      // onPressed: () {
+                      //   // TODO: Implement the logic to edit business hours
+                      //   print('Edit button pressed!');
+                      // },
                       icon: Icon(
                         Icons.edit, // Clean edit icon
                         size: 20,
