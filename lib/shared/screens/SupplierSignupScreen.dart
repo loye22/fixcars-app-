@@ -140,38 +140,100 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
   void _showImageSourceDialog(bool isProfile) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: Colors.white,
-            title: Text('Selectați sursa imaginii'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: Icon(Icons.camera_alt),
-                  title: Text('Cameră'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    isProfile
-                        ? _pickProfileImage(ImageSource.camera)
-                        : _pickCoverImage(ImageSource.camera);
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.photo_library),
-                  title: Text('Galerie'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    isProfile
-                        ? _pickProfileImage(ImageSource.gallery)
-                        : _pickCoverImage(ImageSource.gallery);
-                  },
-                ),
-              ],
-            ),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        insetPadding: EdgeInsets.symmetric(horizontal: 24),
+        child: Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 15,
+                offset: Offset(0, 6),
+              ),
+            ],
           ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Selectați sursa imaginii',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(height: 20),
+
+              _dialogOption(
+                icon: Icons.camera_alt_rounded,
+                text: 'Cameră',
+                onTap: () {
+                  Navigator.pop(context);
+                  isProfile
+                      ? _pickProfileImage(ImageSource.camera)
+                      : _pickCoverImage(ImageSource.camera);
+                },
+              ),
+
+              SizedBox(height: 10),
+
+              _dialogOption(
+                icon: Icons.photo_library_rounded,
+                text: 'Galerie',
+                onTap: () {
+                  Navigator.pop(context);
+                  isProfile
+                      ? _pickProfileImage(ImageSource.gallery)
+                      : _pickCoverImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
+
+  Widget _dialogOption({
+    required IconData icon,
+    required String text,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color: Colors.grey.shade100,
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 26, color: Colors.black87),
+            SizedBox(width: 12),
+            Text(
+              text,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
 
   Future<void> _onSubmit() async {
     if (!_validateForm()) {
@@ -319,130 +381,7 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
     }
   }
 
-  // Future<void> _onSubmit() async {
-  //   if (!_validateForm()) {
-  //     return;
-  //   }
-  //
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-  //
-  //   // Get current location - REQUIRED
-  //   double latitude;
-  //   double longitude;
-  //
-  //   try {
-  //     bool hasPermission = await _checkLocationPermission();
-  //     if (!hasPermission) {
-  //       setState(() {
-  //         _isLoading = false;
-  //       });
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('Permisiunea de localizare este obligatorie pentru înregistrare.')),
-  //       );
-  //       return;
-  //     }
-  //
-  //     Position position = await Geolocator.getCurrentPosition(
-  //       desiredAccuracy: LocationAccuracy.high,
-  //     );
-  //     latitude = position.latitude;
-  //     longitude = position.longitude;
-  //   } catch (e) {
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Eroare la obținerea locației: $e. Vă rugăm să încercați din nou.')),
-  //     );
-  //     return;
-  //   }
-  //
-  //   print("========================DEBUG=============================");
-  //
-  //   // Upload profile image
-  //   String? profilePhotoUrl;
-  //   if (_profileImage != null) {
-  //     final profileUploadResult = await ApiService().uploadFile(_profileImage!);
-  //     print("Profile Upload Result: $profileUploadResult");
-  //     if (!profileUploadResult['success']) {
-  //       setState(() {
-  //         _isLoading = false;
-  //         _profileImageError = 'Eroare la încărcarea imaginii de profil: ${profileUploadResult['error']}';
-  //       });
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('Eroare la încărcarea imaginii de profil: ${profileUploadResult['error']}')),
-  //       );
-  //       return;
-  //     }
-  //     profilePhotoUrl = profileUploadResult['data']['file_url'];
-  //   }
-  //
-  //   // Upload cover photos (continue even if some fail)
-  //   List<String> coverPhotoUrls = [];
-  //   List<String> failedUploads = [];
-  //   for (var photo in _coverPhotos) {
-  //     final uploadResult = await ApiService().uploadFile(photo);
-  //     print("Cover Photo Upload Result: $uploadResult");
-  //     if (uploadResult['success']) {
-  //       coverPhotoUrls.add(uploadResult['data']['file_url']);
-  //     } else {
-  //       failedUploads.add(uploadResult['error']);
-  //     }
-  //   }
-  //
-  //   // If some cover photos failed, inform the user but proceed
-  //   if (failedUploads.isNotEmpty) {
-  //     setState(() {
-  //       _coverPhotosError = 'Unele fotografii nu au fost încărcate: ${failedUploads.join(", ")}';
-  //     });
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Unele fotografii nu au fost încărcate. Continuăm cu imaginile încărcate.')),
-  //     );
-  //   }
-  //
-  //   // Proceed with signup even if no cover photos were uploaded successfully
-  //   if (profilePhotoUrl == null) {
-  //     setState(() {
-  //       _isLoading = false;
-  //       _profileImageError = 'Imaginea de profil este obligatorie';
-  //     });
-  //     return;
-  //   }
-  //
-  //   // Perform supplier signup with trimmed text fields
-  //   final signupResult = await ApiService().supplierSignup(
-  //     fullName: _businessNameController.text.trim(),
-  //     email: _emailController.text.trim(),
-  //     password: _passwordController.text.trim(),
-  //     phone: _phoneController.text.trim(),
-  //     photoUrl: profilePhotoUrl,
-  //     coverPhotosUrls: coverPhotoUrls,
-  //     latitude: latitude,
-  //     longitude: longitude,
-  //     bio: _aboutBusinessController.text.trim(),
-  //     address: _addressController.text.trim(),
-  //   );
-  //
-  //   setState(() {
-  //     _isLoading = false;
-  //   });
-  //
-  //   if (signupResult['success'] || signupResult['data']?['user_id'] != null) {
-  //     setState(() {
-  //       _userId = signupResult['data']['user_id'];
-  //       _showOtpScreen = true;
-  //     });
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text(signupResult['data']['message'] ?? 'Vă rugăm să verificați OTP-ul.')),
-  //     );
-  //   } else {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text(signupResult['error'] ?? 'Eroare la înregistrare')),
-  //     );
-  //   }
-  // }
+
 
   bool _validateForm() {
     bool isValid = true;
@@ -1158,26 +1097,7 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
     );
   }
 
-  /*
-  *
-  *
-  *             suffixIcon: GestureDetector(
-              onTap: () => _showPhonePromotionInfo(context), // <-- changed here
-              child: Container(
-                margin: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF3F4F6),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.help_outline_rounded,
-                  color: Color(0xFF4B5563),
-                  size: 18,
-                ),
-              ),
-            ),
-  *
-  * */
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -1189,6 +1109,73 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
     List<TextInputFormatter>? inputFormatters,
     String? errorText,
   }) {
+    // 1. Declare and initialize the mutable state outside the builder.
+    // We use a list/array here because variables declared outside of the
+    // builder are effectively 'final' and cannot be reassigned (like 'bool isCurrentlyObscured = obscureText;').
+    // A single-element list allows us to mutate its content.
+    final List<bool> _isCurrentlyObscured = [obscureText];
+
+    // If it's a password field, wrap the column in StatefulBuilder to manage the toggle icon state.
+    if (obscureText) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: controller,
+                // 2. Read the persistent state from the list.
+                obscureText: _isCurrentlyObscured[0],
+                keyboardType: keyboardType,
+                inputFormatters: inputFormatters,
+                decoration: InputDecoration(
+                  // Add the show/hide password icon
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      // 3. Choose icon based on the persistent state
+                      _isCurrentlyObscured[0]
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      // 4. Toggle the persistent state and trigger rebuild
+                      setState(() {
+                        _isCurrentlyObscured[0] = !_isCurrentlyObscured[0];
+                      });
+                    },
+                  ),
+                  labelText: label,
+                  hintText: hint,
+                  hintStyle: TextStyle(color: Colors.grey),
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.only(left: 12, right: 8),
+                    child: Image.asset(iconPath, width: 20, height: 20),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              if (errorText != null)
+                Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text(
+                    errorText,
+                    style: TextStyle(color: Colors.red, fontSize: 12),
+                  ),
+                ),
+            ],
+          );
+        },
+      );
+    }
+
+    // Original structure for non-password fields (obscureText is false)
+    // This part is unchanged and avoids the StatefulBuilder overhead.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1198,7 +1185,6 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
           decoration: InputDecoration(
-            // SAME elegant icon with your color
             suffixIcon: suffixIcon,
             labelText: label,
             hintText: hint,
@@ -1226,6 +1212,56 @@ class _SupplierSignupScreenState extends State<SupplierSignupScreen> {
       ],
     );
   }
+
+
+  // Widget _buildTextField({
+  //   required TextEditingController controller,
+  //   required String label,
+  //   required String hint,
+  //   required String iconPath,
+  //   bool obscureText = false,
+  //   Widget? suffixIcon = null,
+  //   TextInputType keyboardType = TextInputType.text,
+  //   List<TextInputFormatter>? inputFormatters,
+  //   String? errorText,
+  // }) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       TextField(
+  //         controller: controller,
+  //         obscureText: obscureText,
+  //         keyboardType: keyboardType,
+  //         inputFormatters: inputFormatters,
+  //         decoration: InputDecoration(
+  //           // SAME elegant icon with your color
+  //           suffixIcon: suffixIcon,
+  //           labelText: label,
+  //           hintText: hint,
+  //           hintStyle: TextStyle(color: Colors.grey),
+  //           prefixIcon: Padding(
+  //             padding: EdgeInsets.only(left: 12, right: 8),
+  //             child: Image.asset(iconPath, width: 20, height: 20),
+  //           ),
+  //           filled: true,
+  //           fillColor: Colors.white,
+  //           border: OutlineInputBorder(
+  //             borderRadius: BorderRadius.circular(8.0),
+  //             borderSide: BorderSide.none,
+  //           ),
+  //         ),
+  //       ),
+  //       if (errorText != null)
+  //         Padding(
+  //           padding: EdgeInsets.only(top: 4),
+  //           child: Text(
+  //             errorText,
+  //             style: TextStyle(color: Colors.red, fontSize: 12),
+  //           ),
+  //         ),
+  //     ],
+  //   );
+  // }
 
   void _showPhonePromotionInfo(BuildContext context) {
     showDialog(

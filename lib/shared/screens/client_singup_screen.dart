@@ -29,6 +29,8 @@ class _client_singup_screenState extends State<client_singup_screen> {
   bool _isLoading = false;
   String? _errorMessage;
   String? _userId;
+  bool _passwordVisible = false;
+
 
   @override
   void dispose() {
@@ -60,29 +62,121 @@ class _client_singup_screenState extends State<client_singup_screen> {
     }
   }
 
+  // void _showImageSourceDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: Text('Selectați sursa imaginii'),
+  //       content: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           ListTile(
+  //             leading: Icon(Icons.camera_alt),
+  //             title: Text('Cameră'),
+  //             onTap: () {
+  //               Navigator.pop(context);
+  //               _pickImage(ImageSource.camera);
+  //             },
+  //           ),
+  //           ListTile(
+  //             leading: Icon(Icons.photo_library),
+  //             title: Text('Galerie'),
+  //             onTap: () {
+  //               Navigator.pop(context);
+  //               _pickImage(ImageSource.gallery);
+  //             },
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
   void _showImageSourceDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Selectați sursa imaginii'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        insetPadding: EdgeInsets.symmetric(horizontal: 24),
+        child: Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 15,
+                offset: Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Selectați sursa imaginii',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(height: 20),
+
+              _dialogOption(
+                icon: Icons.camera_alt_rounded,
+                text: 'Cameră',
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+
+              SizedBox(height: 10),
+
+              _dialogOption(
+                icon: Icons.photo_library_rounded,
+                text: 'Galerie',
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _dialogOption({
+    required IconData icon,
+    required String text,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color: Colors.grey.shade100,
+        ),
+        child: Row(
           children: [
-            ListTile(
-              leading: Icon(Icons.camera_alt),
-              title: Text('Cameră'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.photo_library),
-              title: Text('Galerie'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
-              },
+            Icon(icon, size: 26, color: Colors.black87),
+            SizedBox(width: 12),
+            Text(
+              text,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
             ),
           ],
         ),
@@ -90,17 +184,38 @@ class _client_singup_screenState extends State<client_singup_screen> {
     );
   }
 
+
+
+
   void _validateForm() {
     setState(() {
+      bool passwordsMatch = _passwordController.text.isNotEmpty &&
+          _confirmPasswordController.text.isNotEmpty &&
+          _passwordController.text == _confirmPasswordController.text;
+
       _isFormValid = _fullNameController.text.isNotEmpty &&
           _emailController.text.isNotEmpty &&
           _confirmEmailController.text.isNotEmpty &&
           _passwordController.text.isNotEmpty &&
           _confirmPasswordController.text.isNotEmpty &&
+          passwordsMatch &&
           _phoneController.text.isNotEmpty &&
           _selectedImage != null;
     });
   }
+
+
+  // void _validateForm() {
+  //   setState(() {
+  //     _isFormValid = _fullNameController.text.isNotEmpty &&
+  //         _emailController.text.isNotEmpty &&
+  //         _confirmEmailController.text.isNotEmpty &&
+  //         _passwordController.text.isNotEmpty &&
+  //         _confirmPasswordController.text.isNotEmpty &&
+  //         _phoneController.text.isNotEmpty &&
+  //         _selectedImage != null;
+  //   });
+  // }
 
   Future<void> _onSubmit() async {
     setState(() {
@@ -111,7 +226,7 @@ class _client_singup_screenState extends State<client_singup_screen> {
     if (!_isFormValid) {
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Vă rugăm să completați toate câmpurile și să încărcați o imagine.';
+        _errorMessage = 'Ups! Te rog să te asiguri că ai selectat o imagine, că ambele câmpuri de email coincid și că parolele se potrivesc.';
       });
       return;
     }
@@ -472,14 +587,37 @@ class _client_singup_screenState extends State<client_singup_screen> {
                         ),
                       ),
                       SizedBox(height: 16),
+                      // TextField(
+                      //   controller: _passwordController,
+                      //   obscureText: true,
+                      //   onChanged: (_) => _validateForm(),
+                      //   decoration: InputDecoration(
+                      //     labelText: 'Parolă',
+                      //     hintText: 'Minim 8 caractere',
+                      //     hintStyle: TextStyle(color: Colors.grey),
+                      //     prefixIcon: Padding(
+                      //       padding: EdgeInsets.only(left: 12, right: 8),
+                      //       child: Image.asset(
+                      //         'assets/loc.png',
+                      //         width: 20,
+                      //         height: 20,
+                      //       ),
+                      //     ),
+                      //     filled: true,
+                      //     fillColor: Colors.white,
+                      //     border: OutlineInputBorder(
+                      //       borderRadius: BorderRadius.circular(8.0),
+                      //       borderSide: BorderSide.none,
+                      //     ),
+                      //   ),
+                      // ),
                       TextField(
                         controller: _passwordController,
-                        obscureText: true,
+                        obscureText: !_passwordVisible,
                         onChanged: (_) => _validateForm(),
                         decoration: InputDecoration(
                           labelText: 'Parolă',
                           hintText: 'Minim 8 caractere',
-                          hintStyle: TextStyle(color: Colors.grey),
                           prefixIcon: Padding(
                             padding: EdgeInsets.only(left: 12, right: 8),
                             child: Image.asset(
@@ -488,23 +626,57 @@ class _client_singup_screenState extends State<client_singup_screen> {
                               height: 20,
                             ),
                           ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _passwordVisible = !_passwordVisible;
+                              });
+                            },
+                          ),
                           filled: true,
                           fillColor: Colors.white,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
+                            borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide.none,
                           ),
                         ),
                       ),
+
                       SizedBox(height: 16),
+                      // TextField(
+                      //   controller: _confirmPasswordController,
+                      //   obscureText: true,
+                      //   onChanged: (_) => _validateForm(),
+                      //   decoration: InputDecoration(
+                      //     labelText: 'Confirmă parola',
+                      //     hintText: 'Minim 8 caractere',
+                      //     hintStyle: TextStyle(color: Colors.grey),
+                      //     prefixIcon: Padding(
+                      //       padding: EdgeInsets.only(left: 12, right: 8),
+                      //       child: Image.asset(
+                      //         'assets/loc.png',
+                      //         width: 20,
+                      //         height: 20,
+                      //       ),
+                      //     ),
+                      //     filled: true,
+                      //     fillColor: Colors.white,
+                      //     border: OutlineInputBorder(
+                      //       borderRadius: BorderRadius.circular(8.0),
+                      //       borderSide: BorderSide.none,
+                      //     ),
+                      //   ),
+                      // ),
                       TextField(
                         controller: _confirmPasswordController,
-                        obscureText: true,
+                        obscureText: !_passwordVisible,   // SAME VARIABLE
                         onChanged: (_) => _validateForm(),
                         decoration: InputDecoration(
                           labelText: 'Confirmă parola',
                           hintText: 'Minim 8 caractere',
-                          hintStyle: TextStyle(color: Colors.grey),
                           prefixIcon: Padding(
                             padding: EdgeInsets.only(left: 12, right: 8),
                             child: Image.asset(
@@ -513,14 +685,25 @@ class _client_singup_screenState extends State<client_singup_screen> {
                               height: 20,
                             ),
                           ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _passwordVisible = !_passwordVisible; // SAME TOGGLE
+                              });
+                            },
+                          ),
                           filled: true,
                           fillColor: Colors.white,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
+                            borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide.none,
                           ),
                         ),
                       ),
+
                       SizedBox(height: 16),
                       TextField(
                         controller: _phoneController,
