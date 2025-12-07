@@ -1,7 +1,8 @@
-import 'package:flutter/cupertino.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,6 +24,73 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
   GlobalKey<ScaffoldMessengerState>();
   bool _isSubmitting = false;
 
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+    installerStore: 'Unknown',
+  );
+
+  String _deviceInfo = 'Loading...';
+  bool _isLoadingInfo = true;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _initPackageInfo();
+    _initDeviceInfo();
+  }
+
+  // Get app info from package_info_plus
+  Future<void> _initPackageInfo() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      setState(() {
+        _packageInfo = info;
+      });
+    } catch (e) {
+      print('Failed to get package info: $e');
+    }
+  }
+
+  // Get device info from device_info_plus
+  Future<void> _initDeviceInfo() async {
+    try {
+      final deviceInfoPlugin = DeviceInfoPlugin();
+      String deviceInfoText = '';
+
+      if (Platform.isAndroid) {
+        final androidInfo = await deviceInfoPlugin.androidInfo;
+        deviceInfoText = 'Android ${androidInfo.version.release} (SDK ${androidInfo.version.sdkInt})';
+      } else if (Platform.isIOS) {
+        final iosInfo = await deviceInfoPlugin.iosInfo;
+        deviceInfoText = 'iOS ${iosInfo.systemVersion}';
+      } else if (Platform.isWindows) {
+        final windowsInfo = await deviceInfoPlugin.windowsInfo;
+        deviceInfoText = 'Windows ${windowsInfo.computerName}';
+      } else if (Platform.isMacOS) {
+        final macInfo = await deviceInfoPlugin.macOsInfo;
+        deviceInfoText = 'macOS ${macInfo.kernelVersion}';
+      } else if (Platform.isLinux) {
+        final linuxInfo = await deviceInfoPlugin.linuxInfo;
+        deviceInfoText = 'Linux ${linuxInfo.id}';
+      }
+
+      setState(() {
+        _deviceInfo = deviceInfoText;
+        _isLoadingInfo = false;
+      });
+    } catch (e) {
+      print('Failed to get device info: $e');
+      setState(() {
+        _deviceInfo = 'Error loading device info';
+        _isLoadingInfo = false;
+      });
+    }
+  }
 
   void _showPDF(String pdfPath, String title) {
     Navigator.push(
@@ -220,13 +288,6 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(CupertinoIcons.back , color: Colors.white,), // Use the specific Cupertino icon
-            onPressed: () {
-              // This is the function that makes it go back to the previous screen
-              Navigator.of(context).pop();
-            },
-          ),
           title: Text(
             'Despre Noi',
             style: TextStyle(
@@ -491,6 +552,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
               SizedBox(height: 30),
       
               // App Info Section
+              // App Info Section
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.all(20),
@@ -511,8 +573,9 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                       ),
                     ),
                     SizedBox(height: 10),
-                    _buildInfoRow('Versiune', '1.0.0'),
-                    _buildInfoRow('Platformă', 'Android & iOS'),
+                    _buildInfoRow('Versiune', '${_packageInfo.version} (${_packageInfo.buildNumber})'),
+                    _buildInfoRow('Nume Aplicație', _packageInfo.appName),
+                    _buildInfoRow('Platformă', _isLoadingInfo ? 'Se încarcă...' : _deviceInfo),
                     _buildInfoRow('Dezvoltator', 'Charlotte for IT Services SRL'),
                     _buildInfoRow('Anul', '2024'),
                   ],
