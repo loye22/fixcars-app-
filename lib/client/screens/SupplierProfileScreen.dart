@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:fixcars/client/screens/ReviewScreen.dart';
 import 'package:fixcars/shared/services/api_service.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../shared/screens/chat_screen.dart';
@@ -121,11 +122,20 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Back button
+
+
                         IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: Image.asset('assets/back.png', width: 40, height: 40),
+                          icon: Icon(CupertinoIcons.back), // Use the specific Cupertino icon
+                          onPressed: () {
+                            // This is the function that makes it go back to the previous screen
+                            Navigator.of(context).pop();
+                          },
                         ),
+                        // Back button
+                        // IconButton(
+                        //   onPressed: () => Navigator.pop(context),
+                        //   icon: Image.asset('assets/back.png', width: 40, height: 40),
+                        // ),
 
                         // Review button
                         // IconButton(

@@ -1,4 +1,5 @@
 import 'package:fixcars/shared/services/api_service.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -42,9 +43,17 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+      //  actions: [Icon(Icons.abc , color: Colors.white,)],
+        leading: IconButton(
+          icon: Icon(CupertinoIcons.back), // Use the specific Cupertino icon
+          onPressed: () {
+            // This is the function that makes it go back to the previous screen
+            Navigator.of(context).pop();
+          },
+        ),
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
-        title: Center(child: Text("Mesaje")),
+        title: Text("Mesaje"),
       ),
       backgroundColor: Colors.white,
       body: FutureBuilder<void>(

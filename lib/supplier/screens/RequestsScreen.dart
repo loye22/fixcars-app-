@@ -51,6 +51,13 @@ class _RequestsScreenState extends State<RequestsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(CupertinoIcons.back), // Use the specific Cupertino icon
+          onPressed: () {
+            // This is the function that makes it go back to the previous screen
+            Navigator.of(context).pop();
+          },
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [

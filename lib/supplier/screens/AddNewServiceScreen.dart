@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
@@ -562,6 +563,7 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
   Widget _buildMainContent() {
     return Column(
       children: [
+
         SizedBox(height: 50,) ,
         // Step Indicator
         Container(
@@ -570,6 +572,7 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+
               _buildStepIndicator(0, 'Mărci'),
               const SizedBox(width: 8),
               const Icon(Icons.chevron_right, color: Colors.grey, size: 20),

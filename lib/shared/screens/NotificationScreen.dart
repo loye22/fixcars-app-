@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -160,8 +161,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
       appBar: AppBar(
         backgroundColor: Color(0xFFF3F4F6),
+        leading: IconButton(
+          icon: Icon(CupertinoIcons.back, color: Colors.black,), // Use the specific Cupertino icon
+          onPressed: () {
+            // This is the function that makes it go back to the previous screen
+            Navigator.of(context).pop();
+          },
+        ),
 
         title: const Text(
+
           'Notificări',
           style: TextStyle(
             fontWeight: FontWeight.bold,

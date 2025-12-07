@@ -1,4 +1,5 @@
 import 'package:fixcars/client/widgets/StarRatingDisplay.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/ReviewService.dart';
@@ -66,6 +67,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(CupertinoIcons.back), // Use the specific Cupertino icon
+          onPressed: () {
+            // This is the function that makes it go back to the previous screen
+            Navigator.of(context).pop();
+          },
+        ),
         title: const Text('Recenzii'),
         backgroundColor: Colors.white,
         elevation: 0,

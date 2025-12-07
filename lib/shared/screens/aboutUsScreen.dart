@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:flutter/services.dart';
@@ -219,6 +220,13 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(CupertinoIcons.back , color: Colors.white,), // Use the specific Cupertino icon
+            onPressed: () {
+              // This is the function that makes it go back to the previous screen
+              Navigator.of(context).pop();
+            },
+          ),
           title: Text(
             'Despre Noi',
             style: TextStyle(

@@ -144,6 +144,13 @@ class _ClimatizareAutoScreenState extends State<ClimatizareAutoScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(CupertinoIcons.back , color: Colors.white,), // Use the specific Cupertino icon
+          onPressed: () {
+            // This is the function that makes it go back to the previous screen
+            Navigator.of(context).pop();
+          },
+        ),
         title: GestureDetector(
           onTap: _showLocationPicker,
           child: Row(
