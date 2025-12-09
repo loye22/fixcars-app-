@@ -113,6 +113,7 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
   Future<void> _getCurrentLocation() async {
     setState(() => _isGettingLocation = true);
 
+    print("called");
     try {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {

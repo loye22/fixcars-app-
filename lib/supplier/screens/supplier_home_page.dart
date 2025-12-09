@@ -1164,46 +1164,47 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    /// TODO sooon
                     // 1. EDIT BUTTON (Placeholder for implementation)
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Optional: close the main popup
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (_) => const BusinessHoursBottomSheet(),
-                        );
-                      },
-                      // onPressed: () {
-                      //   // TODO: Implement the logic to edit business hours
-                      //   print('Edit button pressed!');
-                      // },
-                      icon: Icon(
-                        Icons.edit, // Clean edit icon
-                        size: 20,
-                        color:  Color(0xFF1E88E5),
-                      ),
-                      label: Text(
-                        "Editează",
-                        style: TextStyle(
-                          color:  Color(0xFF1E88E5),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.grey.shade300, width: 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
+                    // OutlinedButton.icon(
+                    //   onPressed: () {
+                    //     Navigator.of(context).pop(); // Optional: close the main popup
+                    //     showModalBottomSheet(
+                    //       context: context,
+                    //       isScrollControlled: true,
+                    //       backgroundColor: Colors.transparent,
+                    //       builder: (_) => const BusinessHoursBottomSheet(),
+                    //     );
+                    //   },
+                    //   // onPressed: () {
+                    //   //   // TODO: Implement the logic to edit business hours
+                    //   //   print('Edit button pressed!');
+                    //   // },
+                    //   icon: Icon(
+                    //     Icons.edit, // Clean edit icon
+                    //     size: 20,
+                    //     color:  Color(0xFF1E88E5),
+                    //   ),
+                    //   label: Text(
+                    //     "Editează",
+                    //     style: TextStyle(
+                    //       color:  Color(0xFF1E88E5),
+                    //       fontWeight: FontWeight.w600,
+                    //       fontSize: 16,
+                    //     ),
+                    //   ),
+                    //   style: OutlinedButton.styleFrom(
+                    //     side: BorderSide(color: Colors.grey.shade300, width: 1),
+                    //     shape: RoundedRectangleBorder(
+                    //       borderRadius: BorderRadius.circular(12),
+                    //     ),
+                    //     padding: const EdgeInsets.symmetric(
+                    //       horizontal: 16,
+                    //       vertical: 12,
+                    //     ),
+                    //   ),
+                    // ),
+                    // const SizedBox(width: 12),
 
                     // 2. CLOSE BUTTON (Black, elegant design)
                     Container(
