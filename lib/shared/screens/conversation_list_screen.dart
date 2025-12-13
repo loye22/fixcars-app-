@@ -44,13 +44,13 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
     return Scaffold(
       appBar: AppBar(
       //  actions: [Icon(Icons.abc , color: Colors.white,)],
-        leading: IconButton(
-          icon: Icon(CupertinoIcons.back), // Use the specific Cupertino icon
-          onPressed: () {
-            // This is the function that makes it go back to the previous screen
-            Navigator.of(context).pop();
-          },
-        ),
+      //   leading: IconButton(
+      //     icon: Icon(CupertinoIcons.back), // Use the specific Cupertino icon
+      //     onPressed: () {
+      //       // This is the function that makes it go back to the previous screen
+      //       Navigator.of(context).pop();
+      //     },
+      //   ),
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         title: Text("Mesaje"),

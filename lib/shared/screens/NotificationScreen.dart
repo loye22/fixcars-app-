@@ -161,13 +161,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
       appBar: AppBar(
         backgroundColor: Color(0xFFF3F4F6),
-        leading: IconButton(
-          icon: Icon(CupertinoIcons.back, color: Colors.black,), // Use the specific Cupertino icon
-          onPressed: () {
-            // This is the function that makes it go back to the previous screen
-            Navigator.of(context).pop();
-          },
-        ),
+        // leading: IconButton(
+        //   icon: Icon(CupertinoIcons.back, color: Colors.black,), // Use the specific Cupertino icon
+        //   onPressed: () {
+        //     // This is the function that makes it go back to the previous screen
+        //     Navigator.of(context).pop();
+        //   },
+        // ),
 
         title: const Text(
 
@@ -195,34 +195,125 @@ class _NotificationScreenState extends State<NotificationScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Eroare la încărcarea notificărilor',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    snapshot.error.toString(),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _notificationsFuture = _fetchNotifications();
-                      });
-                    },
-                    child: const Text('Încearcă din nou'),
-                  ),
-                ],
+            return  Center(
+              child: Padding(
+                // Retain original padding, or slightly increase for better framing
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // 💎 Elegant Icon Container
+                    Container(
+                      padding: const EdgeInsets.all(28), // Slightly increased padding
+                      decoration: BoxDecoration(
+                        color: Colors.white, // High-contrast base
+                        // Use a dark, sophisticated border instead of a light fill
+                        border: Border.all(color: Colors.grey.shade300, width: 1),
+                        borderRadius: BorderRadius.circular(50.0), // Rounded rectangle/Squircle shape
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05), // Subtle, soft shadow
+                            spreadRadius: 2,
+                            blurRadius: 15,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.notifications_off_outlined, // A more context-appropriate icon
+                        size: 68, // Slightly larger icon
+                        color: Color(0xFF1B2A41), // Deep, sophisticated Navy Blue/Charcoal
+                      ),
+                    ),
+                    const SizedBox(height: 32), // Increased spacing for breathability
+
+                    // 📝 Main Title (Preserving original text and error focus)
+                    const Text(
+                      'Eroare la încărcarea notificărilor',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 22, // Slightly larger, more imposing
+                        fontWeight: FontWeight.w700, // Bold and distinct
+                        color: Color(0xFF1B2A41), // Matching dark color
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // 💡 Subtitle/Detailed Error (Preserving original logic/variable)
+                    Text(
+                      // Logic preserved: using the dynamic snapshot.error
+                      snapshot.error.toString(),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.grey.shade600, // Elegant neutral color
+                        fontSize: 16,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+
+                    const SizedBox(height: 40), // More vertical separation
+
+                    // 🔄 Elegant Button (Preserving original size/logic)
+                    SizedBox(
+                      width: 180, // Slightly wider for elegance
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          // Using a subtle color for the button to avoid an emergency look
+                          backgroundColor: const Color(0xFF4C5B7F), // Muted Blue-Gray/Slate
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10), // Modern, slightly rounded
+                          ),
+                          elevation: 4, // Subtle lift
+                        ),
+                        // 🚨 Logic Preserved 🚨
+                        onPressed: () {
+                          setState(() {
+                            _notificationsFuture = _fetchNotifications();
+                          });
+                        },
+                        child: const Text(
+                          'Încearcă din nou', // Preserved original text
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
+            //   Center(
+            //   child: Column(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       const Icon(Icons.error_outline, size: 74, color: Colors.red),
+            //       const SizedBox(height: 16),
+            //       const Text(
+            //         'Eroare la încărcarea notificărilor',
+            //         style: TextStyle(fontSize: 18),
+            //       ),
+            //       const SizedBox(height: 8),
+            //       Text(
+            //         snapshot.error.toString(),
+            //         textAlign: TextAlign.center,
+            //         style: const TextStyle(color: Colors.red),
+            //       ),
+            //       const SizedBox(height: 16),
+            //       ElevatedButton(
+            //         onPressed: () {
+            //           setState(() {
+            //             _notificationsFuture = _fetchNotifications();
+            //           });
+            //         },
+            //         child: const Text('Încearcă din nou'),
+            //       ),
+            //     ],
+            //   ),
+            // );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
               child: Text(
