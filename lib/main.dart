@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fixcars/client/screens/client_home_page.dart';
+import 'package:fixcars/client/services/my_car_screen_management.dart';
  import 'package:fixcars/shared/screens/global_keys.dart';
   import 'package:fixcars/shared/screens/rest_password_screen.dart';
 import 'package:fixcars/shared/services/OneSignalService.dart';
@@ -70,7 +71,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(textTheme: baseTextTheme),
       // home: SupplierSignupScreen(),
       home:
-      isAuthenticated ? HomePageRedirector() : into_screen(),
+      isAuthenticated ?
+      CarHealthScreen()
+      //HomePageRedirector()
+
+          : into_screen(),
     );
   }
 }
