@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -304,13 +305,13 @@ class ObligationCard extends StatelessWidget {
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.only(right: 5.0),
-                              child: _buildActionButton(context, 'EDIT', Icons.edit, _showEditSheet, Colors.blue.shade700),
+                              child: _buildActionButton(context, 'EDIT', CupertinoIcons.pencil, _showEditSheet, Colors.blue.shade700),
                             ),
                           ),
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 5.0),
-                              child: _buildActionButton(context, 'DELETE', Icons.delete_forever, _showDeleteSheet, Colors.red.shade700),
+                              child: _buildActionButton(context, 'DELETE', CupertinoIcons.delete, _showDeleteSheet, Colors.red.shade700),
                             ),
                           ),
                         ],
@@ -331,7 +332,7 @@ class ObligationCard extends StatelessWidget {
   Widget _buildActionButton(BuildContext context, String text, IconData icon, Function(BuildContext) onPressed, Color color) {
     return ElevatedButton.icon(
       onPressed: () => onPressed(context),
-      icon: Icon(icon, size: 20),
+      icon: Icon(icon, size: 20 , color: Colors.white,),
       label: Text(text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
@@ -793,6 +794,8 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    print("_errorMessage+++++++++++++++++++++++");
+    print(_errorMessage);
     if (_isLoading) {
       return Scaffold(
         backgroundColor: const Color(0xFF121212),
