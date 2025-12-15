@@ -46,4 +46,92 @@ class CarService {
       throw Exception('Error fetching cars: $e');
     }
   }
+
+
+
+  /// Handles the creation of a new car via a POST request to the API.
+  /// Endpoint: ${ApiService.baseUrl}/cars/create/
+  Future<Map<String, dynamic>> addCar({
+    required String brandId,
+    required String model,
+    required int year,
+    required int currentKm,
+    required String lastKmUpdatedAt, // MUST be provided
+    String? licensePlate,
+    String? vin,
+  }) async {
+    try {
+      final String endpoint = '${ApiService.baseUrl}/cars/create/';
+
+      // Build request body
+      final Map<String, dynamic> body = {
+        'brand_id': brandId,
+        'model': model.trim(),
+        'year': year,
+        'current_km': currentKm,
+        'last_km_updated_at': lastKmUpdatedAt, // Required, passed exactly as given
+      };
+
+      // Only add license_plate if explicitly provided (even if empty)
+      if (licensePlate != null) {
+        body['license_plate'] = licensePlate.trim().toUpperCase();
+      }
+
+      // Only add vin if explicitly provided (even if empty)
+      if (vin != null) {
+        body['vin'] = vin.trim().toUpperCase();
+      }
+
+      final http.Response response = await _apiService.authenticatedPost(endpoint, body);
+
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+
+      // Success case (usually 201 Created or 200 OK)
+      if ((response.statusCode == 201 || response.statusCode == 200) &&
+          responseData['success'] == true) {
+        return {
+          'success': true,
+          'data': responseData['data'],
+        };
+      }
+
+      // Validation or field-specific errors from backend
+      if (responseData.containsKey('errors') && responseData['errors'] is Map) {
+        return {
+          'success': false,
+          'error': 'Unele câmpuri conțin erori.',
+          'fieldErrors': Map<String, dynamic>.from(responseData['errors']),
+        };
+      }
+
+      // Generic error message
+      String errorMessage = responseData['error'] ??
+          responseData['message'] ??
+          'Eroare necunoscută de la server (cod: ${response.statusCode})';
+
+      return {
+        'success': false,
+        'error': errorMessage,
+      };
+    } catch (e) {
+      String errorMsg;
+      if (e.toString().contains('SocketException')) {
+        errorMsg = 'Fără conexiune la internet.';
+      } else if (e.toString().contains('Timeout')) {
+        errorMsg = 'Cererea a expirat. Încearcă din nou.';
+      } else {
+        errorMsg = 'Eroare neașteptată: $e';
+      }
+
+      return {
+        'success': false,
+        'error': errorMsg,
+      };
+    }
+  }
+
+
+
+
+
 }

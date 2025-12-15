@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import '../services/BrandService.dart';
+// NOU: Importă CarService
+import '../services/CarService.dart';
 
 
 // Enum pentru a gestiona culorile themei
@@ -11,7 +13,7 @@ enum ColorTheme { Emerald, Gray }
 
 class CarInitiateScreen extends StatefulWidget {
   ColorTheme colorTheme;
-   CarInitiateScreen({super.key,   this.colorTheme = ColorTheme.Gray});
+  CarInitiateScreen({super.key,   this.colorTheme = ColorTheme.Gray});
 
   @override
   State<CarInitiateScreen> createState() => _CarInitiateScreenState();
@@ -54,6 +56,32 @@ class _CarInitiateScreenState extends State<CarInitiateScreen> {
     setState(() {
       _brandsFuture = _brandService.fetchBrands();
     });
+  }
+
+  // NOU: Metodă pentru afișarea Bottom Sheet-ului (Stil Cupertino)
+  void _showAddCarBottomSheet(BuildContext context) {
+    HapticFeedback.lightImpact(); // Feedback haptic iOS la apăsare
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) {
+        // Învelim în Material pentru a permite utilizarea widget-urilor din Material Design
+        // (cum ar fi Image.network) și pentru a menține consistența temei întunecate,
+        // dar conținutul intern este Cupertino.
+        return Material(
+          color: Colors.transparent, // Face fundalul transparent
+          child: Padding(
+            // Ajustează padding-ul pentru a ridica formularul deasupra tastaturii
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: _AddCarBottomSheet(
+              brandService: _brandService,
+              bgDark: _bgDark,
+              accentColor: _accentColor,
+              gradientColors: _gradientColors,
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -108,6 +136,7 @@ class _CarInitiateScreenState extends State<CarInitiateScreen> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Logo-ul aplicației
                   Image.asset(
                     'assets/logos/t1.png',
                     height: 105,
@@ -260,9 +289,8 @@ class _CarInitiateScreenState extends State<CarInitiateScreen> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            // TODO: Navigare către formularul de Adăugare Mașină
-            HapticFeedback.heavyImpact();
-            print("Începe Urmărirea Documentelor Tapped");
+            // ACȚIUNE ACTUALIZATĂ: Arată bottom sheet (stil iOS)
+            _showAddCarBottomSheet(context);
           },
           borderRadius: BorderRadius.circular(12),
           child: const Center(
@@ -321,7 +349,554 @@ class _CarInitiateScreenState extends State<CarInitiateScreen> {
 
 
 // ---------------------------------------------------------------------------
-// BACKGROUND ANIMATION WIDGETS (Shared between themes)
+// NOU: WIDGET PENTRU FORMULARUL DE ADAUGARE A MAȘINII (BOTTOM SHEET - STIL IOS)
+// ---------------------------------------------------------------------------
+
+class _AddCarBottomSheet extends StatefulWidget {
+  final BrandService brandService;
+  final Color bgDark;
+  final Color accentColor;
+  final List<Color> gradientColors;
+
+  const _AddCarBottomSheet({
+    required this.brandService,
+    required this.bgDark,
+    required this.accentColor,
+    required this.gradientColors,
+  });
+
+  @override
+  State<_AddCarBottomSheet> createState() => _AddCarBottomSheetState();
+}
+
+class _AddCarBottomSheetState extends State<_AddCarBottomSheet> {
+  // SERVICES
+  final CarService _carService = CarService(); // NOU: Instanța CarService
+
+  // Form State
+  String? _selectedBrandId;
+  String _model = '';
+  int? _year;
+  String? _licensePlate;
+  String? _vin;
+  int? _currentKm;
+  DateTime? _lastKmUpdatedAt;
+
+  // UI State
+  bool _isLoading = false;
+  Map<String, List<String>> _fieldErrors = {}; // Pentru erorile de validare de la API
+
+  // Data
+  late Future<List<Map<String, dynamic>>> _brandsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _brandsFuture = widget.brandService.fetchBrands();
+    // Setează data KM la azi ca valoare inițială obligatorie
+    _lastKmUpdatedAt = DateTime.now();
+  }
+
+  // Logica de validare: butonul e activ doar când CÂMPURILE OBLIGATORII sunt completate
+  bool get _isFormValid {
+    return _selectedBrandId != null &&
+        _model.isNotEmpty &&
+        _year != null &&
+        _currentKm != null &&
+        _lastKmUpdatedAt != null;
+  }
+
+  // NOU: Metodă de apel API
+  Future<void> _addCar() async {
+    if (!_isFormValid || _isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+      _fieldErrors = {}; // Resetare erori la începutul cererii
+    });
+
+    // Construiește corpul cererii
+    final String lastKmDate = _lastKmUpdatedAt!.toIso8601String().substring(0, 10); // Format YYYY-MM-DD
+
+    try {
+      final response = await _carService.addCar(
+        brandId: _selectedBrandId!,
+        model: _model,
+        year: _year!,
+        currentKm: _currentKm!,
+        lastKmUpdatedAt: lastKmDate,
+        licensePlate: _licensePlate,
+        vin: _vin,
+      ); //
+
+      if (response['success'] == true) {
+        // Succes
+        Navigator.pop(context); // Închide bottom sheet
+        _showSuccessNotification('Mașina adăugată: ${_model} (${_year})!');
+      } else {
+        // Erori de Validare (Dublicate VIN/License Plate sau câmpuri lipsă)
+        if (response.containsKey('fieldErrors') && response['fieldErrors'] is Map) {
+          setState(() {
+            _fieldErrors = Map<String, List<String>>.from(response['fieldErrors'].map((k, v) => MapEntry(k, List<String>.from(v))));
+          });
+          // Afișează o notificare de eroare generală, erorile specifice pe câmpuri
+          // vor fi gestionate în `_buildCupertinoTextField`
+          _showErrorNotification('Eroare de validare: verificați câmpurile.');
+        } else {
+          // Eroare Generală (Server, Conexiune)
+          _showErrorNotification(response['error'] ?? 'Eroare necunoscută la adăugarea mașinii.');
+        }
+      }
+    } catch (e) {
+      // Eroare Neașteptată
+      _showErrorNotification('Eroare neașteptată. Reîncercați.');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // Metodă de afișare a notificărilor (Stil iOS)
+  void _showSuccessNotification(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: widget.accentColor,
+        )
+    );
+  }
+
+  void _showErrorNotification(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: CupertinoColors.systemRed,
+        )
+    );
+  }
+
+
+  // Metodă de afișare a Date Picker-ului (Stil Cupertino)
+  Future<void> _selectDate(BuildContext context) async {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => Container(
+        height: 250.0,
+        padding: const EdgeInsets.only(top: 6.0),
+        // Fundalul se ajustează pentru modul Dark/Light al sistemului, dar culoarea e forțată
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        child: Column(
+          children: [
+            // Toolbar cu butonul Done/Gata
+            Container(
+              alignment: Alignment.centerRight,
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: CupertinoColors.systemGrey5)),
+              ),
+              child: CupertinoButton(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text('Gata', style: TextStyle(color: widget.accentColor)),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+            Expanded(
+              child: CupertinoDatePicker(
+                backgroundColor: CupertinoColors.systemBackground.resolveFrom(context),
+                initialDateTime: _lastKmUpdatedAt ?? DateTime.now(),
+                mode: CupertinoDatePickerMode.date,
+                maximumDate: DateTime.now(),
+                onDateTimeChanged: (DateTime newDate) {
+                  setState(() {
+                    _lastKmUpdatedAt = newDate;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Metodă de afișare a Brand Picker-ului (Stil Cupertino)
+  void _showBrandPicker(List<Map<String, dynamic>> brands) {
+    int initialIndex = brands.indexWhere((b) => b['brand_id'] == _selectedBrandId);
+    initialIndex = initialIndex == -1 ? 0 : initialIndex; // Default la primul item
+
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 250.0,
+          color: CupertinoColors.systemBackground.resolveFrom(context),
+          child: Column(
+            children: [
+              // Toolbar cu butonul Done/Gata
+              Container(
+                alignment: Alignment.centerRight,
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: CupertinoColors.systemGrey5)),
+                ),
+                child: CupertinoButton(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text('Gata', style: TextStyle(color: widget.accentColor)),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              Expanded(
+                child: CupertinoPicker(
+                  scrollController: FixedExtentScrollController(initialItem: initialIndex),
+                  itemExtent: 40.0,
+                  onSelectedItemChanged: (int index) {
+                    setState(() {
+                      _selectedBrandId = brands[index]['brand_id'];
+                      // S-a selectat o marcă, elimină eventualele erori de câmp
+                      _fieldErrors.remove('brand_id');
+                    });
+                  },
+                  children: brands.map((brand) {
+                    return Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Afișează logo-ul mărcii
+                          Image.network(
+                            brand['brand_photo'] ?? '',
+                            width: 20,
+                            height: 20,
+                            errorBuilder: (context, error, stackTrace) => const Icon(
+                                CupertinoIcons.car_fill,
+                                size: 20,
+                                color: CupertinoColors.systemGrey
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            brand['brand_name'] ?? '',
+                            style: const TextStyle(color: CupertinoColors.label),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+      // Designul iOS pentru sheets are colțuri rotunjite (dar nu la fel de mari)
+      decoration: BoxDecoration(
+        color: widget.bgDark, // Păstrăm culoarea de fundal a temei
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Bara de drag & close (opțional, pentru aspect iOS)
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 15),
+                width: 40,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: CupertinoColors.systemGrey5,
+                  borderRadius: BorderRadius.circular(2.5),
+                ),
+              ),
+            ),
+
+            Text(
+              "Adaugă o Mașină Nouă",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // 1. Selecția Mărcii (Brand Selection - Stil iOS)
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: _brandsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CupertinoActivityIndicator(color: widget.accentColor));
+                }
+                if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+                  return _buildErrorState('Eroare la încărcarea mărcilor auto.');
+                }
+
+                final List<Map<String, dynamic>> brands = snapshot.data!;
+                return _buildBrandSelectionField(brands);
+              },
+            ),
+            _buildErrorText(_fieldErrors['brand_id']),
+            const SizedBox(height: 15),
+
+            // 2. Model (Cupertino TextField)
+            _buildCupertinoTextField(
+              label: 'Model',
+              onChanged: (value) => setState(() { _model = value; _fieldErrors.remove('model'); }),
+              fieldError: _fieldErrors['model'],
+            ),
+            const SizedBox(height: 15),
+
+            // 3. Anul (Cupertino TextField)
+            _buildCupertinoTextField(
+              label: 'Anul',
+              keyboardType: TextInputType.number,
+              onChanged: (value) => setState(() { _year = int.tryParse(value); _fieldErrors.remove('year'); }),
+              fieldError: _fieldErrors['year'],
+            ),
+            const SizedBox(height: 15),
+
+            // 4. KM (Cupertino TextField)
+            _buildCupertinoTextField(
+              label: 'Kilometrajul Actual',
+              keyboardType: TextInputType.number,
+              onChanged: (value) => setState(() { _currentKm = int.tryParse(value); _fieldErrors.remove('current_km'); }),
+              fieldError: _fieldErrors['current_km'],
+            ),
+            const SizedBox(height: 15),
+
+            // 5. Data Ultima Actualizare KM (Cupertino Date Picker)
+            _buildDatePickerField(),
+            _buildErrorText(_fieldErrors['last_km_updated_at']),
+            const SizedBox(height: 15),
+
+            // 6. Placă de Înmatriculare (Cupertino TextField - Optional)
+            _buildCupertinoTextField(
+              label: 'Placă de Înmatriculare',
+              onChanged: (value) => setState(() { _licensePlate = value.isEmpty ? null : value; _fieldErrors.remove('license_plate'); }),
+              isOptional: true,
+              fieldError: _fieldErrors['license_plate'],
+            ),
+            const SizedBox(height: 15),
+
+            // 7. VIN (Cupertino TextField - Optional)
+            _buildCupertinoTextField(
+              label: 'VIN / Serie Șasiu',
+              onChanged: (value) => setState(() { _vin = value.isEmpty ? null : value; _fieldErrors.remove('vin'); }),
+              isOptional: true,
+              fieldError: _fieldErrors['vin'],
+            ),
+            const SizedBox(height: 30),
+
+            // 8. Butonul de Adăugare (Cupertino Button)
+            _buildAddCarButton(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- Widget Builders (Cupertino Style) ---
+
+  Widget _buildBrandSelectionField(List<Map<String, dynamic>> brands) {
+    final selectedBrand = brands.firstWhere(
+          (b) => b['brand_id'] == _selectedBrandId,
+      orElse: () => {'brand_name': 'Selectează Marca *', 'brand_photo': null},
+    );
+
+    // Verifică dacă există eroare pentru brand_id
+    final bool hasError = _fieldErrors.containsKey('brand_id');
+
+    return GestureDetector(
+      onTap: _isLoading ? null : () => _showBrandPicker(brands),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+        decoration: BoxDecoration(
+          // Stil iOS-like pentru câmpul de selecție
+          color: CupertinoColors.systemGrey5.resolveFrom(context).withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+              color: hasError ? CupertinoColors.systemRed : widget.accentColor.withOpacity(0.3)
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Image.network(
+                  selectedBrand['brand_photo'] ?? '',
+                  width: 24,
+                  height: 24,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                      CupertinoIcons.car_fill,
+                      size: 24,
+                      color: CupertinoColors.systemGrey3
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  selectedBrand['brand_name'] ?? 'Selectează Marca *',
+                  style: TextStyle(
+                    color: _selectedBrandId == null ? CupertinoColors.systemGrey : Colors.white70,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+            const Icon(CupertinoIcons.chevron_down, size: 16, color: CupertinoColors.systemGrey)
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCupertinoTextField({
+    required String label,
+    required ValueChanged<String> onChanged,
+    TextInputType keyboardType = TextInputType.text,
+    bool isOptional = false,
+    List<String>? fieldError, // NOU: pentru afișarea erorilor
+  }) {
+    final displayPlaceholder = isOptional ? '$label (Opțional)' : '$label *';
+    final bool hasError = fieldError != null && fieldError.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CupertinoTextField(
+          onChanged: (value) {
+            onChanged(value);
+          },
+          keyboardType: keyboardType,
+          inputFormatters: keyboardType == TextInputType.number ? [FilteringTextInputFormatter.digitsOnly] : null,
+          placeholder: displayPlaceholder,
+          placeholderStyle: const TextStyle(color: CupertinoColors.systemGrey, fontSize: 16),
+          style: const TextStyle(color: CupertinoColors.white, fontSize: 16),
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 15.0),
+          decoration: BoxDecoration(
+            color: CupertinoColors.systemGrey5.resolveFrom(context).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+                color: hasError ? CupertinoColors.systemRed : widget.accentColor.withOpacity(0.3)
+            ),
+          ),
+          cursorColor: widget.accentColor,
+          readOnly: _isLoading,
+        ),
+        if (hasError) _buildErrorText(fieldError),
+      ],
+    );
+  }
+
+  Widget _buildDatePickerField() {
+    // Verifică dacă există eroare pentru data
+    final bool hasError = _fieldErrors.containsKey('last_km_updated_at');
+
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: _isLoading ? null : () => _selectDate(context),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+            decoration: BoxDecoration(
+              border: Border.all(
+                  color: hasError ? CupertinoColors.systemRed : widget.accentColor.withOpacity(0.3)
+              ),
+              borderRadius: BorderRadius.circular(10),
+              color: CupertinoColors.systemGrey5.resolveFrom(context).withOpacity(0.1),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Data Ultima Actualizare KM *',
+                  style: TextStyle(color: widget.accentColor, fontSize: 16),
+                ),
+                Text(
+                  _lastKmUpdatedAt == null
+                      ? 'Selectează'
+                      : '${_lastKmUpdatedAt!.day}.${_lastKmUpdatedAt!.month}.${_lastKmUpdatedAt!.year}',
+                  style: TextStyle(
+                    color: _lastKmUpdatedAt == null ? CupertinoColors.systemGrey : CupertinoColors.white,
+                    fontWeight: _lastKmUpdatedAt == null ? FontWeight.normal : FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (hasError) _buildErrorText(_fieldErrors['last_km_updated_at']),
+      ],
+    );
+  }
+
+  Widget _buildAddCarButton() {
+    final bool canSubmit = _isFormValid && !_isLoading;
+
+    return CupertinoButton(
+      padding: const EdgeInsets.symmetric(vertical: 15),
+      color: canSubmit ? widget.accentColor : CupertinoColors.systemGrey3, // Culoare Accent sau Gri dezactivat
+      borderRadius: BorderRadius.circular(12),
+      onPressed: canSubmit ? _addCar : null,
+      child: _isLoading
+          ? CupertinoActivityIndicator(color: CupertinoColors.black)
+          : Text(
+        "Adaugă Mașina",
+        style: TextStyle(
+          color: canSubmit ? CupertinoColors.black : CupertinoColors.white,
+          fontSize: 17,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorText(List<String>? errors) {
+    if (errors == null || errors.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 5.0, left: 5.0),
+      child: Text(
+        errors.join('\n'),
+        style: const TextStyle(
+          color: CupertinoColors.systemRed,
+          fontSize: 13,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String message) {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemRed.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: CupertinoColors.systemRed),
+      ),
+      child: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: TextStyle(color: CupertinoColors.systemRed, fontSize: 14),
+      ),
+    );
+  }
+}
+
+
+// ---------------------------------------------------------------------------
+// BACKGROUND ANIMATION WIDGETS (Logică Păstrată)
 // ---------------------------------------------------------------------------
 
 class _AnimatedLogoBackground extends StatefulWidget {
@@ -429,3 +1004,4 @@ class _ScrollingRow extends StatelessWidget {
     );
   }
 }
+
