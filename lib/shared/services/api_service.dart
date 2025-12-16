@@ -683,4 +683,39 @@ class ApiService {
       return false;
     }
   }
+
+
+  // Reusable method for authenticated PUT requests
+  Future<http.Response> authenticatedPut(String url, Map<String, dynamic> body) async {
+    final token = await getJwtToken();
+    if (token == null) throw Exception('No authentication token found. Please log in.');
+
+    http.Response response = await _makePutRequest(url, token, body);
+
+    // Handle token expiration
+    if (response.statusCode == 401) {
+      String? newToken = await refreshToken();
+      if (newToken != null) {
+        // Retry the request with the new token
+        response = await _makePutRequest(url, newToken, body);
+      } else {
+        throw Exception('Token refresh failed. Please log in again.');
+      }
+    }
+
+    return response;
+  }
+
+// Helper method for PUT request
+  Future<http.Response> _makePutRequest(String url, String token, Map<String, dynamic> body) async {
+    return await http.put(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(body),
+    );
+  }
+
 }
