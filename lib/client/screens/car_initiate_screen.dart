@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import '../services/BrandService.dart';
 // NOU: Importă CarService
 import '../services/CarService.dart';
+import 'CarLoadingDecisionScreen.dart';
 
 
 // Enum pentru a gestiona culorile themei
@@ -432,7 +433,15 @@ class _AddCarBottomSheetState extends State<_AddCarBottomSheet> {
       if (response['success'] == true) {
         // Succes
         Navigator.pop(context); // Închide bottom sheet
-        _showSuccessNotification('Mașina adăugată: ${_model} (${_year})!');
+
+
+        Navigator.of(context).pushReplacement(
+          CupertinoPageRoute(
+            builder: (context) => CarLoadingDecisionScreen(),
+          ),
+        );
+
+        //_showSuccessNotification('Mașina adăugată: ${_model} (${_year})!');
       } else {
         // Erori de Validare (Dublicate VIN/License Plate sau câmpuri lipsă)
         if (response.containsKey('fieldErrors') && response['fieldErrors'] is Map) {

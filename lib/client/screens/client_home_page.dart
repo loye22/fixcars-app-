@@ -1,3 +1,4 @@
+import 'package:fixcars/client/screens/CarLoadingDecisionScreen.dart';
 import 'package:fixcars/client/screens/CaroserieSiVopsitorieScreen.dart';
 import 'package:fixcars/client/screens/ClimatizareAutoScreen.dart';
 import 'package:fixcars/client/screens/ElectricaAutoScreen.dart';
@@ -51,7 +52,8 @@ class _client_home_pageState extends State<client_home_page> {
   final List<Widget> _screens = [
     _HomeContent(),             // Index 0: Acasă
     NotificationScreen(),       // Index 1: Notificări
-    CarInitiateScreen(),        // Index 2: Gestionează Mașina
+    CarLoadingDecisionScreen(),
+    // CarInitiateScreen(),        // Index 2: Gestionează Mașina
     ConversationListScreen(),   // Index 3: Mesaje
     AboutUsScreen(),            // Index 4: Despre
   ];

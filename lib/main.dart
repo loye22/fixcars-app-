@@ -1,18 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fixcars/client/screens/client_home_page.dart';
-import 'package:fixcars/client/services/my_car_screen_management.dart';
 import 'package:fixcars/shared/screens/global_keys.dart';
-import 'package:fixcars/shared/screens/rest_password_screen.dart';
 import 'package:fixcars/shared/services/OneSignalService.dart';
 import 'package:fixcars/shared/services/api_service.dart';
 import 'package:fixcars/shared/services/firebase_chat_service.dart';
-import 'package:fixcars/supplier/screens/AddNewServiceScreen.dart';
 import 'package:fixcars/supplier/screens/supplier_home_page.dart';
 import 'package:fixcars/shared/screens/intro_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fixcars/shared/widgets/location_permission_gate.dart';
-import 'client/screens/car_initiate_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
