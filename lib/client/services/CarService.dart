@@ -4,6 +4,34 @@ import 'package:http/http.dart' as http;
 // Assuming ApiService is in this shared path, adjust if necessary
 import '../../shared/services/api_service.dart';
 
+
+enum ObligationType {
+  ITP,
+  RCA,
+  CASCO,
+  ROVINIETA,
+  AUTO_TAX,
+  OIL_CHANGE,
+  AIR_FILTER,
+  CABIN_FILTER,
+  BRAKE_CHECK,
+  COOLANT,
+  BATTERY,
+  TIRES,
+  WIPERS,
+  FIRE_EXTINGUISHER,
+  FIRST_AID_KIT
+}
+
+enum ReminderType {
+  LEGAL,
+  MECHANICAL,
+  SAFETY,
+  FINANCIAL,
+  SEASONAL,
+  OTHER
+}
+
 class CarService {
   final ApiService _apiService = ApiService();
 
@@ -264,6 +292,56 @@ class CarService {
       return {
         'success': false,
         'error': errorMsg,
+      };
+    }
+  }
+
+
+
+  /// Adds a new obligation to the current car.
+  /// POST /api/add-car-obligation/
+  Future<Map<String, dynamic>> addCarObligation({
+    required ObligationType obligationType,
+    required ReminderType reminderType,
+    required DateTime dueDate,
+    String? documentUrl,
+    String? note,
+  }) async {
+    try {
+      final String url = '${ApiService.baseUrl}/add-car-obligation/';
+
+      // Prepare the request body
+      final Map<String, dynamic> body = {
+        'obligation_type': obligationType.name, // Converts enum to String (e.g., "ITP")
+        'reminder_type': reminderType.name,     // Converts enum to String (e.g., "LEGAL")
+        'due_date': dueDate.toIso8601String().split('T')[0], // Formats as YYYY-MM-DD
+        'doc_url': documentUrl,
+        'note': note,
+      };
+
+      // Perform the authenticated POST request
+      final http.Response response = await _apiService.authenticatedPost(
+        url,
+      body,
+      );
+
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (response.statusCode == 201 || responseData['success'] == true) {
+        return {
+          'success': true,
+          'message': responseData['message'] ?? 'Obligation added successfully',
+        };
+      } else {
+        return {
+          'success': false,
+          'error': responseData['message'] ?? responseData['errors']?.toString() ?? 'Error adding obligation',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'error': 'Network error: $e',
       };
     }
   }

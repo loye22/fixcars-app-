@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 // Import the CarService
 import '../services/CarService.dart';
+import '../widgets/AddCarObligationBottomSheet.dart';
 import '../widgets/UpdateCarBottomSheet.dart';
 
 enum ObligationStatus {
@@ -591,6 +592,71 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
 
   final CarService _carService = CarService();
 
+
+  void _openAddObligationSheet() async {
+    // 1. Deschidem bottom sheet-ul și așteptăm rezultatul (true/false)
+    final bool? refreshNeeded = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const AddCarObligationBottomSheet(),
+    );
+
+    // 2. VERIFICARE CRITICĂ:
+    // Dacă utilizatorul a închis ecranul în timp ce sheet-ul era deschis
+    if (!mounted) return;
+
+    // 3. Dacă s-a adăugat cu succes o obligație
+    if (refreshNeeded == true) {
+      setState(() {
+        _isLoading = true; // Pornim animația de încărcare pe ecran
+      });
+
+      // 4. Reîncărcăm datele de la server pentru a vedea noua obligație
+      await _loadCarData();
+
+      // 5. Verificăm din nou mounted după await (operațiunea de rețea poate dura)
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        // Afișăm feedback vizual de succes
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Obligația a fost salvată cu succes!'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+  // void _openAddObligationSheet() async {
+  //   final bool? result = await showModalBottomSheet<bool>(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     backgroundColor: Colors.transparent,
+  //     builder: (context) => const AddCarObligationBottomSheet(),
+  //   );
+  //
+  //   // --- SAFETY CHECK START ---
+  //   // If the user closed the screen while the sheet was open, stop here.
+  //   if (!mounted) return;
+  //   // --- SAFETY CHECK END ---
+  //
+  //   if (result == true) {
+  //     _loadCarData();
+  //
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Obligația a fost adăugată cu succes!'),
+  //         backgroundColor: Colors.green,
+  //       ),
+  //     );
+  //   }
+  // }
   @override
   void initState() {
     super.initState();
@@ -830,6 +896,8 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
     final String carName = '${_carData?['brand_name'] ?? ''} ${_carData?['model'] ?? ''}';
     final String photoUrl = _carData?['brand_photo'] ?? '';
 
+
+
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
@@ -939,6 +1007,10 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
                   ),
                   const SizedBox(width: 8),
                   Icon(Icons.warning_amber_rounded, color: Colors.orange.shade600),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline, color: Colors.blueAccent),
+                    onPressed: _openAddObligationSheet,
+                  ),
                 ],
               ),
             ),
