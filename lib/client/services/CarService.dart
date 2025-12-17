@@ -171,6 +171,9 @@ class CarService {
       // Use authenticatedPut method
       final http.Response response = await _apiService.authenticatedPut(endpoint, body);
 
+      // print("response+=========================================");
+      // print(response.body);
+
       final Map<String, dynamic> responseData = jsonDecode(response.body);
 
       // Success case (usually 200 OK)
@@ -215,5 +218,55 @@ class CarService {
       };
     }
   }
+
+
+
+  /// Fetches the current car details and available brands for initialization.
+  /// Endpoint: ${ApiService.baseUrl}/init-car-details-update/
+  Future<Map<String, dynamic>> fetchCurrentCarDetails() async {
+    try {
+      final String url = '${ApiService.baseUrl}/init-car-details-update/';
+
+      // Perform an authenticated GET request
+      final http.Response response = await _apiService.authenticatedGet(url);
+
+      // Decode the JSON response body
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (response.statusCode == 200 && responseData['success'] == true) {
+        // Return the 'data' object which contains 'current_car' and 'available_brands'
+        return {
+          'success': true,
+          'data': responseData['data'],
+        };
+      } else {
+        // Handle error cases or unexpected status codes
+        String errorMessage = responseData['error'] ??
+            responseData['message'] ??
+            'Eroare la încărcarea detaliilor (cod: ${response.statusCode})';
+
+        return {
+          'success': false,
+          'error': errorMessage,
+        };
+      }
+    } catch (e) {
+      // Catch any network, timeout, or decoding errors
+      String errorMsg;
+      if (e.toString().contains('SocketException')) {
+        errorMsg = 'Fără conexiune la internet.';
+      } else if (e.toString().contains('Timeout')) {
+        errorMsg = 'Cererea a expirat. Încearcă din nou.';
+      } else {
+        errorMsg = 'Eroare neașteptată: $e';
+      }
+
+      return {
+        'success': false,
+        'error': errorMsg,
+      };
+    }
+  }
+
 
 }

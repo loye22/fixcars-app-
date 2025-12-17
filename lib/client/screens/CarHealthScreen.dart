@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 // Import the CarService
 import '../services/CarService.dart';
+import '../widgets/UpdateCarBottomSheet.dart';
 
 enum ObligationStatus {
   expired,
@@ -794,8 +795,6 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    print("_errorMessage+++++++++++++++++++++++");
-    print(_errorMessage);
     if (_isLoading) {
       return Scaffold(
         backgroundColor: const Color(0xFF121212),
@@ -886,13 +885,44 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
               ),
             ),
 
-            VehicleInfoCard(
-              model: carName,
-              year: '${_carData?['year'] ?? 'N/A'}',
-              vin: _carData?['vin'] ?? 'N/A',
-              plateLicense: _carData?['license_plate'] ?? 'N/A',
-              mileage: '${_carData?['current_km'] ?? 0} km',
-              imageUrl: photoUrl,
+            InkWell(
+              onTap: () async {
+                // Deschidem bottom sheet-ul
+                final bool? refreshNeeded = await showModalBottomSheet<bool>(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => const UpdateCarBottomSheet(),
+                );
+
+                // VERIFICARE CRITICĂ:
+                // Dacă utilizatorul a închis ecranul principal în timp ce
+                // bottom sheet-ul era deschis, nu mai putem apela setState.
+                if (!mounted) return;
+
+                if (refreshNeeded == true) {
+                  setState(() {
+                    _isLoading = true;
+                  });
+
+                  await _loadCarData();
+
+                  // Verificăm din nou după await, pentru siguranță
+                  if (mounted) {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  }
+                }
+              },
+              child: VehicleInfoCard(
+                model: carName,
+                year: '${_carData?['year'] ?? 'N/A'}',
+                vin: _carData?['vin'] ?? 'N/A',
+                plateLicense: _carData?['license_plate'] ?? 'N/A',
+                mileage: '${_carData?['current_km'] ?? 0} km',
+                imageUrl: photoUrl,
+              ),
             ),
 
             Padding(
