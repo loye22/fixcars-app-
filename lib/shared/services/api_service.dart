@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -208,43 +209,6 @@ class ApiService {
     }
   }
 
-  // // File Upload API
-  // Future<Map<String, dynamic>> uploadFile(File file) async {
-  //   try {
-  //     var request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/upload-file/'));
-  //     request.files.add(
-  //       await http.MultipartFile.fromPath(
-  //         'file',
-  //         file.path,
-  //         contentType: MediaType('image', file.path.split('.').last),
-  //       ),
-  //     );
-  //     final streamedResponse = await request.send().timeout(Duration(seconds: 10));
-  //     final response = await http.Response.fromStream(streamedResponse);
-  //     final data = jsonDecode(response.body);
-  //
-  //     print("===========================================================");
-  //     print("profileUploadResult");
-  //     print(response);
-  //
-  //     if (response.statusCode == 201) {
-  //       return {'success': true, 'data': data};
-  //     }
-  //     return {
-  //       'success': false,
-  //       'error': '${data['error'] ?? data['message'] ?? 'Eroare necunoscută de la server'}. Răspuns server: ${response.body}'
-  //     };
-  //   } catch (e) {
-  //     return {
-  //       'success': false,
-  //       'error': e is SocketException
-  //           ? 'Fără conexiune la internet. Detalii: $e'
-  //           : e is TimeoutException
-  //           ? 'Cererea a expirat. Detalii: $e'
-  //           : 'Eroare de rețea: $e'
-  //     };
-  //   }
-  // }
 
   Future<Map<String, dynamic>> uploadFile(File file) async {
     try {
@@ -279,6 +243,10 @@ class ApiService {
       print("Status: ${response.statusCode}");
       print("Headers: ${response.headers}");
       print("Body: ${response.body.length > 1000 ? response.body.substring(0, 1000) : response.body}");
+      print("===========================================================");
+      print(MediaType('image', file.path.split('.').last.toLowerCase()));
+
+      print("===========================================================");
       print("===========================================================");
 
       // Check HTTP status code
@@ -716,6 +684,35 @@ class ApiService {
       },
       body: jsonEncode(body),
     );
+  }
+
+
+  Future<Map<String, dynamic>> uploadFile2(File file) async {
+    if (!file.existsSync()) {
+      return {'success': false, 'error': 'Fișierul nu există'};
+    }
+
+    final mimeType = lookupMimeType(file.path) ?? 'application/octet-stream';
+    final splitMime = mimeType.split('/');
+
+    var request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/upload-file/'));
+    request.files.add(await http.MultipartFile.fromPath(
+      'file',
+      file.path,
+      contentType: MediaType(splitMime[0], splitMime[1]),
+    ));
+    request.headers['Accept'] = 'application/json';
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      return {'success': true, 'data': data};
+    } else {
+      final data = jsonDecode(response.body);
+      return {'success': false, 'error': data['error'] ?? 'Eroare la upload'};
+    }
   }
 
 }
