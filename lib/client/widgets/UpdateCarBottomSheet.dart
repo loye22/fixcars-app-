@@ -305,8 +305,11 @@ class _UpdateCarBottomSheetState extends State<UpdateCarBottomSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[700], borderRadius: BorderRadius.circular(2)))),
-              const SizedBox(height: 20),
+          //    Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[700], borderRadius: BorderRadius.circular(2)))),
+            //  const SizedBox(height: 20),
+              IconButton(onPressed: () {
+                Navigator.of(context).pop();
+              }, icon: Icon(Icons.arrow_back_ios , color: Colors.white,)) ,
               const Text("Actualizare Detalii Vehicul", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
               const SizedBox(height: 25),
 
