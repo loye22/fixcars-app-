@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../services/CarService.dart';
 import 'CarHealthScreen.dart';
 import 'car_initiate_screen.dart';      // Assuming this file contains CarInitiateScreen
@@ -80,8 +81,15 @@ class _CarLoadingDecisionScreenState extends State<CarLoadingDecisionScreen> {
   Widget build(BuildContext context) {
     switch (_currentState) {
       case CarScreenState.loading:
-        return const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
+        return  Scaffold(
+          backgroundColor: Color(0xFF1A1A1A),
+          body: Center(child:
+          LoadingAnimationWidget.threeArchedCircle(
+            color: Color(0xFFFFFFFF),
+            size: 40,
+          )
+
+          ),
         );
 
       case CarScreenState.hasCar:
