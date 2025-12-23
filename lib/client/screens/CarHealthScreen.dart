@@ -7,6 +7,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:math' as math;
 
 // Import the CarService
+import '../../shared/widgets/AppDialogs.dart';
 import '../services/CarService.dart';
 import '../widgets/AddCarObligationBottomSheet.dart';
 import '../widgets/UpdateCarBottomSheet.dart';
@@ -28,6 +29,7 @@ enum ReminderType {
 }
 
 class Obligation {
+  final String id; // Required for deletion
   final String title;
   final ObligationStatus status;
   final ReminderType reminderType;
@@ -37,6 +39,7 @@ class Obligation {
   final String obligationType;
 
   Obligation({
+    required this.id,
     required this.title,
     required this.status,
     required this.reminderType,
@@ -49,12 +52,14 @@ class Obligation {
 
 class ObligationCard extends StatelessWidget {
   final Obligation obligation;
-  final VoidCallback onAddPressed; // Added to handle the "Add Now" trigger
+  final VoidCallback onAddPressed;
+  final VoidCallback onDelete; // <--- ADAUGĂ ACEASTA
 
   const ObligationCard({
     super.key,
     required this.obligation,
-    required this.onAddPressed
+    required this.onAddPressed ,
+    required this.onDelete, // <--- ADAUGĂ ACEASTA
   });
 
   Color _getEffectiveStatusColor() {
@@ -190,7 +195,6 @@ class ObligationCard extends StatelessWidget {
 
     bool isCritical = obligation.status == ObligationStatus.expired ||
         obligation.status == ObligationStatus.expiresSoon;
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -244,8 +248,18 @@ class ObligationCard extends StatelessWidget {
                       if (obligation.documentUrl.isNotEmpty) {
                         _showDocumentSheet(context, obligation.documentUrl);
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("No document URL available")),
+
+                        AppDialogs.showConfirmDelete(
+                          context: context,
+                          title: 'Document Lipsă', // Missing Document
+                          message: 'Nu aveți încă documente pentru această obligație. Vă rugăm să mergeți la editare pentru a adăuga documentul.',
+                          onConfirm: () {
+                            // This code runs when the user clicks "Șterge" (Delete)
+                            print('User acknowledged the message or confirmed action');
+
+                            // If you need to navigate the user to the edit screen immediately:
+                            // Navigator.push(context, MaterialPageRoute(builder: (context) => EditPage()));
+                          },
                         );
                       }
                     },
@@ -285,12 +299,28 @@ class ObligationCard extends StatelessWidget {
                               child: _buildActionButton(context, 'EDITARE', CupertinoIcons.pencil, _showEditSheet, Colors.blue.shade700),
                             ),
                           ),
+                          // Locate the ȘTERGERE button inside your ObligationCard class
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 5.0),
-                              child: _buildActionButton(context, 'ȘTERGERE', CupertinoIcons.delete, _showDeleteSheet, Colors.red.shade700),
+                              child: _buildActionButton(
+                                  context,
+                                  'ȘTERGERE',
+                                  CupertinoIcons.delete,
+                                      (ctx) { // <--- Change '()' to '(ctx)' to match the expected type
+                                    Navigator.pop(ctx); // Use the local context 'ctx' to close the sheet
+                                    onDelete();        // This calls the confirm dialog
+                                  },
+                                  Colors.red.shade700
+                              ),
                             ),
                           ),
+                          // Expanded(
+                          //   child: Padding(
+                          //     padding: const EdgeInsets.only(left: 5.0),
+                          //     child: _buildActionButton(context, 'ȘTERGERE', CupertinoIcons.delete, _showDeleteSheet, Colors.red.shade700),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ],
@@ -392,7 +422,7 @@ class ObligationCard extends StatelessWidget {
     );
   }
 
-   Widget _buildActionButton(BuildContext context, String text, IconData icon, Function(BuildContext) onPressed, Color color) {
+  Widget _buildActionButton(BuildContext context, String text, IconData icon, Function(BuildContext) onPressed, Color color) {
     return ElevatedButton.icon(
       onPressed: () => onPressed(context),
       icon: Icon(icon, size: 20 , color: Colors.white,),
@@ -413,6 +443,7 @@ class ObligationCard extends StatelessWidget {
         bool isLink = false,
         VoidCallback? onTap,
       }) {
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -788,28 +819,31 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
     }
   }
 
-
   Future<void> _loadCarData() async {
     try {
       final List<Map<String, dynamic>> cars = await _carService.fetchCars();
 
       if (cars.isNotEmpty) {
+        // Taking the first car from the "data" list in your response
         final Map<String, dynamic> car = cars[0];
         List<Obligation> loadedObligations = [];
 
+        // 1. Process Missing Obligations
         if (car['missing_obligations'] != null) {
           final List<dynamic> missing = car['missing_obligations'];
           for (var item in missing) {
             loadedObligations.add(Obligation(
+              id: 'missing_${item['obligation_type']}', // Temporary ID for UI
               title: item['obligation_type_display'] ?? 'Obligație Necunoscută',
               status: ObligationStatus.noData,
               reminderType: _mapReminderType(item['obligation_type']),
-              notes: 'Lipsesc date pentru această obligație. Vă rugăm să actualizați.',
+              notes: 'Lipsesc date pentru această obligație.',
               obligationType: item['obligation_type'] ?? 'ALTELE',
             ));
           }
         }
 
+        // 2. Process Existing Obligations
         if (car['existing_obligations'] != null) {
           final List<dynamic> existing = car['existing_obligations'];
           for (var item in existing) {
@@ -817,17 +851,19 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
             final ObligationStatus status = _getObligationStatus(dueDate);
 
             loadedObligations.add(Obligation(
+              id: item['id']?.toString() ?? '', // Important: Capture the ID for deletion
               title: item['obligation_type_display'] ?? item['obligation_type'] ?? 'Obligație',
               status: status,
               reminderType: _mapReminderType(item['obligation_type']),
               dueDate: dueDate,
-              documentUrl: item['doc_url'] ?? 'https://dummy-document-link.com',
+              documentUrl: item['doc_url'] ?? '',
               notes: item['note'] ?? '',
               obligationType: item['obligation_type'] ?? 'ALTELE',
             ));
           }
         }
 
+        // 3. Calculate Score
         int totalExpected = loadedObligations.length;
         int missingCount = loadedObligations.where((o) => o.status == ObligationStatus.noData).length;
         int criticalCount = loadedObligations.where((o) => o.status == ObligationStatus.expired || o.status == ObligationStatus.expiresSoon).length;
@@ -835,35 +871,25 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
         double calculatedScore = totalExpected > 0
             ? (totalExpected - missingCount - criticalCount) / totalExpected
             : 0.0;
-        calculatedScore = calculatedScore.clamp(0.0, 1.0);
-
 
         if (mounted) {
           setState(() {
-            _carData = car;
+            _carData = car; // Fixed naming: matches your state variable
             _obligations = loadedObligations;
-            healthScore = calculatedScore;
+            healthScore = calculatedScore.clamp(0.0, 1.0);
             _isLoading = false;
           });
           _animationController.forward();
         }
       } else {
-        if (mounted) {
-          setState(() {
-            _errorMessage = 'Nu au fost găsite mașini.';
-            _isLoading = false;
-          });
-        }
+        if (mounted) setState(() { _errorMessage = 'Nu au fost găsite mașini.'; _isLoading = false; });
       }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = 'Eroare la încărcarea datelor: $e';
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() { _errorMessage = 'Eroare: $e'; _isLoading = false; });
     }
   }
+
+
 
   ReminderType _mapReminderType(String? type) {
     if (type == null) return ReminderType.other;
@@ -1084,10 +1110,26 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
                 child: Text("Nu au fost găsite obligații.", style: TextStyle(color: Colors.grey)),
               )
             else
+            // Replace your current map loop with this:
               ..._obligations.map((o) => ObligationCard(
                 obligation: o,
-                onAddPressed: _openAddObligationSheet, // Link callback
+                onAddPressed: _openAddObligationSheet,
+                onDelete: () {
+                  // Check if it's an existing obligation (has a real ID) before trying to delete
+                  if (!o.id.contains('missing')) {
+                    _confirmDelete(_carData!['id'].toString(), o.id);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Această obligație nu există încă, deci nu poate fi ștearsă.'))
+                    );
+                  }
+                },
               )).toList(),
+              // ..._obligations.map((o) => ObligationCard(
+              //   onDelete: () => _confirmDelete(carData['id'], obligationData['id']),
+              //   obligation: o,
+              //   onAddPressed: _openAddObligationSheet, // Link callback
+              // )).toList(),
 
             const SizedBox(height: 50),
           ],
@@ -1095,6 +1137,76 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
       ),
     );
   }
+
+
+  void _confirmDelete(String carId, String obligationId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        title: const Text('Confirmare ștergere', style: TextStyle(color: Colors.white)),
+        content: const Text(
+          'Sigur doriți să ștergeți această obligație? Această acțiune este ireversibilă.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Anulează', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade700,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () {
+              Navigator.pop(context); // Close the dialog
+              _handleDeleteObligation(carId, obligationId);
+            },
+            child: const Text('Șterge', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleDeleteObligation(String carId, String obligationId) async {
+    // Show a loading indicator if preferred, or just proceed to API
+    final result = await _carService.deleteCarObligation(
+      carId: carId,
+      obligationId: obligationId,
+    );
+
+    if (result['success'] == true) {
+      if (mounted) {
+        setState(() {
+          // 1. Remove from the local list immediately for a snappy UI
+          _obligations.removeWhere((o) => o.id == obligationId);
+        });
+
+        // 2. Refresh the car data to update the Health Score gauge
+        await _loadCarData();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Obligația a fost ștearsă.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['error'] ?? 'Eroare la ștergerea obligației.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+
 }
 
 class AnimatedSciFiGauge extends StatefulWidget {

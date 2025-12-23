@@ -55,6 +55,9 @@ class CarService {
         // Decode the JSON response body
         final Map<String, dynamic> decodedBody = json.decode(response.body);
 
+        print("============================= decodedBody =======================");
+        print(decodedBody);
+
         // Check if the body contains a 'data' key which is a list
         if (decodedBody.containsKey('data') && decodedBody['data'] is List) {
           final List<dynamic> data = decodedBody['data'];
@@ -342,6 +345,48 @@ class CarService {
       return {
         'success': false,
         'error': 'Network error: $e',
+      };
+    }
+  }
+
+
+  /// Deletes a specific car obligation.
+  /// DELETE /api/cars/<car_id>/obligations/<obligation_id>/
+  Future<Map<String, dynamic>> deleteCarObligation({
+    required String carId,
+    required String obligationId,
+  }) async {
+    try {
+      final String url = '${ApiService.baseUrl}/cars/$carId/obligations/$obligationId/';
+
+      // Perform the authenticated DELETE request
+      final http.Response response = await _apiService.authenticatedDelete(url);
+
+      // Decode the response body
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      // Handle Success: { "success": true, "message": "Obligation deleted successfully." }
+      if (response.statusCode == 200 && responseData['success'] == true) {
+        return {
+          'success': true,
+          'message': responseData['message'],
+        };
+      }
+
+      // Handle Failure: { "success": false, "error": "Obligation not found for this car." }
+      return {
+        'success': false,
+        'error': responseData['error'] ?? 'Eroare la ștergerea obligației.',
+      };
+    } catch (e) {
+      // Handle connection or parsing errors
+      String errorMsg = e.toString().contains('SocketException')
+          ? 'Fără conexiune la internet.'
+          : 'Eroare neașteptată: $e';
+
+      return {
+        'success': false,
+        'error': errorMsg,
       };
     }
   }

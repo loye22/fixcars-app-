@@ -715,4 +715,38 @@ class ApiService {
     }
   }
 
+
+  // Reusable method for authenticated DELETE requests
+  Future<http.Response> authenticatedDelete(String url) async {
+    final token = await getJwtToken();
+    if (token == null) throw Exception('No authentication token found. Please log in.');
+
+    http.Response response = await _makeDeleteRequest(url, token);
+
+    // Handle token expiration
+    if (response.statusCode == 401) {
+      String? newToken = await refreshToken();
+      if (newToken != null) {
+        // Retry the request with the new token
+        response = await _makeDeleteRequest(url, newToken);
+      } else {
+        throw Exception('Token refresh failed. Please log in again.');
+      }
+    }
+
+    return response;
+  }
+
+  // Helper method for DELETE request
+  Future<http.Response> _makeDeleteRequest(String url, String token) async {
+    return await http.delete(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+  }
+
+
 }
