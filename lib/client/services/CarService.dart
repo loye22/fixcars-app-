@@ -453,6 +453,47 @@ class CarService {
   }
 
 
+  /// Fetches suggested businesses (golden suggestions) for a specific obligation type.
+  ///
+  /// API Link: http://192.168.1.129:8000/api/suggest-businesses-for-obligation/?obligation_type=OIL_CHANGE
+  Future<Map<String, dynamic>> fetchGoldenSuggestions(ObligationType obligationType) async {
+    try {
+      // Constructs the URL using the enum name (e.g., "OIL_CHANGE")
+      final String url = '${ApiService.baseUrl}/suggest-businesses-for-obligation/?obligation_type=${obligationType.name}';
 
+      // Performs the authenticated GET request
+      final http.Response response = await _apiService.authenticatedGet(url);
+
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      // Handle Success Case based on the provided JSON structure
+      if (response.statusCode == 200 && responseData['success'] == true) {
+        return {
+          'success': true,
+          'message': responseData['message'],
+          'data': responseData['data'], // List of businesses
+          'count': responseData['count'], // The number of results found
+          'obligation_type': responseData['obligation_type'], // The requested type (e.g., OIL_CHANGE)
+          'service_category': responseData['service_category'], // The category (e.g., mecanic_auto)
+        };
+      }
+
+      // Handle Error Case (e.g., Invalid obligation_type)
+      return {
+        'success': false,
+        'error': responseData['error'] ?? 'Eroare la încărcarea sugestiilor.',
+      };
+    } catch (e) {
+      // Standard error handling used in your CarService
+      String errorMsg = e.toString().contains('SocketException')
+          ? 'Fără conexiune la internet.'
+          : 'Eroare neașteptată: $e';
+
+      return {
+        'success': false,
+        'error': errorMsg,
+      };
+    }
+  }
 
 }

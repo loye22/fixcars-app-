@@ -10,6 +10,7 @@ import 'dart:math' as math;
 import '../../shared/widgets/AppDialogs.dart';
 import '../services/CarService.dart';
 import '../widgets/AddCarObligationBottomSheet.dart';
+import '../widgets/BusinessSearchBottomSheet.dart';
 import '../widgets/EditObligationSheet.dart';
 import '../widgets/UpdateCarBottomSheet.dart';
 
@@ -132,51 +133,39 @@ class ObligationCard extends StatelessWidget {
       },
     );
   }
-  // void _showEditSheet(BuildContext context) {
+  void _showBusinessSearch(BuildContext context, ObligationType type) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Permite modalului să ocupe 60% din ecran
+      backgroundColor: Colors.transparent,
+      builder: (context) => BusinessSearchBottomSheet(obligationType: type),
+    );
+  }
+
+
+  // void _showBusinessSearch(BuildContext context) {
   //   showModalBottomSheet(
   //     context: context,
   //     isScrollControlled: true,
   //     backgroundColor: Colors.transparent,
   //     builder: (context) {
   //       return Container(
-  //         height: MediaQuery.of(context).size.height * 0.5,
+  //         height: MediaQuery.of(context).size.height * 0.4,
   //         decoration: const BoxDecoration(
   //           color: Color(0xFF1E1E1E),
   //           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
   //         ),
-  //         child: const Center(
-  //           child: Text('Formular EDITARE (În curs de implementare)',
-  //               style: TextStyle(fontSize: 18, color: Colors.white)),
+  //         child: Center(
+  //           child: Text(
+  //             'Căutăm cele mai bune servicii pentru ${obligation.title} lângă tine...',
+  //             textAlign: TextAlign.center,
+  //             style: const TextStyle(fontSize: 18, color: Colors.white),
+  //           ),
   //         ),
   //       );
   //     },
   //   );
   // }
-
-
-  void _showBusinessSearch(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.4,
-          decoration: const BoxDecoration(
-            color: Color(0xFF1E1E1E),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Center(
-            child: Text(
-              'Căutăm cele mai bune servicii pentru ${obligation.title} lângă tine...',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18, color: Colors.white),
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   void _showDetails(BuildContext context) {
     print(obligation.id);
@@ -277,8 +266,9 @@ class ObligationCard extends StatelessWidget {
                               context,
                               'GĂSEȘTE SERVICII PENTRU REÎNNOIRE',
                               Icons.store,
-                              _showBusinessSearch,
+                                  (ctx) => _showBusinessSearch(ctx, _mapStringToType(obligation.obligationType)),
                               Colors.green.shade700,
+
                             ),
                           ),
                         ),
@@ -328,7 +318,12 @@ class ObligationCard extends StatelessWidget {
     );
   }
 
-
+  ObligationType _mapStringToType(String type) {
+    return ObligationType.values.firstWhere(
+          (e) => e.name.toUpperCase() == type.toUpperCase(),
+      orElse: () => ObligationType.AIR_FILTER, // Fallback
+    );
+  }
   void _showDocumentSheet(BuildContext context, String url) {
     String finalUrl = url;
 
