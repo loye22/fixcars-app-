@@ -90,7 +90,8 @@ class CarService {
     required String lastKmUpdatedAt, // MUST be provided
     String? licensePlate,
     String? vin,
-  }) async {
+  }) async
+  {
     try {
       final String endpoint = '${ApiService.baseUrl}/cars/create/';
 
@@ -176,7 +177,8 @@ class CarService {
     required String lastKmUpdatedAt,
     String? licensePlate,
     String? vin,
-  }) async {
+  }) async
+  {
     try {
       // Use carId in the endpoint path as per API specification: PUT /api/cars/<car_id>/
       final String endpoint = '${ApiService.baseUrl}/cars/$carId/';
@@ -309,8 +311,10 @@ class CarService {
     required DateTime dueDate,
     String? documentUrl,
     String? note,
-  }) async {
-    try {
+  }) async
+  {
+    try
+    {
       final String url = '${ApiService.baseUrl}/add-car-obligation/';
 
       // Prepare the request body
@@ -390,6 +394,65 @@ class CarService {
       };
     }
   }
+
+  /// Updates an existing car obligation by ID.
+  /// POST /api/updatecarobligationbyid
+  Future<Map<String, dynamic>> updateCarObligation({
+    required String obligationId,
+    required ObligationType obligationType,
+    required ReminderType reminderType,
+    required DateTime dueDate,
+    String? documentUrl,
+    String? note,
+  }) async {
+    try {
+      final String url = '${ApiService.baseUrl}/updatecarobligationbyid';
+
+      // Prepare the request body according to API requirements
+      final Map<String, dynamic> body = {
+        'obligation_id': obligationId,
+        'obligation_type': obligationType.name, // e.g., "RCA"
+        'reminder_type': reminderType.name,     // e.g., "LEGAL"
+        'due_date': dueDate.toIso8601String().split('T')[0], // YYYY-MM-DD
+        'doc_url': documentUrl,
+        'note': note,
+      };
+
+      // Perform the authenticated POST request
+      final http.Response response = await _apiService.authenticatedPost(
+        url,
+        body,
+      );
+
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      // Handle Success Case
+      if (response.statusCode == 200 && responseData['success'] == true) {
+        return {
+          'success': true,
+          'data': responseData['data'],
+        };
+      }
+
+      // Handle Error Case from API
+      return {
+        'success': false,
+        'error': responseData['error'] ?? 'Eroare la actualizarea obligației.',
+      };
+    } catch (e) {
+      // Handle connection or parsing errors
+      String errorMsg = e.toString().contains('SocketException')
+          ? 'Fără conexiune la internet.'
+          : 'Eroare neașteptată: $e';
+
+      return {
+        'success': false,
+        'error': errorMsg,
+      };
+    }
+  }
+
+
 
 
 }

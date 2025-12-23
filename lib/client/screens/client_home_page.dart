@@ -43,7 +43,7 @@ class client_home_page extends StatefulWidget {
 }
 
 class _client_home_pageState extends State<client_home_page> {
-  int _currentIndex = 0;
+  int _currentIndex = 2;
   bool _hasUnreadNotifications = false;
   final NotificationService _notificationService = NotificationService();
   final FirebaseChatService _chatService = FirebaseChatService();

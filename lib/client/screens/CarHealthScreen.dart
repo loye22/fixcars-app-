@@ -10,6 +10,7 @@ import 'dart:math' as math;
 import '../../shared/widgets/AppDialogs.dart';
 import '../services/CarService.dart';
 import '../widgets/AddCarObligationBottomSheet.dart';
+import '../widgets/EditObligationSheet.dart';
 import '../widgets/UpdateCarBottomSheet.dart';
 
 enum ObligationStatus {
@@ -19,14 +20,14 @@ enum ObligationStatus {
   noData,
 }
 
-enum ReminderType {
-  legal,
-  mechanical,
-  safety,
-  financial,
-  seasonal,
-  other,
-}
+// enum ReminderType {
+//   legal,
+//   mechanical,
+//   safety,
+//   financial,
+//   seasonal,
+//   other,
+// }
 
 class Obligation {
   final String id; // Required for deletion
@@ -120,47 +121,38 @@ class ObligationCard extends StatelessWidget {
     return 'VALIDĂ';
   }
 
+
   void _showEditSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.5,
-          decoration: const BoxDecoration(
-            color: Color(0xFF1E1E1E),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: const Center(
-            child: Text('Formular EDITARE (În curs de implementare)',
-                style: TextStyle(fontSize: 18, color: Colors.white)),
-          ),
-        );
+        return EditCarObligationBottomSheet(obligation: obligation);
       },
     );
   }
+  // void _showEditSheet(BuildContext context) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     backgroundColor: Colors.transparent,
+  //     builder: (context) {
+  //       return Container(
+  //         height: MediaQuery.of(context).size.height * 0.5,
+  //         decoration: const BoxDecoration(
+  //           color: Color(0xFF1E1E1E),
+  //           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  //         ),
+  //         child: const Center(
+  //           child: Text('Formular EDITARE (În curs de implementare)',
+  //               style: TextStyle(fontSize: 18, color: Colors.white)),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
-  void _showDeleteSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.3,
-          decoration: const BoxDecoration(
-            color: Color(0xFF1E1E1E),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: const Center(
-            child: Text('Confirmare ȘTERGERE (În curs de implementare)',
-                style: TextStyle(fontSize: 18, color: Colors.white)),
-          ),
-        );
-      },
-    );
-  }
 
   void _showBusinessSearch(BuildContext context) {
     showModalBottomSheet(
@@ -187,6 +179,7 @@ class ObligationCard extends StatelessWidget {
   }
 
   void _showDetails(BuildContext context) {
+    print(obligation.id);
     // TRIGGER: If no data, call the parent function to open Add Sheet
     if (obligation.status == ObligationStatus.noData) {
       onAddPressed();
@@ -892,30 +885,30 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
 
 
   ReminderType _mapReminderType(String? type) {
-    if (type == null) return ReminderType.other;
+    if (type == null) return ReminderType.OTHER;
     switch (type.toUpperCase()) {
       case 'RCA':
       case 'CASCO':
       case 'AUTO_TAX':
-        return ReminderType.financial;
+        return ReminderType.FINANCIAL;
       case 'ITP':
       case 'ROVINIETA':
-        return ReminderType.legal;
+        return ReminderType.LEGAL;
       case 'TIRES':
-        return ReminderType.seasonal;
+        return ReminderType.SEASONAL;
       case 'BRAKE_CHECK':
       case 'FIRE_EXTINGUISHER':
       case 'FIRST_AID_KIT':
-        return ReminderType.safety;
+        return ReminderType.SAFETY;
       case 'OIL_CHANGE':
       case 'BATTERY':
       case 'WIPERS':
       case 'COOLANT':
       case 'AIR_FILTER':
       case 'CABIN_FILTER':
-        return ReminderType.mechanical;
+        return ReminderType.MECHANICAL;
       default:
-        return ReminderType.other;
+        return ReminderType.OTHER;
     }
   }
 
