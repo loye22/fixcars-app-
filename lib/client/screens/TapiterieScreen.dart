@@ -19,6 +19,14 @@ class TapiterieScreen extends StatefulWidget {
 }
 
 class _TapiterieScreenState extends State<TapiterieScreen> {
+  // --- PREMIUM DARK COLOR PALETTE ---
+  static const Color _darkBackground = Color(0xFF0A0A0A);
+  static const Color _darkCard = Color(0xFF141414);
+  static const Color _accentSilver = Color(0xFFB0B0B0);
+  static const Color _primaryText = Color(0xFFF0F0F0);
+  static const Color _secondaryText = Color(0xFFAAAAAA);
+  static const Color _navBarColor = Color(0xFF1A1A1A);
+
   String _address = "Se încarcă adresa...";
   List<Map<String, dynamic>> _mechanicServices = [];
   List<String> _selectedServices = [];
@@ -26,15 +34,14 @@ class _TapiterieScreenState extends State<TapiterieScreen> {
   String? _error;
 
   // Location state
-  double _currentLat = 45.6486; // Default to Romania center
+  double _currentLat = 45.6486;
   double _currentLng = 25.6061;
   bool _isLocationLoading = false;
-  bool _isFetchingData = false; // Prevent multiple simultaneous API calls
+  bool _isFetchingData = false;
 
-  // Track previous values to detect changes
+  // Track previous values
   double _previousLat = 45.6486;
   double _previousLng = 25.6061;
-  String? _previousBrandName;
   List<String> _previousServices = [];
 
   final AddressService _addressService = AddressService();
@@ -46,24 +53,18 @@ class _TapiterieScreenState extends State<TapiterieScreen> {
     _initializeLocation();
   }
 
+  // --- LOGIC (UNCHANGED) ---
   Future<void> _initializeLocation() async {
     try {
-      setState(() {
-        _isLocationLoading = true;
-      });
-
-      // Get current location
+      setState(() => _isLocationLoading = true);
       final coords = await _addressService.getCurrentCoordinates();
       final address = await _addressService.getCurrentAddress();
-
       setState(() {
         _currentLat = coords['latitude']!;
         _currentLng = coords['longitude']!;
         _address = address;
         _isLocationLoading = false;
       });
-
-      // Fetch initial data
       await _fetchData();
     } catch (e) {
       setState(() {
@@ -75,27 +76,11 @@ class _TapiterieScreenState extends State<TapiterieScreen> {
   }
 
   Future<void> _fetchData() async {
-    // Prevent multiple simultaneous API calls
-    if (_isFetchingData) {
-      print('Skipping API call - already fetching data');
-      return;
-    }
-
-    // Check if any filter has changed
+    if (_isFetchingData) return;
     bool hasLocationChanged = _currentLat != _previousLat || _currentLng != _previousLng;
     bool hasServicesChanged = !listEquals(_selectedServices, _previousServices);
-    // print('Change detection:');
-    // print('- Location changed: $hasLocationChanged (current: $_currentLat,$_currentLng, previous: $_previousLat,$_previousLng)');
-    // print('- Brand changed: $hasBrandChanged (current: ${_selectedBrand?['brand_name']}, previous: $_previousBrandName)');
-    // print('- Services changed: $hasServicesChanged (current: $_selectedServices, previous: $_previousServices)');
 
-    // Only fetch if something changed or this is the initial load
-    if (!hasLocationChanged  && !hasServicesChanged && _mechanicServices.isNotEmpty) {
-      print('No changes detected, skipping API call');
-      return;
-    }
-
-    //print('Fetching data with filters: brand=${_selectedBrand?['brand_name']}, services=$_selectedServices, lat=$_currentLat, lng=$_currentLng');
+    if (!hasLocationChanged  && !hasServicesChanged && _mechanicServices.isNotEmpty) return;
 
     try {
       setState(() {
@@ -104,7 +89,6 @@ class _TapiterieScreenState extends State<TapiterieScreen> {
         _error = null;
       });
 
-      // Fetch mechanic services with current filters
       List<Map<String, dynamic>> services = await _tapiterieService.fetchMecanicAutos(
         category: AutoService.tapiterie_auto,
         lat: _currentLat,
@@ -112,24 +96,15 @@ class _TapiterieScreenState extends State<TapiterieScreen> {
         tags: _selectedServices.isNotEmpty ? _selectedServices : null,
       );
 
-      // print('API returned ${services.length} services');
-
       setState(() {
         _mechanicServices = services;
         _isLoading = false;
         _isFetchingData = false;
-
-        // Update previous values after successful fetch
         _previousLat = _currentLat;
         _previousLng = _currentLng;
         _previousServices = List.from(_selectedServices);
-        //
-        // print('Updated previous values:');
-        // print('- Previous brand: $_previousBrandName');
-        // print('- Previous services: $_previousServices');
       });
     } catch (e) {
-      print('Error fetching data: $e');
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -138,16 +113,9 @@ class _TapiterieScreenState extends State<TapiterieScreen> {
     }
   }
 
-
   void _onServicesSelected(List<String> selectedServices) {
-    // print('MecanicScreen: Services selected: $selectedServices');
-    // print('MecanicScreen: Previous services: $_selectedServices');
-    setState(() {
-      _selectedServices = selectedServices;
-    });
-    // print('MecanicScreen: After setState - selected services: $_selectedServices');
-
-    _fetchData(); // Trigger API call with new service filters
+    setState(() => _selectedServices = selectedServices);
+    _fetchData();
   }
 
   void _onLocationChanged(double lat, double lng, String newAddress) {
@@ -156,7 +124,7 @@ class _TapiterieScreenState extends State<TapiterieScreen> {
       _currentLng = lng;
       _address = newAddress;
     });
-    _fetchData(); // Trigger API call with new location
+    _fetchData();
   }
 
   void _showLocationPicker() {
@@ -172,95 +140,96 @@ class _TapiterieScreenState extends State<TapiterieScreen> {
     );
   }
 
+  // --- UPDATED UI DESIGN ---
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      backgroundColor: Color(0xFFF3F4F6),
+      backgroundColor: _darkBackground,
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: _navBarColor,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: _primaryText, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: GestureDetector(
           onTap: _showLocationPicker,
-          child: Row(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset('assets/location.png', width: 30),
-              SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  _address,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
+              const Text("LOCAȚIE CURENTĂ", style: TextStyle(fontSize: 10, color: _accentSilver, letterSpacing: 1.2)),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      _address,
+                      style: const TextStyle(fontSize: 14, color: _primaryText, fontWeight: FontWeight.w400),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-
-            ],
-          ),
-        ),
-        backgroundColor: Color(0xFF4B5563),
-         automaticallyImplyLeading: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        elevation: 0, // makes it look cleaner
-
-        foregroundColor: Colors.white,      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: _isLocationLoading || _isLoading
-            ? Center(
-          child: LoadingAnimationWidget.threeArchedCircle(
-            color: Color(0xFF4B5563),
-            size: 50,
-          ),
-        )
-            : _error != null
-            ? Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                _error!,
-                style: TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _fetchData,
-                child: Text('Încearcă din nou'),
-              ),
-            ],
-          ),
-        )
-            : SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ServiceSelectionWidget(
-                key: ValueKey('service_selector'),
-                onServicesSelected: _onServicesSelected,
-                initialSelectedServices: _selectedServices,
-                AutoServicetype: 'tapiterie_auto',
-
-              ),
-              SizedBox(height: 16),
-              MechanicServicesList(
-                key: ValueKey('mechanic_services_${_mechanicServices.length}'),
-                services: _mechanicServices,
+                  const Icon(Icons.keyboard_arrow_down, color: _accentSilver, size: 16),
+                ],
               ),
             ],
           ),
         ),
       ),
+      body: _isLocationLoading || _isLoading
+          ? Center(child: LoadingAnimationWidget.newtonCradle(color: _accentSilver, size: 60))
+          : _error != null
+          ? _buildErrorWidget()
+          : ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _buildHeader("Servicii Tapițerie"),
+          ServiceSelectionWidget(
+            key: const ValueKey('service_selector'),
+            onServicesSelected: _onServicesSelected,
+            initialSelectedServices: _selectedServices,
+            AutoServicetype: 'tapiterie_auto',
+          ),
+          const SizedBox(height: 24),
+          _buildHeader("Ateliere Tapițerie"),
+          MechanicServicesList(
+            key: ValueKey('mechanic_services_${_mechanicServices.length}'),
+            services: _mechanicServices,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 12),
+      child: Text(
+        title.toUpperCase(),
+        style: const TextStyle(color: _accentSilver, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1.5),
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(_error!, style: const TextStyle(color: Colors.redAccent), textAlign: TextAlign.center),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: _darkCard),
+            onPressed: _fetchData,
+            child: const Text('Încearcă din nou', style: TextStyle(color: _primaryText)),
+          ),
+        ],
+      ),
     );
   }
 }
 
-// Location Picker Widget
+// --- UPDATED LOCATION PICKER MODAL ---
 class LocationPickerWidget extends StatefulWidget {
   final double currentLat;
   final double currentLng;
@@ -276,11 +245,15 @@ class LocationPickerWidget extends StatefulWidget {
   @override
   _LocationPickerWidgetState createState() => _LocationPickerWidgetState();
 }
+
 class _LocationPickerWidgetState extends State<LocationPickerWidget> {
   late MapController _mapController;
   late LatLng _selectedLocation;
   bool _isLoading = false;
   String _selectedAddress = "";
+
+  static const Color _darkBackground = Color(0xFF0A0A0A);
+  static const Color _navBarColor = Color(0xFF1A1A1A);
 
   @override
   void initState() {
@@ -292,16 +265,12 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
 
   Future<void> _getAddressFromLocation() async {
     try {
-      setState(() {
-        _isLoading = true;
-      });
-
+      setState(() => _isLoading = true);
       final addressService = AddressService();
       final address = await addressService.getAddressFromCoordinates(
         _selectedLocation.latitude,
         _selectedLocation.longitude,
       );
-
       setState(() {
         _selectedAddress = address;
         _isLoading = false;
@@ -315,196 +284,102 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
   }
 
   void _onMapTap(TapPosition tapPosition, LatLng point) {
-    setState(() {
-      _selectedLocation = point;
-    });
+    setState(() => _selectedLocation = point);
     _getAddressFromLocation();
   }
 
   void _confirmLocation() {
-    widget.onLocationSelected(
-      _selectedLocation.latitude,
-      _selectedLocation.longitude,
-      _selectedAddress,
-    );
+    widget.onLocationSelected(_selectedLocation.latitude, _selectedLocation.longitude, _selectedAddress);
     Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.8,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      height: MediaQuery.of(context).size.height * 0.85,
+      decoration: const BoxDecoration(
+        color: _darkBackground,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       child: Column(
         children: [
-          // Handle bar
-          Container(
-            margin: EdgeInsets.only(top: 8),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
+          const SizedBox(height: 12),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(2))),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Text("Selectează locația pe hartă", style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold)),
           ),
-
-          // Header
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(Icons.location_on, color: Color(0xFF4B5563)),
-                SizedBox(width: 8),
-                Text(
-                  'Selectează locația',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Spacer(),
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Anulează'),
-                ),
-              ],
-            ),
-          ),
-
-          // Map
           Expanded(
             child: FlutterMap(
               mapController: _mapController,
               options: MapOptions(
                 initialCenter: _selectedLocation,
-                initialZoom: 13,
+                initialZoom: 14,
                 onTap: _onMapTap,
-                maxZoom: 18,
-                minZoom: 5,
-                // Restrict to Romania bounds
-                cameraConstraint: CameraConstraint.contain(
-                  bounds: LatLngBounds(
-                    LatLng(43.5, 20.0), // Southwest Romania
-                    LatLng(48.5, 30.0), // Northeast Romania
-                  ),
-                ),
               ),
               children: [
-                ApiService.lightTileLayer,
-                MarkerLayer(
-                  markers: [
-                    Marker(
+                TileLayer(
+                  urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  subdomains: const ['a', 'b', 'c'],
+                ),
+                MarkerLayer(markers: [
+                  Marker(
                       point: _selectedLocation,
-                      width: 40,
-                      height: 40,
-                      child: Icon(
-                        Icons.location_on,
-                        color: Color(0xFF4B5563),
-                        size: 40,
-                      ),
-                    ),
-                  ],
-                ),
+                      child: const Icon(Icons.location_on, color: Colors.redAccent, size: 40)
+                  ),
+                ]),
               ],
             ),
           ),
-
-          // Selected location info
           Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Locația selectată:',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                SizedBox(height: 8),
-                _isLoading
-                    ? Row(
-                  children: [
-                    SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                    SizedBox(width: 8),
-                    Text('Se încarcă adresa...'),
-                  ],
-                )
-                    : Text(
-                  _selectedAddress,
-                  style: TextStyle(fontSize: 14),
-                ),
-                SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _confirmLocation,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF4B5563),
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: Text(
-                      'Confirmă locația',
-                      style: TextStyle(color: Colors.white),
+            padding: const EdgeInsets.all(24),
+            color: _navBarColor,
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _isLoading
+                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : Text(_selectedAddress, style: const TextStyle(color: Colors.white70, fontSize: 13), textAlign: TextAlign.center),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: _confirmLocation,
+                      child: const Text("CONFIRMĂ LOCAȚIA", style: TextStyle(fontWeight: FontWeight.w800)),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          )
         ],
       ),
     );
   }
 }
 
-
-
-
-/// Displays results fetched from the API.
-/// Separated into its own widget to avoid rebuilding the upper section
-/// and to keep the top content visible while this part is loading.
 class MechanicServicesList extends StatelessWidget {
   final List<Map<String, dynamic>> services;
 
-  const MechanicServicesList({
-    Key? key,
-    required this.services,
-  }) : super(key: key);
+  const MechanicServicesList({Key? key, required this.services}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     if (services.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 40),
+        child: const Column(
           children: [
-            Image.asset(
-              'assets/noresults.png',
-              width: 150,
-              height: 150,
-            ),
+            Icon(Icons.airline_seat_recline_extra_outlined, color: Color(0xFF141414), size: 80),
             SizedBox(height: 16),
-            Text(
-              'Nu s-au găsit rezultate, te rugăm să ajustezi filtrul.',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
+            Text("Niciun atelier de tapițerie găsit în zonă.", style: TextStyle(color: Color(0xFFAAAAAA))),
           ],
         ),
       );
@@ -512,24 +387,27 @@ class MechanicServicesList extends StatelessWidget {
 
     return Column(
       children: services.map((service) {
-        return BusinessCardWidget(
-          businessName: service['supplier_name'] ?? 'Unknown',
-          rating: (service['review_score'] as num?)?.toDouble() ?? 0.0,
-          reviewCount: service['total_reviews'] ?? 0,
-          distance: "${service['distance_km'] ?? 0.0} km",
-          location: service['supplier_address'] ?? 'Unknown',
-          isAvailable: service['is_open'] ?? false,
-          profileUrl: service['supplier_photo'] ?? '',
-          servicesUrl: service['photo_url'] ?? '',
-          carBrandUrl: service['brand_photo'] ?? '',
-          supplierID: service['supplier_id'] ?? '',
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: const Color(0xFF141414),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white.withOpacity(0.05)),
+          ),
+          child: BusinessCardWidget(
+            businessName: service['supplier_name'] ?? 'Unknown',
+            rating: (service['review_score'] as num?)?.toDouble() ?? 0.0,
+            reviewCount: service['total_reviews'] ?? 0,
+            distance: "${service['distance_km'] ?? 0.0} km",
+            location: service['supplier_address'] ?? 'Unknown',
+            isAvailable: service['is_open'] ?? false,
+            profileUrl: service['supplier_photo'] ?? '',
+            servicesUrl: service['photo_url'] ?? '',
+            carBrandUrl: service['brand_photo'] ?? '',
+            supplierID: service['supplier_id'] ?? '',
+          ),
         );
       }).toList(),
     );
   }
 }
-
-
-
-
-
