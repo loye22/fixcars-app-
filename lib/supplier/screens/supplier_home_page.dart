@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:fixcars/client/screens/ReviewScreen.dart';
 import 'package:fixcars/shared/screens/BusinessLocationPermissionGate.dart';
 import 'package:fixcars/shared/screens/NotificationScreen.dart';
@@ -9,6 +10,7 @@ import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
 import 'package:fixcars/supplier/screens/AddNewServiceScreen.dart';
 import 'package:fixcars/supplier/screens/RequestsScreen.dart';
 import 'package:fixcars/supplier/screens/waiting_review_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -19,6 +21,7 @@ import '../../shared/services/api_service.dart';
 import '../../shared/services/firebase_chat_service.dart';
 import '../../shared/services/phone_service.dart';
 import '../services/AccountStatusService.dart';
+import '../services/BusinessHourService.dart';
 import '../services/MarkNotificationAsReadService.dart';
 import '../services/SupplierProfileService.dart';
 import '../widgets/NotificationItemWidget.dart';
@@ -273,10 +276,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       onTap: () {
         if (icon == Icons.phone) {
           // Trigger the call service
-          CallService.makeCall(
-            context: context,
-            phoneNumber: label,
-          );
+          CallService.makeCall(context: context, phoneNumber: label);
         } else if (icon == Icons.email) {
           // Optional: Add email logic here later
         }
@@ -298,6 +298,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       ),
     );
   }
+
   // // Helper widget for contact rows
   // Widget _buildContactRow(IconData icon, String text) {
   //   return Row(
@@ -315,8 +316,6 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   //     ],
   //   );
   // }
-
-
 
   Widget _getBadgeUI() {
     switch (tier) {
@@ -1212,38 +1211,6 @@ class _supplier_home_pageState extends State<supplier_home_page> {
 
                       const SizedBox(height: 24),
 
-                      // --- INFO SECTION ---
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.03),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.05),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              size: 18,
-                              color: Colors.grey.shade500,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                "Pentru modificări, contactați support@fixcars.ro",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade400,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
                       const SizedBox(height: 24),
 
                       // --- CLOSE BUTTON ---
@@ -1269,6 +1236,55 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                           ),
                         ),
                       ),
+                      // Inside _showBusinessHoursDialog
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 54,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Close info sheet
+                            _showEditBusinessHoursSheet(context, businessHours); // Open edit sheet
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0, // Removes shadow for a flatter, modern look
+                            backgroundColor: Colors.white.withOpacity(0.05), // Dark gray/translucent look
+                            foregroundColor: Colors.white70, // Subtle white text
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(color: Colors.white.withOpacity(0.15)) // Subtle gray border
+                            ),
+                          ),
+                          child: const Text(
+                            "Editează Program",
+                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                          ),
+                        ),
+                      ),
+                      // SizedBox(
+                      //   width: double.infinity,
+                      //   height: 54,
+                      //   child: ElevatedButton(
+                      //     onPressed: () {
+                      //       Navigator.pop(context); // Close info sheet
+                      //       _showEditBusinessHoursSheet(
+                      //         context,
+                      //         businessHours,
+                      //       ); // Open edit sheet
+                      //     },
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: Colors.blueAccent.withOpacity(0.1),
+                      //       foregroundColor: Colors.blueAccent,
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(16),
+                      //         side: BorderSide(
+                      //           color: Colors.blueAccent.withOpacity(0.3),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     child: const Text("Editează Program"),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -1279,6 +1295,345 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       },
     );
   }
+
+  void _showEditBusinessHoursSheet(
+    BuildContext context,
+    Map<String, dynamic> initialHours,
+  )
+  {
+    // Create a deep copy to avoid modifying the original list until "Save" is pressed
+    Map<String, dynamic> editedHours = jsonDecode(jsonEncode(initialHours));
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
+                  const Text(
+                    "Editează Program",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Divider(color: Colors.white10, height: 30),
+
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.5,
+                    ),
+                    child: ListView(
+                      shrinkWrap: true,
+                      children:
+                          editedHours.keys.map((day) {
+                            bool isClosed = editedHours[day]['closed'] ?? false;
+                            return ListTile(
+                              title: Text(
+                                day[0].toUpperCase() + day.substring(1),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              subtitle: Text(
+                                isClosed
+                                    ? "Închis"
+                                    : "${editedHours[day]['open']} - ${editedHours[day]['close']}",
+                                style: TextStyle(
+                                  color:
+                                      isClosed
+                                          ? Colors.redAccent
+                                          : Colors.grey[400],
+                                ),
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Switch(
+                                    value: !isClosed,
+                                    onChanged:
+                                        (val) => setModalState(
+                                          () =>
+                                              editedHours[day]['closed'] = !val,
+                                        ),
+                                    activeColor: Colors.greenAccent,
+                                  ),
+                                  IconButton(
+                                    // iOS style time icon
+                                    icon: const Icon(
+                                      Icons.access_time_filled_rounded,
+                                      color: Colors.grey,
+                                    ),
+                                    onPressed:
+                                        isClosed
+                                            ? null
+                                            : () => _showDualTimePicker(
+                                              context,
+                                              day,
+                                              editedHours,
+                                              setModalState,
+                                            ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 54,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        // onPressed: () async {
+                        //   // Logic to call BusinessHourService().updateBusinessHours(editedHours)
+                        //   Navigator.pop(context);
+                        // },
+                        // Inside _showEditBusinessHoursSheet -> ElevatedButton onPressed:
+                        onPressed: () async {
+                          // 1. Show a loading indicator
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const Center(child: CircularProgressIndicator()),
+                          );
+
+                          // 2. Prepare the data (Ensure HH:mm format)
+                          // Our picker might produce HH:mm:ss, but the API wants HH:mm
+                          Map<String, dynamic> payload = {};
+                          editedHours.forEach((key, value) {
+                            payload[key] = {
+                              "open": value['open'].toString().substring(0, 5),
+                              "close": value['close'].toString().substring(0, 5),
+                              "closed": value['closed']
+                            };
+                          });
+
+                          // 3. Call the API
+                          bool success = await BusinessHourService().updateBusinessHours(payload);
+
+                          // 4. Remove loading indicator
+                          Navigator.pop(context);
+
+                          if (success) {
+                            // Close the edit sheet
+                            Navigator.pop(context);
+
+                            // Refresh the main page data
+                            _fetchSupplierProfile();
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Program actualizat cu succes!")),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Eroare la salvarea programului.")),
+                            );
+                          }
+                        },
+                        child: const Text(
+                          "Salvează Modificările",
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showDualTimePicker(
+    BuildContext context,
+    String day,
+    Map hours,
+    Function setState,
+  ) {
+    showCupertinoModalPopup(
+      context: context,
+      builder:
+          (_) => Material(
+            color: Colors.transparent,
+            child: CupertinoTheme(
+              data: const CupertinoThemeData(
+                brightness: Brightness.dark,
+                // Ensures system labels adapt to dark mode
+                textTheme: CupertinoTextThemeData(
+                  dateTimePickerTextStyle: TextStyle(
+                    color: Colors.white, // Changed from Red to White
+                    fontSize: 21,
+                    fontWeight: FontWeight.w500,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+              child: Container(
+                height: 350,
+                color: const Color(0xFF1E1E1E),
+                child: Column(
+                  children: [
+                    // --- HEADER ---
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.05),
+                        border: const Border(
+                          bottom: BorderSide(color: Colors.white10),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CupertinoButton(
+                            child: const Text(
+                              "Anulează",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          Text(
+                            _translateDay(day).toUpperCase(),
+                            // Romanian Day Label
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          CupertinoButton(
+                            child: const Text(
+                              "Gata",
+                              style: TextStyle(
+                                color: Colors.blueAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // --- PICKERS ---
+                    Expanded(
+                      child: Row(
+                        children: [
+                          _buildPickerColumn("DESCHIDERE", hours[day]['open'], (
+                            newTime,
+                          ) {
+                            setState(
+                              () =>
+                                  hours[day]['open'] = _durationToTimeString(
+                                    newTime,
+                                  ),
+                            );
+                          }),
+                          _buildPickerColumn("ÎNCHIDERE", hours[day]['close'], (
+                            newTime,
+                          ) {
+                            setState(
+                              () =>
+                                  hours[day]['close'] = _durationToTimeString(
+                                    newTime,
+                                  ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+    );
+  }
+
+  // Helper to translate day names if your 'day' variable is in English (e.g., "Monday")
+  String _translateDay(String day) {
+    const Map<String, String> romanianDays = {
+      'monday': 'Luni',
+      'tuesday': 'Marți',
+      'wednesday': 'Miercuri',
+      'thursday': 'Joi',
+      'friday': 'Vineri',
+      'saturday': 'Sâmbătă',
+      'sunday': 'Duminică',
+    };
+    return romanianDays[day.toLowerCase()] ?? day;
+  }
+
+
+  Widget _buildPickerColumn(
+    String label,
+    String initialTime,
+    Function(Duration) onChanged,
+  ) {
+    return Expanded(
+      child: Column(
+        children: [
+          const SizedBox(height: 12),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.grey,
+              fontSize: 11,
+              letterSpacing: 1.2,
+            ),
+          ),
+          Expanded(
+            child: CupertinoTimerPicker(
+              mode: CupertinoTimerPickerMode.hm,
+
+              // Forces the label to show "hour" and "min"
+              initialTimerDuration: _parseTimeString(initialTime),
+              onTimerDurationChanged: onChanged,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Parses HH:mm:ss into Duration for the picker
+  Duration _parseTimeString(String time) {
+    try {
+      List<String> parts = time.split(':');
+      return Duration(hours: int.parse(parts[0]), minutes: int.parse(parts[1]));
+    } catch (e) {
+      return const Duration(hours: 8, minutes: 0);
+    }
+  }
+
+  String _durationToTimeString(Duration duration) {
+    final String h = duration.inHours.toString().padLeft(2, '0');
+    final String m = (duration.inMinutes % 60).toString().padLeft(2, '0');
+    return "$h:$m"; // Removed the :00 to satisfy the API
+  }
+
 
   Widget buildQuickAction(
     String title,
