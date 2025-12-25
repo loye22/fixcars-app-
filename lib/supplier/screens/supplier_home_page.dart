@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
-
 import 'package:fixcars/client/screens/ReviewScreen.dart';
 import 'package:fixcars/shared/screens/BusinessLocationPermissionGate.dart';
 import 'package:fixcars/shared/screens/NotificationScreen.dart';
@@ -11,12 +9,9 @@ import 'package:fixcars/shared/screens/internet_connectivity_screen.dart';
 import 'package:fixcars/supplier/screens/AddNewServiceScreen.dart';
 import 'package:fixcars/supplier/screens/RequestsScreen.dart';
 import 'package:fixcars/supplier/screens/waiting_review_screen.dart';
-import 'package:fixcars/supplier/widgets/BusinessHoursBottomSheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:showcaseview/showcaseview.dart';
 import '../../shared/screens/aboutUsScreen.dart';
 import '../../shared/services/PendingCountRequestsService.dart';
 import '../../shared/services/api_service.dart';
@@ -43,18 +38,6 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   StreamSubscription<int>? _unreadSubscription;
   int _pendingRequestCount = 0;
   bool isActive = true;
-
-  // Showcase keys for tutorial
-  final GlobalKey _profileImageKey = GlobalKey();
-  final GlobalKey _businessHoursKey = GlobalKey();
-  final GlobalKey _messagesKey = GlobalKey();
-  final GlobalKey _completedKey = GlobalKey();
-  final GlobalKey _ratingKey = GlobalKey();
-  final GlobalKey _sosAlertKey = GlobalKey();
-  final GlobalKey _myServicesKey = GlobalKey();
-  final GlobalKey _addServiceKey = GlobalKey();
-  final GlobalKey _notificationsKey = GlobalKey();
-  final GlobalKey _viewAllNotificationsKey = GlobalKey();
   Timer? _pendingCountTimer;
   final NotificationService _notificationService = NotificationService();
 
@@ -70,7 +53,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     _loadPendingRequestCount();
     _startPendingCountPolling();      // ← start polling
     _fetchAccountStatus();
-    _initializeShowcase();
+
   }
 
   void _startPendingCountPolling() {
@@ -83,149 +66,11 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     );
   }
 
-  void _initializeShowcase() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final prefs = await SharedPreferences.getInstance();
-      final shouldShowTutorial = prefs.getBool('hasSeenTutorial') != true;
-
-      // ALWAYS register ShowcaseView (fixes the hot restart error)
-      ShowcaseView.register(
-        blurValue: 1,
-        autoPlayDelay: const Duration(seconds: 5),
-        globalTooltipActionConfig: const TooltipActionConfig(
-          position: TooltipActionPosition.inside,
-          alignment: MainAxisAlignment.spaceBetween,
-          actionGap: 20,
-        ),
-        globalTooltipActions: [
-          TooltipActionButton(
-            type: TooltipDefaultActionType.previous,
-            textStyle: const TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.w600,
-            ),
-            backgroundColor: Colors.grey[100],
-            border: Border.all(color: Colors.grey[300]!),
-          ),
-          TooltipActionButton(
-            type: TooltipDefaultActionType.next,
-            textStyle: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-            backgroundColor: Colors.blue[700],
-          ),
-        ],
-        onStart: (index, key) {
-          log('Tutorial început: $index, $key');
-        },
-        onComplete: (index, key) {
-          log('Tutorial completat: $index, $key');
-        },
-        onDismiss: (key) {
-          log('Tutorial închis la: $key');
-        },
-      );
-
-      // Only auto-start the tutorial if it's the first time
-      if (shouldShowTutorial && mounted) {
-        Future.delayed(const Duration(milliseconds: 1500), () { // 💡 Increased delay to 1500ms
-          if (mounted) {
-            ShowcaseView.get().startShowCase([
-              _profileImageKey,
-              _businessHoursKey,
-              _messagesKey,
-              _completedKey,
-              _ratingKey,
-              _sosAlertKey,
-              _myServicesKey,
-              _addServiceKey,
-              _notificationsKey,
-              _viewAllNotificationsKey,
-            ]);
-
-            // Mark tutorial as seen
-            prefs.setBool('hasSeenTutorial', true);
-          }
-        });
-      }
-    });
-  }
-
-  // void _initializeShowcase() async {
-  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
-  //     final prefs = await SharedPreferences.getInstance();
-  //     final shouldShowTutorial = prefs.getBool('hasSeenTutorial') != true;
-  //
-  //     // ALWAYS register ShowcaseView (fixes the hot restart error)
-  //     ShowcaseView.register(
-  //       blurValue: 1,
-  //       autoPlayDelay: const Duration(seconds: 5),
-  //       globalTooltipActionConfig: const TooltipActionConfig(
-  //         position: TooltipActionPosition.inside,
-  //         alignment: MainAxisAlignment.spaceBetween,
-  //         actionGap: 20,
-  //       ),
-  //       globalTooltipActions: [
-  //         TooltipActionButton(
-  //           type: TooltipDefaultActionType.previous,
-  //           textStyle: const TextStyle(
-  //             color: Colors.black87,
-  //             fontWeight: FontWeight.w600,
-  //           ),
-  //           backgroundColor: Colors.grey[100],
-  //           border: Border.all(color: Colors.grey[300]!),
-  //         ),
-  //         TooltipActionButton(
-  //           type: TooltipDefaultActionType.next,
-  //           textStyle: const TextStyle(
-  //             color: Colors.white,
-  //             fontWeight: FontWeight.w600,
-  //           ),
-  //           backgroundColor: Colors.blue[700],
-  //         ),
-  //       ],
-  //       onStart: (index, key) {
-  //         log('Tutorial început: $index, $key');
-  //       },
-  //       onComplete: (index, key) {
-  //         log('Tutorial completat: $index, $key');
-  //       },
-  //       onDismiss: (key) {
-  //         log('Tutorial închis la: $key');
-  //       },
-  //     );
-  //
-  //     // Only auto-start the tutorial if it's the first time
-  //     if (shouldShowTutorial && mounted) {
-  //       Future.delayed(const Duration(milliseconds: 800), () {
-  //         if (mounted) {
-  //           ShowcaseView.get().startShowCase([
-  //             _profileImageKey,
-  //             _businessHoursKey,
-  //             _messagesKey,
-  //             _completedKey,
-  //             _ratingKey,
-  //             _sosAlertKey,
-  //             _myServicesKey,
-  //             _addServiceKey,
-  //             _notificationsKey,
-  //             _viewAllNotificationsKey,
-  //           ]);
-  //
-  //           // Mark tutorial as seen
-  //           prefs.setBool('hasSeenTutorial', true);
-  //         }
-  //       });
-  //     }
-  //   });
-  // }
-
   @override
   void dispose() {
     _unreadSubscription?.cancel();
     _pendingCountTimer?.cancel();
-    ShowcaseView.get().unregister();
+    // ShowcaseView.get().unregister();
     super.dispose();
   }
 
@@ -259,27 +104,6 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     }
   }
 
-  // Future<void> _fetchAccountStatus() async {
-  //   try {
-  //     final AccountStatusService service = AccountStatusService();
-  //     final response = await service.fetchAccountStatus();
-  //
-  //     if (response['success'] == true) {
-  //       setState(() {
-  //         isActive = response['account_status']['is_active'] as bool;
-  //         _isLoading = false;
-  //       });
-  //     } else {
-  //       setState(() {
-  //         'Nu s-a putut verifica starea contului';
-  //       });
-  //     }
-  //   } catch (e) {
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //   }
-  // }
 
   void _loadPendingRequestCount() async {
     try {
@@ -303,15 +127,19 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   Future<void> _fetchSupplierProfile() async {
     try {
       final data = await _profileService.fetchSupplierProfile();
-      setState(() {
-        _supplierData = data['data'];
-        _isLoading = false;
-      });
+      if (mounted) { // Added safety check
+        setState(() {
+          _supplierData = data['data'];
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Eroare la încărcarea profilului: $e';
-        _isLoading = false;
-      });
+      if (mounted) { // Added safety check
+        setState(() {
+          _errorMessage = 'Eroare la încărcarea profilului: $e';
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -322,6 +150,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     }
 
     _unreadSubscription = chatService.getTotalUnreadMessagesStream().listen((count) {
+      // Check if the widget is still in the tree before calling setState
       if (mounted) {
         setState(() {
           _totalUnreadCount = count;
@@ -329,6 +158,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       }
     });
   }
+
 
   Widget _buildStat(
       String number,
@@ -496,37 +326,21 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                           children: [
                             Row(
                               children: [
-                                Showcase(
-                                  key: _profileImageKey,
-                                  title: "Profilul tău",
-                                  description: "Aici poți vedea și edita informațiile tale de profil. Apasă pentru a accesa setările complete.",
-                                  tooltipBackgroundColor: Colors.white,
-                                  titleTextStyle: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                  descTextStyle: const TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black54,
-                                  ),
-                                  targetShapeBorder: const CircleBorder(),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => AboutUsScreen()),
-                                      );
-                                    },
-                                    child: SizedBox(
-                                      height: 100,
-                                      width: 100,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(4),
-                                        child: CircleAvatar(
-                                          radius: 46,
-                                          backgroundImage: NetworkImage(supplierPhotoUrl),
-                                        ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => AboutUsScreen()),
+                                    );
+                                  },
+                                  child: SizedBox(
+                                    height: 100,
+                                    width: 100,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      child: CircleAvatar(
+                                        radius: 46,
+                                        backgroundImage: NetworkImage(supplierPhotoUrl),
                                       ),
                                     ),
                                   ),
@@ -553,49 +367,34 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     const SizedBox(height: 10),
-                                    Showcase(
-                                      key: _businessHoursKey,
-                                      title: "Program de lucru",
-                                      description: "Vezi starea curentă a afacerii tale și programul tău de lucru. Indicatorul roșu arată cereri în așteptare.",
-                                      tooltipBackgroundColor: Colors.white,
-                                      titleTextStyle: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
-                                      ),
-                                      descTextStyle: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black54,
-                                      ),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          // print(businessHours);
-                                          // print("businessHours=======================================");
+                                    GestureDetector(
+                                      onTap: () {
+                                        // print(businessHours);
+                                        // print("businessHours=======================================");
 
-                                          _showBusinessHoursDialog(context, businessHours, isOpen);
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: isOpen ? Colors.green.shade700.withOpacity(0.2) : Colors.red.shade700.withOpacity(0.2),
-                                            borderRadius: BorderRadius.circular(20),
-                                            border: Border.all(
-                                              color: isOpen ? Colors.green.shade700 : Colors.red.shade700,
-                                              width: 1.5,
-                                            ),
+                                        _showBusinessHoursDialog(context, businessHours, isOpen);
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: isOpen ? Colors.green.shade700.withOpacity(0.2) : Colors.red.shade700.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(20),
+                                          border: Border.all(
+                                            color: isOpen ? Colors.green.shade700 : Colors.red.shade700,
+                                            width: 1.5,
                                           ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text(
-                                                isOpen ? "În serviciu" : "Închis",
-                                                style: TextStyle(
-                                                  color: isOpen ? Colors.green.shade300 : Colors.red.shade300,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              isOpen ? "În serviciu" : "Închis",
+                                              style: TextStyle(
+                                                color: isOpen ? Colors.green.shade300 : Colors.red.shade300,
+                                                fontWeight: FontWeight.w600,
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
@@ -610,102 +409,57 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                    child: Showcase(
-                                      key: _messagesKey,
-                                      title: "Mesaje",
-                                      description: "Aici vezi conversațiile cu clienții tăi. Bulina roșie indică mesaje necitite care necesită atenția ta.",
-                                      tooltipBackgroundColor: Colors.white,
-                                      titleTextStyle: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
-                                      ),
-                                      descTextStyle: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black54,
-                                      ),
-                                      child: _buildStat(
-                                        unreadCount: _totalUnreadCount,
-                                        _totalUnreadCount.toString(),
-                                        "Mesaje",
-                                        "assets/chat22.png",
-                                        Colors.blue,
-                                            () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => ConversationListScreen(),
-                                            ),
-                                          );
-                                        },
-                                      ),
+                                    child: _buildStat(
+                                      unreadCount: _totalUnreadCount,
+                                      _totalUnreadCount.toString(),
+                                      "Mesaje",
+                                      "assets/chat22.png",
+                                      Colors.blue,
+                                          () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ConversationListScreen(),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ),
                                 ),
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                    child: Showcase(
-                                      key: _completedKey,
-                                      title: "Servicii Finalizate",
-                                      description: "Acesta este numărul total de servicii pe care le-ai finalizat cu succes până acum.",
-                                      tooltipBackgroundColor: Colors.white,
-                                      titleTextStyle: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
-                                      ),
-                                      descTextStyle: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black54,
-                                      ),
-                                      child: _buildStat(
-                                        completedRequests,
-                                        "Finalizate",
-                                        "assets/check3.png",
-                                        Colors.green,
-                                            () {
-                                          print("Finalizate apăsat!");
-                                        },
-                                      ),
+                                    child: _buildStat(
+                                      completedRequests,
+                                      "Finalizate",
+                                      "assets/check3.png",
+                                      Colors.green,
+                                          () {
+                                        print("Finalizate apăsat!");
+                                      },
                                     ),
                                   ),
                                 ),
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                    child: Showcase(
-                                      key: _ratingKey,
-                                      title: "Evaluare Clienți",
-                                      description: "Aici vezi media evaluărilor primite de la clienții tăi. O evaluare bună atrage mai mulți clienți!",
-                                      tooltipBackgroundColor: Colors.white,
-                                      titleTextStyle: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
-                                      ),
-                                      descTextStyle: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black54,
-                                      ),
-                                      child: _buildStat(
-                                        averageRating,
-                                        "Evaluare",
-                                        "assets/rating4.png",
-                                        Colors.orange,
-                                            () {
-                                          print("Evaluare apăsat!");
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => ReviewScreen(
-                                                supplierId: supplierID,
-                                                hideReviewButton: true,
-                                              ),
+                                    child: _buildStat(
+                                      averageRating,
+                                      "Evaluare",
+                                      "assets/rating4.png",
+                                      Colors.orange,
+                                          () {
+                                        print("Evaluare apăsat!");
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ReviewScreen(
+                                              supplierId: supplierID,
+                                              hideReviewButton: true,
                                             ),
-                                          );
-                                        },
-                                      ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ),
                                 ),
@@ -757,132 +511,42 @@ class _supplier_home_pageState extends State<supplier_home_page> {
 
                           // --- Serviciile mele Button (Step 7) ---
                           Expanded(
-                            child: Showcase( // 🔑 ADDED Showcase for _myServicesKey
-                              key: _myServicesKey,
-                              title: "Serviciile mele",
-                              description: "Accesează lista serviciilor pe care le oferi și gestionează-le (editează, șterge, vezi detalii).",
-                              tooltipBackgroundColor: Colors.white,
-                              titleTextStyle: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                              descTextStyle: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.black54,
-                              ),
-                              child: buildQuickAction(
-                                "Serviciile mele",
-                                "assets/ass1.png",
-                                Colors.blue.shade700.withOpacity(0.2),
-                                onTap: () {
-                                  print("Serviciile mele tapped!");
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => SupplierProfileScreen(
-                                        userId: supplierID,
-                                      ),
+                            child: buildQuickAction(
+                              "Serviciile mele",
+                              "assets/ass1.png",
+                              Colors.blue.shade700.withOpacity(0.2),
+                              onTap: () {
+                                print("Serviciile mele tapped!");
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SupplierProfileScreen(
+                                      userId: supplierID,
                                     ),
-                                  );
-                                },
-                              ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
 
                           // --- Adaugă serviciu Button (Step 8) ---
                           Expanded(
-                            child: Showcase( // 🔑 ADDED Showcase for _addServiceKey
-                              key: _addServiceKey,
-                              title: "Adaugă serviciu",
-                              description: "Folosește acest buton pentru a adăuga un serviciu nou pe care îl poți oferi clienților tăi.",
-                              tooltipBackgroundColor: Colors.white,
-                              titleTextStyle: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                              descTextStyle: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.black54,
-                              ),
-                              child: buildQuickAction(
-                                "Adaugă serviciu",
-                                "assets/ass3.png",
-                                Colors.green.shade700.withOpacity(0.2),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>  BusinessLocationPermissionGate(child: AddNewServiceScreen()),
-                                    ),
-                                  );
-                                },
-                              ),
+                            child: buildQuickAction(
+                              "Adaugă serviciu",
+                              "assets/ass3.png",
+                              Colors.green.shade700.withOpacity(0.2),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>  BusinessLocationPermissionGate(child: AddNewServiceScreen()),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ],
                       )
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        //   children: [
-                        //     // --- Alertă SOS Button ---
-                        //     Expanded(
-                        //       child: buildQuickAction(
-                        //         "Alertă SOS",
-                        //         "assets/ass2.png",
-                        //         const Color(0xFFFEF2F2),
-                        //         count: _pendingRequestCount,
-                        //         onTap: () { // Navigation logic moved here
-                        //           print("SOS button tapped!");
-                        //           Navigator.push(
-                        //             context,
-                        //             MaterialPageRoute(
-                        //               builder: (context) => RequestsScreen(),
-                        //             ),
-                        //           );
-                        //         },
-                        //       ),
-                        //     ),
-                        //
-                        //     // --- Serviciile mele Button ---
-                        //     Expanded(
-                        //       child: buildQuickAction(
-                        //         "Serviciile mele",
-                        //         "assets/ass1.png",
-                        //         const Color(0xFFEFF6FF),
-                        //         onTap: () { // Navigation logic moved here
-                        //           print("Serviciile mele tapped!");
-                        //           Navigator.push(
-                        //             context,
-                        //             MaterialPageRoute(
-                        //               builder: (context) => SupplierProfileScreen(
-                        //                 userId: supplierID,
-                        //               ),
-                        //             ),
-                        //           );
-                        //         },
-                        //       ),
-                        //     ),
-                        //
-                        //     // --- Adaugă serviciu Button ---
-                        //     Expanded(
-                        //       child: buildQuickAction(
-                        //         "Adaugă serviciu",
-                        //         "assets/ass3.png",
-                        //         const Color(0xFFF0FDF4),
-                        //         onTap: () { // Navigation logic moved here
-                        //           Navigator.push(
-                        //             context,
-                        //             MaterialPageRoute(
-                        //               builder: (context) =>  BusinessLocationPermissionGate(child: AddNewServiceScreen()),
-                        //             ),
-                        //           );
-                        //         },
-                        //       ),
-                        //     ),
-                        //   ],
-                        // ),
                       ),
                     ),
                   ],
@@ -910,59 +574,29 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Showcase(
-                              key: _notificationsKey,
-                              title: "Notificări",
-                              description: "Aici primești actualizări importante despre serviciile tale, cereri noi și mesaje de la clienți.",
-                              tooltipBackgroundColor: Colors.white,
-                              titleTextStyle: const TextStyle(
+                            const Text(
+                              "Notificări",
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                              descTextStyle: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.black54,
-                              ),
-                              child: const Text(
-                                "Notificări",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                                color: Colors.white,
                               ),
                             ),
-                            Showcase(
-                              key: _viewAllNotificationsKey,
-                              title: "Vezi Toate Notificările",
-                              description: "Apasă aici pentru a vedea istoricul complet al notificărilor tale.",
-                              tooltipBackgroundColor: Colors.white,
-                              titleTextStyle: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                              descTextStyle: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.black54,
-                              ),
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => NotificationScreen(),
-                                    ),
-                                  );
-                                },
-                                child: const Text(
-                                  "Vezi toate",
-                                  style: TextStyle(
-                                    color: Colors.cyan,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => NotificationScreen(),
                                   ),
+                                );
+                              },
+                              child: const Text(
+                                "Vezi toate",
+                                style: TextStyle(
+                                  color: Colors.cyan,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -994,33 +628,6 @@ class _supplier_home_pageState extends State<supplier_home_page> {
               ],
             ),
           ),
-          // floatingActionButton: Column(
-          //   mainAxisAlignment: MainAxisAlignment.end,
-          //   children: [
-          //     FloatingActionButton(
-          //       onPressed: () {
-          //         ShowcaseView.get().startShowCase([
-          //           _profileImageKey,
-          //           _businessHoursKey,
-          //           _messagesKey,
-          //           _completedKey,
-          //           _ratingKey,
-          //           _sosAlertKey,
-          //           _myServicesKey,
-          //           _addServiceKey,
-          //           _notificationsKey,
-          //           _viewAllNotificationsKey,
-          //         ]);
-          //       },
-          //       child: Icon(Icons.help_outline, color: Colors.white),
-          //       backgroundColor: Colors.blue[700],
-          //       tooltip: 'Arată tutorialul',
-          //       heroTag: "helpButton",
-          //     ),
-          //     SizedBox(height: 10),
-          //
-          //   ],
-          // ),
         ),
       ),
     );
@@ -1081,208 +688,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     }).toList();
   }
 
-  /// The main elegant dialog function with black button and iOS-style icons
-  // void _showBusinessHoursDialog(
-  //     BuildContext context,
-  //     Map<String, dynamic> businessHours,
-  //     bool isOpen,
-  //     )
-  // {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return Dialog(
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(20.0),
-  //         ),
-  //         elevation: 0,
-  //         backgroundColor: Colors.transparent,
-  //         child: Container(
-  //           padding: const EdgeInsets.all(24),
-  //           decoration: BoxDecoration(
-  //             color: const Color(0xFF2C2C2C),
-  //             borderRadius: BorderRadius.circular(20),
-  //             boxShadow: [
-  //               BoxShadow(
-  //                 color: Colors.black.withOpacity(0.5),
-  //                 blurRadius: 35,
-  //                 spreadRadius: 2,
-  //                 offset: Offset(0, 15),
-  //               ),
-  //             ],
-  //             border: Border.all(color: Colors.grey.shade800, width: 0.5),
-  //           ),
-  //           child: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               // --- HEADER (Icon + Title) ---
-  //               Row(
-  //                 children: [
-  //                   // Using 'Access Time' icon for a clean, iOS-like clock
-  //                   Icon(
-  //                     Icons.access_time_filled,
-  //                     color:  Color(0xFF1E88E5),
-  //                     size: 28,
-  //                   ),
-  //                   const SizedBox(width: 12),
-  //                   Text(
-  //                     "Program de Lucru",
-  //                     style: TextStyle(
-  //                       fontSize: 24,
-  //                       fontWeight: FontWeight.w800,
-  //                       color: Colors.white,
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //               const SizedBox(height: 16),
-  //
-  //               // --- STATUS INDICATOR ---
-  //               Container(
-  //                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-  //                 decoration: BoxDecoration(
-  //                   color: isOpen ? Color(0xFF4CAF50).withOpacity(0.1) : Color(0xFFE53935).withOpacity(0.1),
-  //                   borderRadius: BorderRadius.circular(8),
-  //                 ),
-  //                 child: Row(
-  //                   mainAxisSize: MainAxisSize.min,
-  //                   children: [
-  //                     // Using filled circle icons for an iOS-like look
-  //                     Icon(
-  //                       isOpen ? Icons.check_circle : Icons.cancel,
-  //                       color: isOpen ? Color(0xFF4CAF50) : Color(0xFFE53935),
-  //                       size: 18,
-  //                     ),
-  //                     const SizedBox(width: 6),
-  //                     Text(
-  //                       isOpen ? "Deschis Acum" : "Închis Momentan",
-  //                       style: TextStyle(
-  //                         fontSize: 14,
-  //                         fontWeight: FontWeight.w700,
-  //                         color: isOpen ? Color(0xFF4CAF50) : Color(0xFFE53935),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 24),
-  //
-  //               // --- BUSINESS HOURS LIST ---
-  //               ..._buildBusinessHoursList(businessHours),
-  //
-  //               const SizedBox(height: 24),
-  //               Divider(
-  //                 color: Colors.grey.shade700,
-  //                 thickness: 1,
-  //               ),
-  //               const SizedBox(height: 16),
-  //
-  //               // --- SUPPORT MESSAGE ---
-  //               Text(
-  //                 "Pentru a modifica programul de lucru, vă rugăm să contactați echipa noastră de support la support@fixcars.ro",
-  //                 style: TextStyle(
-  //                   fontSize: 13,
-  //                   color: Colors.grey.shade400,
-  //                   fontStyle: FontStyle.italic,
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 24),
-  //
-  //               // --- ACTIONS (EDIT + CLOSE BUTTONS) ---
-  //               Row(
-  //                 mainAxisAlignment: MainAxisAlignment.end,
-  //                 children: [
-  //                   /// TODO sooon
-  //                   // 1. EDIT BUTTON (Placeholder for implementation)
-  //                   // OutlinedButton.icon(
-  //                   //   onPressed: () {
-  //                   //     Navigator.of(context).pop(); // Optional: close the main popup
-  //                   //     showModalBottomSheet(
-  //                   //       context: context,
-  //                   //       isScrollControlled: true,
-  //                   //       backgroundColor: Colors.transparent,
-  //                   //       builder: (_) => const BusinessHoursBottomSheet(),
-  //                   //     );
-  //                   //   },
-  //                   //   // onPressed: () {
-  //                   //   //   // TODO: Implement the logic to edit business hours
-  //                   //   //   print('Edit button pressed!');
-  //                   //   // },
-  //                   //   icon: Icon(
-  //                   //     Icons.edit, // Clean edit icon
-  //                   //     size: 20,
-  //                   //     color:  Color(0xFF1E88E5),
-  //                   //   ),
-  //                   //   label: Text(
-  //                   //     "Editează",
-  //                   //     style: TextStyle(
-  //                   //       color:  Color(0xFF1E88E5),
-  //                   //       fontWeight: FontWeight.w600,
-  //                   //       fontSize: 16,
-  //                   //     ),
-  //                   //   ),
-  //                   //   style: OutlinedButton.styleFrom(
-  //                   //     side: BorderSide(color: Colors.grey.shade300, width: 1),
-  //                   //     shape: RoundedRectangleBorder(
-  //                   //       borderRadius: BorderRadius.circular(12),
-  //                   //     ),
-  //                   //     padding: const EdgeInsets.symmetric(
-  //                   //       horizontal: 16,
-  //                   //       vertical: 12,
-  //                   //     ),
-  //                   //   ),
-  //                   // ),
-  //                   // const SizedBox(width: 12),
-  //
-  //                   // 2. CLOSE BUTTON (Black, elegant design)
-  //                   Container(
-  //                     decoration: BoxDecoration(
-  //                       borderRadius: BorderRadius.circular(12),
-  //                       color: Colors.grey.shade800,
-  //                       boxShadow: [
-  //                         BoxShadow(
-  //                           color: Colors.black.withOpacity(0.3),
-  //                           blurRadius: 10,
-  //                           offset: Offset(0, 5),
-  //                         ),
-  //                       ],
-  //                       border: Border.all(color: Colors.grey.shade700, width: 0.5),
-  //                     ),
-  //                     child: TextButton(
-  //                       onPressed: () {
-  //                         Navigator.of(context).pop();
-  //                       },
-  //                       style: TextButton.styleFrom(
-  //                         backgroundColor: Colors.transparent, // Keep transparent for the container color
-  //                         shape: RoundedRectangleBorder(
-  //                           borderRadius: BorderRadius.circular(12),
-  //                         ),
-  //                         padding: const EdgeInsets.symmetric(
-  //                           horizontal: 24,
-  //                           vertical: 12,
-  //                         ),
-  //                         elevation: 0,
-  //                       ),
-  //                       child: const Text(
-  //                         "Închide",
-  //                         style: TextStyle(
-  //                           color: Colors.white,
-  //                           fontWeight: FontWeight.w700,
-  //                           fontSize: 16,
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
+
 
   void _showBusinessHoursDialog(
       BuildContext context,

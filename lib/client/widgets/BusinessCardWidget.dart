@@ -224,7 +224,7 @@ class BusinessCardWidget extends StatelessWidget {
                         children: [
                           const Icon(Icons.star_rounded, color: _goldAccent, size: 20),
                           const SizedBox(width: 4),
-                          Text('$rating', style: const TextStyle(color: _primaryText, fontWeight: FontWeight.bold)),
+                          Text('${rating.toStringAsFixed(2)}', style: const TextStyle(color: _primaryText, fontWeight: FontWeight.bold)),
                           Text(' ($reviewCount recenzii)', style: const TextStyle(color: _secondaryText, fontSize: 13)),
                         ],
                       ),
