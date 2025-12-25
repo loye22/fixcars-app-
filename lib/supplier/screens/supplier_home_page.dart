@@ -344,8 +344,16 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFF212A39),
+          color: const Color(0xFF202020),
           borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 10,
+              spreadRadius: 1,
+            ),
+          ],
+          border: Border.all(color: Colors.grey.shade800, width: 0.5),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -356,7 +364,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                 Image.asset(
                   assetImagePath,
                   height: 48,
-                  color: color,
+                  color: Colors.grey.shade400,
                   fit: BoxFit.contain,
                 ),
                 if (unreadCount > 0)
@@ -409,10 +417,10 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: Colors.grey[100],
+        backgroundColor: const Color(0xFF121212),
         body: Center(
           child: LoadingAnimationWidget.threeArchedCircle(
-            color: Colors.black,
+            color: Colors.orange,
             size: 34,
           ),
         ),
@@ -421,8 +429,13 @@ class _supplier_home_pageState extends State<supplier_home_page> {
 
     if (_errorMessage.isNotEmpty) {
       return Scaffold(
-        backgroundColor: Colors.grey[100],
-        body: Center(child: Text(_errorMessage)),
+        backgroundColor: const Color(0xFF121212),
+        body: Center(
+          child: Text(
+            _errorMessage,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
       );
     }
 
@@ -448,7 +461,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
         child: isActive == false
             ? WaitingReviewScreen()
             : Scaffold(
-          backgroundColor: Colors.grey[100],
+          backgroundColor: const Color(0xFF121212),
           body: SingleChildScrollView(
             child: Column(
               children: [
@@ -457,12 +470,20 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                   children: [
                     Container(
                       height: 420,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF161E2D),
-                        borderRadius: BorderRadius.only(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E1E1E),
+                        borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(24),
                           bottomRight: Radius.circular(24),
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.5),
+                            blurRadius: 20,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                        border: Border.all(color: Colors.grey.shade800, width: 0.5),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -548,25 +569,30 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                       ),
                                       child: GestureDetector(
                                         onTap: () {
+                                          // print(businessHours);
+                                          // print("businessHours=======================================");
+
                                           _showBusinessHoursDialog(context, businessHours, isOpen);
                                         },
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                           decoration: BoxDecoration(
-                                            color: isOpen ? const Color(0xFF1B4239) : Colors.red,
+                                            color: isOpen ? Colors.green.shade700.withOpacity(0.2) : Colors.red.shade700.withOpacity(0.2),
                                             borderRadius: BorderRadius.circular(20),
+                                            border: Border.all(
+                                              color: isOpen ? Colors.green.shade700 : Colors.red.shade700,
+                                              width: 1.5,
+                                            ),
                                           ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Image.asset(
-                                                'assets/check2.png',
-                                                width: 18,
-                                              ),
-                                              const SizedBox(width: 10),
                                               Text(
                                                 isOpen ? "În serviciu" : "Închis",
-                                                style: const TextStyle(color: Colors.white),
+                                                style: TextStyle(
+                                                  color: isOpen ? Colors.green.shade300 : Colors.red.shade300,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -696,50 +722,36 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: const Color(0xFF2C2C2C),
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: const [
+                          boxShadow: [
                             BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 10,
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 20,
                               spreadRadius: 2,
                             ),
                           ],
+                          border: Border.all(color: Colors.grey.shade800, width: 0.5),
                         ),
                        child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           // --- Alertă SOS Button (Step 6) ---
                           Expanded(
-                            child: Showcase( // 🔑 ADDED Showcase for _sosAlertKey
-                              key: _sosAlertKey,
-                              title: "Alertă SOS (Cereri noi)",
-                              description: "Vezi și gestionează cererile de la clienții care au nevoie urgentă de serviciile tale.",
-                              tooltipBackgroundColor: Colors.white,
-                              titleTextStyle: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                              descTextStyle: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.black54,
-                              ),
-                              child: buildQuickAction(
-                                "Alertă SOS",
-                                "assets/ass2.png",
-                                const Color(0xFFFEF2F2),
-                                count: _pendingRequestCount,
-                                onTap: () {
-                                  print("SOS button tapped!");
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => RequestsScreen(),
-                                    ),
-                                  );
-                                },
-                              ),
+                            child: buildQuickAction(
+                              "Alertă SOS",
+                              "assets/ass2.png",
+                              Colors.red.shade700.withOpacity(0.2),
+                              count: _pendingRequestCount,
+                              onTap: () {
+                                print("SOS button tapped!");
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RequestsScreen(),
+                                  ),
+                                );
+                              },
                             ),
                           ),
 
@@ -762,7 +774,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                               child: buildQuickAction(
                                 "Serviciile mele",
                                 "assets/ass1.png",
-                                const Color(0xFFEFF6FF),
+                                Colors.blue.shade700.withOpacity(0.2),
                                 onTap: () {
                                   print("Serviciile mele tapped!");
                                   Navigator.push(
@@ -797,7 +809,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                               child: buildQuickAction(
                                 "Adaugă serviciu",
                                 "assets/ass3.png",
-                                const Color(0xFFF0FDF4),
+                                Colors.green.shade700.withOpacity(0.2),
                                 onTap: () {
                                   Navigator.push(
                                     context,
@@ -879,6 +891,19 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                 Padding(
                   padding: const EdgeInsets.all(18.0),
                   child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2C2C2C),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                      border: Border.all(color: Colors.grey.shade800, width: 0.5),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -899,11 +924,12 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                 fontSize: 16,
                                 color: Colors.black54,
                               ),
-                              child: Text(
+                              child: const Text(
                                 "Notificări",
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
@@ -930,11 +956,12 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                     ),
                                   );
                                 },
-                                child: Text(
+                                child: const Text(
                                   "Vezi toate",
                                   style: TextStyle(
-                                    color: Colors.blue,
+                                    color: Colors.cyan,
                                     fontSize: 14,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
@@ -956,7 +983,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                           )
                               .toList()
                         else
-                          Text(
+                          const Text(
                             "Nu există notificări",
                             style: TextStyle(color: Colors.grey),
                           ),
@@ -1037,7 +1064,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
-                color: Colors.grey.shade800,
+                color: Colors.grey.shade300,
               ),
             ),
             Text(
@@ -1055,206 +1082,6 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   }
 
   /// The main elegant dialog function with black button and iOS-style icons
-  void _showBusinessHoursDialog(
-      BuildContext context,
-      Map<String, dynamic> businessHours,
-      bool isOpen,
-      ) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
-                  blurRadius: 35,
-                  spreadRadius: 2,
-                  offset: Offset(0, 15),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // --- HEADER (Icon + Title) ---
-                Row(
-                  children: [
-                    // Using 'Access Time' icon for a clean, iOS-like clock
-                    Icon(
-                      Icons.access_time_filled,
-                      color:  Color(0xFF1E88E5),
-                      size: 28,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      "Program de Lucru",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.grey.shade900,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // --- STATUS INDICATOR ---
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: isOpen ? Color(0xFF4CAF50).withOpacity(0.1) : Color(0xFFE53935).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Using filled circle icons for an iOS-like look
-                      Icon(
-                        isOpen ? Icons.check_circle : Icons.cancel,
-                        color: isOpen ? Color(0xFF4CAF50) : Color(0xFFE53935),
-                        size: 18,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        isOpen ? "Deschis Acum" : "Închis Momentan",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: isOpen ? Color(0xFF4CAF50) : Color(0xFFE53935),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // --- BUSINESS HOURS LIST ---
-                ..._buildBusinessHoursList(businessHours),
-
-                const SizedBox(height: 24),
-                Divider(
-                  color: Colors.grey.shade300,
-                  thickness: 1,
-                ),
-                const SizedBox(height: 16),
-
-                // --- SUPPORT MESSAGE ---
-                Text(
-                  "Pentru a modifica programul de lucru, vă rugăm să contactați echipa noastră de support la support@fixcars.ro",
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // --- ACTIONS (EDIT + CLOSE BUTTONS) ---
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    /// TODO sooon
-                    // 1. EDIT BUTTON (Placeholder for implementation)
-                    // OutlinedButton.icon(
-                    //   onPressed: () {
-                    //     Navigator.of(context).pop(); // Optional: close the main popup
-                    //     showModalBottomSheet(
-                    //       context: context,
-                    //       isScrollControlled: true,
-                    //       backgroundColor: Colors.transparent,
-                    //       builder: (_) => const BusinessHoursBottomSheet(),
-                    //     );
-                    //   },
-                    //   // onPressed: () {
-                    //   //   // TODO: Implement the logic to edit business hours
-                    //   //   print('Edit button pressed!');
-                    //   // },
-                    //   icon: Icon(
-                    //     Icons.edit, // Clean edit icon
-                    //     size: 20,
-                    //     color:  Color(0xFF1E88E5),
-                    //   ),
-                    //   label: Text(
-                    //     "Editează",
-                    //     style: TextStyle(
-                    //       color:  Color(0xFF1E88E5),
-                    //       fontWeight: FontWeight.w600,
-                    //       fontSize: 16,
-                    //     ),
-                    //   ),
-                    //   style: OutlinedButton.styleFrom(
-                    //     side: BorderSide(color: Colors.grey.shade300, width: 1),
-                    //     shape: RoundedRectangleBorder(
-                    //       borderRadius: BorderRadius.circular(12),
-                    //     ),
-                    //     padding: const EdgeInsets.symmetric(
-                    //       horizontal: 16,
-                    //       vertical: 12,
-                    //     ),
-                    //   ),
-                    // ),
-                    // const SizedBox(width: 12),
-
-                    // 2. CLOSE BUTTON (Black, elegant design)
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color:  Color(0xFF212121), // Solid Black background
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 10,
-                            offset: Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.transparent, // Keep transparent for the container color
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          "Închide",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  //
   // void _showBusinessHoursDialog(
   //     BuildContext context,
   //     Map<String, dynamic> businessHours,
@@ -1266,84 +1093,188 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   //     builder: (BuildContext context) {
   //       return Dialog(
   //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(16.0),
+  //           borderRadius: BorderRadius.circular(20.0),
   //         ),
   //         elevation: 0,
   //         backgroundColor: Colors.transparent,
   //         child: Container(
-  //           padding: const EdgeInsets.all(20),
+  //           padding: const EdgeInsets.all(24),
   //           decoration: BoxDecoration(
-  //             color: Colors.white,
-  //             borderRadius: BorderRadius.circular(16),
+  //             color: const Color(0xFF2C2C2C),
+  //             borderRadius: BorderRadius.circular(20),
+  //             boxShadow: [
+  //               BoxShadow(
+  //                 color: Colors.black.withOpacity(0.5),
+  //                 blurRadius: 35,
+  //                 spreadRadius: 2,
+  //                 offset: Offset(0, 15),
+  //               ),
+  //             ],
+  //             border: Border.all(color: Colors.grey.shade800, width: 0.5),
   //           ),
   //           child: Column(
   //             mainAxisSize: MainAxisSize.min,
   //             crossAxisAlignment: CrossAxisAlignment.start,
   //             children: [
-  //               Text(
-  //                 "Program de lucru",
-  //                 style: TextStyle(
-  //                   fontSize: 20,
-  //                   fontWeight: FontWeight.bold,
-  //                   color: Colors.grey[800],
-  //                 ),
+  //               // --- HEADER (Icon + Title) ---
+  //               Row(
+  //                 children: [
+  //                   // Using 'Access Time' icon for a clean, iOS-like clock
+  //                   Icon(
+  //                     Icons.access_time_filled,
+  //                     color:  Color(0xFF1E88E5),
+  //                     size: 28,
+  //                   ),
+  //                   const SizedBox(width: 12),
+  //                   Text(
+  //                     "Program de Lucru",
+  //                     style: TextStyle(
+  //                       fontSize: 24,
+  //                       fontWeight: FontWeight.w800,
+  //                       color: Colors.white,
+  //                     ),
+  //                   ),
+  //                 ],
   //               ),
   //               const SizedBox(height: 16),
+  //
+  //               // --- STATUS INDICATOR ---
+  //               Container(
+  //                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+  //                 decoration: BoxDecoration(
+  //                   color: isOpen ? Color(0xFF4CAF50).withOpacity(0.1) : Color(0xFFE53935).withOpacity(0.1),
+  //                   borderRadius: BorderRadius.circular(8),
+  //                 ),
+  //                 child: Row(
+  //                   mainAxisSize: MainAxisSize.min,
+  //                   children: [
+  //                     // Using filled circle icons for an iOS-like look
+  //                     Icon(
+  //                       isOpen ? Icons.check_circle : Icons.cancel,
+  //                       color: isOpen ? Color(0xFF4CAF50) : Color(0xFFE53935),
+  //                       size: 18,
+  //                     ),
+  //                     const SizedBox(width: 6),
+  //                     Text(
+  //                       isOpen ? "Deschis Acum" : "Închis Momentan",
+  //                       style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontWeight: FontWeight.w700,
+  //                         color: isOpen ? Color(0xFF4CAF50) : Color(0xFFE53935),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 24),
+  //
+  //               // --- BUSINESS HOURS LIST ---
   //               ..._buildBusinessHoursList(businessHours),
+  //
+  //               const SizedBox(height: 24),
+  //               Divider(
+  //                 color: Colors.grey.shade700,
+  //                 thickness: 1,
+  //               ),
   //               const SizedBox(height: 16),
-  //               Divider(),
-  //               const SizedBox(height: 8),
+  //
+  //               // --- SUPPORT MESSAGE ---
   //               Text(
   //                 "Pentru a modifica programul de lucru, vă rugăm să contactați echipa noastră de support la support@fixcars.ro",
   //                 style: TextStyle(
-  //                   fontSize: 14,
-  //                   color: Colors.grey[600],
+  //                   fontSize: 13,
+  //                   color: Colors.grey.shade400,
   //                   fontStyle: FontStyle.italic,
   //                 ),
   //               ),
-  //               const SizedBox(height: 16),
-  //               Align(
-  //                 alignment: Alignment.centerRight,
-  //                 child: Container(
-  //                   decoration: BoxDecoration(
-  //                     borderRadius: BorderRadius.circular(8),
-  //                     gradient: LinearGradient(
-  //                       colors: [Colors.blue.shade700, Colors.blue.shade500],
-  //                       begin: Alignment.topLeft,
-  //                       end: Alignment.bottomRight,
+  //               const SizedBox(height: 24),
+  //
+  //               // --- ACTIONS (EDIT + CLOSE BUTTONS) ---
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.end,
+  //                 children: [
+  //                   /// TODO sooon
+  //                   // 1. EDIT BUTTON (Placeholder for implementation)
+  //                   // OutlinedButton.icon(
+  //                   //   onPressed: () {
+  //                   //     Navigator.of(context).pop(); // Optional: close the main popup
+  //                   //     showModalBottomSheet(
+  //                   //       context: context,
+  //                   //       isScrollControlled: true,
+  //                   //       backgroundColor: Colors.transparent,
+  //                   //       builder: (_) => const BusinessHoursBottomSheet(),
+  //                   //     );
+  //                   //   },
+  //                   //   // onPressed: () {
+  //                   //   //   // TODO: Implement the logic to edit business hours
+  //                   //   //   print('Edit button pressed!');
+  //                   //   // },
+  //                   //   icon: Icon(
+  //                   //     Icons.edit, // Clean edit icon
+  //                   //     size: 20,
+  //                   //     color:  Color(0xFF1E88E5),
+  //                   //   ),
+  //                   //   label: Text(
+  //                   //     "Editează",
+  //                   //     style: TextStyle(
+  //                   //       color:  Color(0xFF1E88E5),
+  //                   //       fontWeight: FontWeight.w600,
+  //                   //       fontSize: 16,
+  //                   //     ),
+  //                   //   ),
+  //                   //   style: OutlinedButton.styleFrom(
+  //                   //     side: BorderSide(color: Colors.grey.shade300, width: 1),
+  //                   //     shape: RoundedRectangleBorder(
+  //                   //       borderRadius: BorderRadius.circular(12),
+  //                   //     ),
+  //                   //     padding: const EdgeInsets.symmetric(
+  //                   //       horizontal: 16,
+  //                   //       vertical: 12,
+  //                   //     ),
+  //                   //   ),
+  //                   // ),
+  //                   // const SizedBox(width: 12),
+  //
+  //                   // 2. CLOSE BUTTON (Black, elegant design)
+  //                   Container(
+  //                     decoration: BoxDecoration(
+  //                       borderRadius: BorderRadius.circular(12),
+  //                       color: Colors.grey.shade800,
+  //                       boxShadow: [
+  //                         BoxShadow(
+  //                           color: Colors.black.withOpacity(0.3),
+  //                           blurRadius: 10,
+  //                           offset: Offset(0, 5),
+  //                         ),
+  //                       ],
+  //                       border: Border.all(color: Colors.grey.shade700, width: 0.5),
   //                     ),
-  //                     boxShadow: [
-  //                       BoxShadow(
-  //                         color: Colors.blue.withOpacity(0.3),
-  //                         blurRadius: 4,
-  //                         offset: Offset(0, 2),
+  //                     child: TextButton(
+  //                       onPressed: () {
+  //                         Navigator.of(context).pop();
+  //                       },
+  //                       style: TextButton.styleFrom(
+  //                         backgroundColor: Colors.transparent, // Keep transparent for the container color
+  //                         shape: RoundedRectangleBorder(
+  //                           borderRadius: BorderRadius.circular(12),
+  //                         ),
+  //                         padding: const EdgeInsets.symmetric(
+  //                           horizontal: 24,
+  //                           vertical: 12,
+  //                         ),
+  //                         elevation: 0,
   //                       ),
-  //                     ],
+  //                       child: const Text(
+  //                         "Închide",
+  //                         style: TextStyle(
+  //                           color: Colors.white,
+  //                           fontWeight: FontWeight.w700,
+  //                           fontSize: 16,
+  //                         ),
+  //                       ),
+  //                     ),
   //                   ),
-  //                   child: TextButton(
-  //                     onPressed: () {
-  //                       Navigator.of(context).pop();
-  //                     },
-  //                     style: TextButton.styleFrom(
-  //                       backgroundColor: Colors.transparent,
-  //                       shape: RoundedRectangleBorder(
-  //                         borderRadius: BorderRadius.circular(8),
-  //                       ),
-  //                       padding: const EdgeInsets.symmetric(
-  //                         horizontal: 20,
-  //                         vertical: 10,
-  //                       ),
-  //                     ),
-  //                     child: Text(
-  //                       "Închide",
-  //                       style: TextStyle(
-  //                         color: Colors.white,
-  //                         fontWeight: FontWeight.bold,
-  //                         fontSize: 16,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ),
+  //                 ],
   //               ),
   //             ],
   //           ),
@@ -1352,53 +1283,156 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   //     },
   //   );
   // }
-  //
-  // List<Widget> _buildBusinessHoursList(Map<String, dynamic> businessHours) {
-  //   final days = [
-  //     {'key': 'monday', 'label': 'Luni'},
-  //     {'key': 'tuesday', 'label': 'Marți'},
-  //     {'key': 'wednesday', 'label': 'Miercuri'},
-  //     {'key': 'thursday', 'label': 'Joi'},
-  //     {'key': 'friday', 'label': 'Vineri'},
-  //     {'key': 'saturday', 'label': 'Sâmbătă'},
-  //     {'key': 'sunday', 'label': 'Duminică'},
-  //   ];
-  //
-  //   return days.map((day) {
-  //     final dayData = businessHours[day['key']];
-  //     final isClosed = dayData['closed'] ?? true;
-  //
-  //     String formatTime(String timeString) {
-  //       if (timeString.length >= 5) {
-  //         return timeString.substring(0, 5);
-  //       }
-  //       return timeString;
-  //     }
-  //
-  //     final openTime = isClosed ? '' : formatTime(dayData['open'] ?? '');
-  //     final closeTime = isClosed ? '' : formatTime(dayData['close'] ?? '');
-  //
-  //     return Padding(
-  //       padding: const EdgeInsets.symmetric(vertical: 4.0),
-  //       child: Row(
-  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //         children: [
-  //           Text(
-  //             day['label']!,
-  //             style: TextStyle(
-  //               fontWeight: FontWeight.w500,
-  //               color: Colors.grey[700],
-  //             ),
-  //           ),
-  //           Text(
-  //             isClosed ? 'Închis' : '$openTime - $closeTime',
-  //             style: TextStyle(color: isClosed ? Colors.red : Colors.green),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //   }).toList();
-  // }
+
+  void _showBusinessHoursDialog(
+      BuildContext context,
+      Map<String, dynamic> businessHours,
+      bool isOpen,
+      ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Allows sheet to height-adjust based on content
+      backgroundColor: Colors.transparent, // Required to show custom container shape
+      builder: (BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E), // Slightly deeper dark for elegance
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+            border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // --- DRAG HANDLE ---
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // --- HEADER ---
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.access_time_rounded,
+                                color: Colors.grey,
+                                size: 26,
+                              ),
+                              const SizedBox(width: 12),
+                              const Text(
+                                "Program de Lucru",
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          // Mini Status Indicator in the header
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: isOpen
+                                  ? const Color(0xFF4CAF50).withOpacity(0.15)
+                                  : const Color(0xFFE53935).withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              isOpen ? "DESCHIS" : "ÎNCHIS",
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: isOpen ? const Color(0xFF81C784) : const Color(0xFFE57373),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // --- BUSINESS HOURS LIST ---
+                      // Note: Ensure _buildBusinessHoursList is optimized for dark theme
+                      ..._buildBusinessHoursList(businessHours),
+
+                      const SizedBox(height: 24),
+
+                      // --- INFO SECTION ---
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.03),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.white.withOpacity(0.05)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.info_outline, size: 18, color: Colors.grey.shade500),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                "Pentru modificări, contactați support@fixcars.ro",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade400,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // --- CLOSE BUTTON ---
+                      SizedBox(
+                        width: double.infinity,
+                        height: 54,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white.withOpacity(0.08),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: const Text(
+                            "Închide",
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   Widget buildQuickAction(
       String title,
@@ -1417,8 +1451,16 @@ class _supplier_home_pageState extends State<supplier_home_page> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
           decoration: BoxDecoration(
-            color: containerBg,
+            color: const Color(0xFF2C2C2C),
             borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 10,
+                spreadRadius: 1,
+              ),
+            ],
+            border: Border.all(color: Colors.grey.shade800, width: 0.5),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min, // Keep column size minimal
@@ -1426,7 +1468,12 @@ class _supplier_home_pageState extends State<supplier_home_page> {
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Image.asset(assetImagePath, width: 48, height: 48),
+                  Image.asset(
+                    assetImagePath,
+                    width: 48,
+                    height: 48,
+                    //color: Colors.grey.shade400,
+                  ),
                   if (count > 0)
                     Positioned(
                       top: -4,
@@ -1461,7 +1508,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: Colors.white,
                 ),
               ),
             ],
@@ -1496,15 +1543,16 @@ class _supplier_home_pageState extends State<supplier_home_page> {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color(0xFF2C2C2C),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withOpacity(0.5),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
               ],
+              border: Border.all(color: Colors.grey.shade800, width: 0.5),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -1529,14 +1577,14 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Pentru a adăuga servicii noi, vă rugăm să ne contactați:',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                  style: TextStyle(fontSize: 16, color: Colors.grey.shade300),
                 ),
                 const SizedBox(height: 24),
                 _buildContactItem(
@@ -1558,12 +1606,13 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                   child: ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade700,
+                      backgroundColor: Colors.grey.shade800,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      side: BorderSide(color: Colors.grey.shade700, width: 0.5),
                     ),
                     child: const Text('Închide'),
                   ),
@@ -1587,9 +1636,9 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.grey.shade50,
+          color: const Color(0xFF202020),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: Colors.grey.shade800),
         ),
         child: Row(
           children: [
@@ -1609,7 +1658,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                 children: [
                   Text(
                     label,
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -1617,14 +1666,14 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black87,
+                      color: Colors.white,
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            Icon(Icons.content_copy, size: 18, color: Colors.grey.shade500),
+            Icon(Icons.content_copy, size: 18, color: Colors.grey.shade400),
           ],
         ),
       ),
