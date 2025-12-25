@@ -17,6 +17,7 @@ import '../../shared/screens/aboutUsScreen.dart';
 import '../../shared/services/PendingCountRequestsService.dart';
 import '../../shared/services/api_service.dart';
 import '../../shared/services/firebase_chat_service.dart';
+import '../../shared/services/phone_service.dart';
 import '../services/AccountStatusService.dart';
 import '../services/MarkNotificationAsReadService.dart';
 import '../services/SupplierProfileService.dart';
@@ -178,7 +179,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                 "support@fixcars.ro",
                               ),
                               const SizedBox(height: 12),
-                              _buildContactRow(Icons.phone, "+40 767 333 804"),
+                              _buildContactRow(Icons.phone, "0767333804"),
                             ],
                           ),
                         ),
@@ -267,103 +268,55 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     );
   }
 
-  // Helper widget for contact rows
-  Widget _buildContactRow(IconData icon, String text) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, size: 18, color: Colors.cyan),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-          ),
+  Widget _buildContactRow(IconData icon, String label) {
+    return InkWell(
+      onTap: () {
+        if (icon == Icons.phone) {
+          // Trigger the call service
+          CallService.makeCall(
+            context: context,
+            phoneNumber: label,
+          );
+        } else if (icon == Icons.email) {
+          // Optional: Add email logic here later
+        }
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center, // Center the content
+          children: [
+            Icon(icon, color: Colors.blueAccent, size: 20),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
-
-  // void _showTierBottomSheet(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     backgroundColor: Colors.transparent,
-  //     builder: (BuildContext context) {
-  //       return Container(
-  //         width: double.infinity, // Ensures full width
-  //         decoration: BoxDecoration(
-  //           color: const Color(0xFF1E1E1E),
-  //           borderRadius: const BorderRadius.only(
-  //             topLeft: Radius.circular(28),
-  //             topRight: Radius.circular(28),
-  //           ),
-  //           border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+  // // Helper widget for contact rows
+  // Widget _buildContactRow(IconData icon, String text) {
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.center,
+  //     children: [
+  //       Icon(icon, size: 18, color: Colors.cyan),
+  //       const SizedBox(width: 8),
+  //       Text(
+  //         text,
+  //         style: const TextStyle(
+  //           color: Colors.white,
+  //           fontWeight: FontWeight.w500,
   //         ),
-  //         child: SafeArea(
-  //           child: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               const SizedBox(height: 12),
-  //               Container(
-  //                 width: 40,
-  //                 height: 4,
-  //                 decoration: BoxDecoration(
-  //                   color: Colors.grey.withOpacity(0.3),
-  //                   borderRadius: BorderRadius.circular(2),
-  //                 ),
-  //               ),
-  //               Padding(
-  //                 padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-  //                 child: Column(
-  //                   children: [
-  //                     const Text(
-  //                       "Statut Abonament",
-  //                       style: TextStyle(
-  //                         fontSize: 22,
-  //                         fontWeight: FontWeight.bold,
-  //                         color: Colors.white,
-  //                       ),
-  //                     ),
-  //                     const SizedBox(height: 16),
-  //                     // Display the badge again inside the sheet for visual confirmation
-  //                     _getBadgeUI(),
-  //                     const SizedBox(height: 24),
-  //                     Text(
-  //                       "Contul tău este în prezent pe planul ${tier.name.toUpperCase()}.",
-  //                       textAlign: TextAlign.center,
-  //                       style: TextStyle(
-  //                         fontSize: 16,
-  //                         color: Colors.grey.shade400,
-  //                       ),
-  //                     ),
-  //                     const SizedBox(height: 32),
-  //                     SizedBox(
-  //                       width: double.infinity,
-  //                       height: 54,
-  //                       child: ElevatedButton(
-  //                         onPressed: () => Navigator.pop(context),
-  //                         style: ElevatedButton.styleFrom(
-  //                           backgroundColor: Colors.white.withOpacity(0.08),
-  //                           foregroundColor: Colors.white,
-  //                           shape: RoundedRectangleBorder(
-  //                             borderRadius: BorderRadius.circular(16),
-  //                           ),
-  //                         ),
-  //                         child: const Text("Închide"),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
+  //       ),
+  //     ],
   //   );
   // }
+
+
 
   Widget _getBadgeUI() {
     switch (tier) {
