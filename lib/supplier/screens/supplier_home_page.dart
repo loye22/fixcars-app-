@@ -25,6 +25,7 @@ import '../services/BusinessHourService.dart';
 import '../services/MarkNotificationAsReadService.dart';
 import '../services/SupplierProfileService.dart';
 import '../widgets/NotificationItemWidget.dart';
+import '../widgets/ProfileEditBottomSheet.dart';
 
 class supplier_home_page extends StatefulWidget {
   const supplier_home_page({super.key});
@@ -711,6 +712,9 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                                               const SizedBox(height: 6),
                                               _buildTierBadge(context),
                                               // <--- ADDED THE BADGE HERE
+                                              const SizedBox(height: 6),
+
+                                              _buildEditProfileButton(context), // The new edit widget
                                             ],
                                           ),
                                         ),
@@ -1054,6 +1058,45 @@ class _supplier_home_pageState extends State<supplier_home_page> {
     );
   }
 
+
+  Widget _buildEditProfileButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () => showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => const PremiumProfileEditSheet(),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.04),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.white24, width: 0.6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.edit_outlined,
+              size: 12,
+              color: Colors.grey[300],
+            ),
+            const SizedBox(width: 6),
+            Text(
+              "EDITEAZĂ PROFILUL",
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey[300],
+                letterSpacing: 0.8,
+              ),
+            ),
+          ],
+        ),
+      )
+    );
+  }
   /// Elegant implementation of the business hours list
   List<Widget> _buildBusinessHoursList(Map<String, dynamic> businessHours) {
     final days = [
