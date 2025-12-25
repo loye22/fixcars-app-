@@ -5,6 +5,7 @@ import 'package:fixcars/shared/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../../client/screens/client_home_page.dart';
 import 'otp_verification_screen.dart'; // Import OTP verification screen
@@ -26,6 +27,7 @@ class _login_screenState extends State<login_screen> with SingleTickerProviderSt
   bool _isEmailValid = false;
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _rememberMe = true; // Remember Me checkbox - enabled by default
   String? _errorMessage;
   late AnimationController _controller;
   late Animation<double> _animation;
@@ -46,6 +48,50 @@ class _login_screenState extends State<login_screen> with SingleTickerProviderSt
     }
     if (widget.initialPassword != null) {
       _passwordController.text = widget.initialPassword!;
+    }
+    // Load saved credentials from SharedPreferences
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedEmail = prefs.getString('remembered_email');
+      final savedPassword = prefs.getString('remembered_password');
+      
+      if (savedEmail != null && savedPassword != null) {
+        setState(() {
+          _emailController.text = savedEmail;
+          _passwordController.text = savedPassword;
+          _validateEmail(savedEmail);
+        });
+      }
+    } catch (e) {
+      // Handle error silently
+      print('Error loading saved credentials: $e');
+    }
+  }
+
+  Future<void> _saveCredentials() async {
+    if (_rememberMe) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('remembered_email', _emailController.text);
+        await prefs.setString('remembered_password', _passwordController.text);
+      } catch (e) {
+        // Handle error silently
+        print('Error saving credentials: $e');
+      }
+    } else {
+      // Clear saved credentials if checkbox is unchecked
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('remembered_email');
+        await prefs.remove('remembered_password');
+      } catch (e) {
+        // Handle error silently
+        print('Error clearing credentials: $e');
+      }
     }
   }
 
@@ -86,6 +132,9 @@ class _login_screenState extends State<login_screen> with SingleTickerProviderSt
       final result = await ApiService().login(loginData);
 
       if (result['success'] == true) {
+        // Save credentials if Remember Me is checked
+        await _saveCredentials();
+        
         final userType = result['user_type'];
         if (userType == 'client') {
           Navigator.pushReplacement(
@@ -239,6 +288,25 @@ class _login_screenState extends State<login_screen> with SingleTickerProviderSt
                                   },
                                 ),
                               ),
+                            ),
+                            SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Checkbox(
+                                  value: _rememberMe,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _rememberMe = value ?? true;
+                                    });
+                                  },
+                                  activeColor: Colors.white,
+                                  checkColor: Colors.black,
+                                ),
+                                Text(
+                                  'Ține-mă minte',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
                             ),
                             SizedBox(height: 10),
                             Align(
