@@ -209,6 +209,15 @@ class _AutocolantScreenState extends State<AutocolantScreen> {
     }
     return Column(
       children: _mechanicServices.map((service) {
+        final String plan = service['subscription_plan']?.toString().toLowerCase() ?? "";
+        SupplierTier currentTier;
+        if (plan == 'gold') {
+          currentTier = SupplierTier.gold;
+        } else if (plan == 'silver') {
+          currentTier = SupplierTier.silver;
+        } else {
+          currentTier = SupplierTier.bronze; // Default for "bronze" or unknown
+        }
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
@@ -227,6 +236,7 @@ class _AutocolantScreenState extends State<AutocolantScreen> {
             profileUrl: service['supplier_photo'] ?? '',
             servicesUrl: service['photo_url'] ?? '',
             carBrandUrl: service['brand_photo'] ?? '',
+            tier: currentTier,
           ),
         );
       }).toList(),

@@ -373,6 +373,7 @@ class MechanicServicesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (services.isEmpty) {
+
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 40),
         child: const Column(
@@ -387,6 +388,15 @@ class MechanicServicesList extends StatelessWidget {
 
     return Column(
       children: services.map((service) {
+        final String plan = service['subscription_plan']?.toString().toLowerCase() ?? "";
+        SupplierTier currentTier;
+        if (plan == 'gold') {
+          currentTier = SupplierTier.gold;
+        } else if (plan == 'silver') {
+          currentTier = SupplierTier.silver;
+        } else {
+          currentTier = SupplierTier.bronze; // Default for "bronze" or unknown
+        }
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
@@ -405,6 +415,7 @@ class MechanicServicesList extends StatelessWidget {
             servicesUrl: service['photo_url'] ?? '',
             carBrandUrl: service['brand_photo'] ?? '',
             supplierID: service['supplier_id'] ?? '',
+            tier: currentTier,
           ),
         );
       }).toList(),

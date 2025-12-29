@@ -43,6 +43,7 @@ class MecanicAutoService {
     double? lng,
   }) async {
     try {
+
       // but no change here except formatting
       final coords = (lat != null && lng != null)
           ? {'latitude': lat, 'longitude': lng}
@@ -74,6 +75,8 @@ class MecanicAutoService {
       }
 
       final finalUrl = '${uri.toString().split('?').first}?$query';
+      /// the URL look like this
+     ///api/services/?category=mecanic_auto&lat=37.4219983&lng=-122.084
 
 
 

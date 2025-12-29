@@ -161,7 +161,7 @@ class BusinessCardWidget extends StatelessWidget {
             children: [
               Icon(Icons.stars, color: _goldAccent, size: 12),
               SizedBox(width: 4),
-              Text('ALEGERE GOLD', style: TextStyle(color: _goldAccent, fontSize: 10, fontWeight: FontWeight.bold)),
+              Text('GOLD', style: TextStyle(color: _goldAccent, fontSize: 10, fontWeight: FontWeight.bold)),
             ],
           ),
         );
