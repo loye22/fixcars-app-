@@ -424,7 +424,7 @@ class BrandListHorizontal extends StatelessWidget {
             width: 80,
             margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF141414),
+              color: const Color(0xFFFFFFFF),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.white.withOpacity(0.05)),
             ),
@@ -437,7 +437,7 @@ class BrandListHorizontal extends StatelessWidget {
                   errorBuilder: (_, __, ___) => const Icon(Icons.directions_car, color: Color(0xFFB0B0B0)),
                 ),
                 const SizedBox(height: 8),
-                Text(brand['name'] ?? '', style: const TextStyle(color: Color(0xFFAAAAAA), fontSize: 10, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+                Text(brand['name'] ?? '', style: const TextStyle(color: Color(0xFF000000), fontSize: 10, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
               ],
             ),
           );

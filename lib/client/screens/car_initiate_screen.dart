@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
@@ -146,66 +147,129 @@ class _CarInitiateScreenState extends State<CarInitiateScreen> {
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Container(
-                        padding: const EdgeInsets.all(32.0),
-                        decoration: BoxDecoration(
-                          color: _cardColor.withOpacity(0.9), // Card translucid
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white.withOpacity(0.1)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.4),
-                              blurRadius: 30,
-                              offset: const Offset(0, 15),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // Titlu
-                            const Text(
-                              "Adaugă Vehiculul Tău",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
+                      child: ClipRRect( // 1. Clip the blur effect to the border radius
+                        borderRadius: BorderRadius.circular(20),
+                        child: BackdropFilter( // 2. Apply the blur filter
+                          filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
+                          child: Container(
+                            padding: const EdgeInsets.all(32.0),
+                            decoration: BoxDecoration(
+                              // 3. Keep opacity low (0.1 to 0.3) for the glassy feel
+                              color:Colors.transparent,
+                              borderRadius: BorderRadius.circular(20),
+                              // 4. A subtle white border makes the edges "catch the light"
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.2),
+                                width: 1.5,
                               ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 30,
+                                  offset: const Offset(0, 15),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 12),
-
-                            // Icon Group (Visual Cue)
-                            _buildDocumentIcons(),
-
-                            const SizedBox(height: 20),
-
-                            // Propunerea de Valoare
-                            Text(
-                              "Păstrează toate documentele esențiale asigurare, inspecție tehnică (ITP), etc. într-un singur loc sigur.",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
-                                fontSize: 15,
-                                height: 1.4,
-                              ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const Text(
+                                  "Adaugă Vehiculul Tău",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                _buildDocumentIcons(),
+                                const SizedBox(height: 20),
+                                Text(
+                                  "Păstrează toate documentele esențiale într-un singur loc sigur.",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.9), // Higher opacity for readability
+                                    fontSize: 15,
+                                    height: 1.4,
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                                _buildReminderText(),
+                                const SizedBox(height: 32),
+                                _buildCtaButton(),
+                              ],
                             ),
-                            const SizedBox(height: 24),
-
-                            // Textul de Reminder Evidențiat
-                            _buildReminderText(),
-
-                            const SizedBox(height: 32),
-
-                            // Buton CTA
-                            _buildCtaButton(),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  )
+                  // Center(
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  //     child: Container(
+                  //       padding: const EdgeInsets.all(32.0),
+                  //       decoration: BoxDecoration(
+                  //         color: _cardColor.withOpacity(0.9), // Card translucid
+                  //         borderRadius: BorderRadius.circular(20),
+                  //         border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  //         boxShadow: [
+                  //           BoxShadow(
+                  //             color: Colors.black.withOpacity(0.4),
+                  //             blurRadius: 30,
+                  //             offset: const Offset(0, 15),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //       child: Column(
+                  //         mainAxisSize: MainAxisSize.min,
+                  //         crossAxisAlignment: CrossAxisAlignment.stretch,
+                  //         children: [
+                  //           // Titlu
+                  //           const Text(
+                  //             "Adaugă Vehiculul Tău",
+                  //             textAlign: TextAlign.center,
+                  //             style: TextStyle(
+                  //               color: Colors.white,
+                  //               fontSize: 24,
+                  //               fontWeight: FontWeight.bold,
+                  //               letterSpacing: 0.5,
+                  //             ),
+                  //           ),
+                  //           const SizedBox(height: 12),
+                  //
+                  //           // Icon Group (Visual Cue)
+                  //           _buildDocumentIcons(),
+                  //
+                  //           const SizedBox(height: 20),
+                  //
+                  //           // Propunerea de Valoare
+                  //           Text(
+                  //             "Păstrează toate documentele esențiale asigurare, inspecție tehnică (ITP), etc. într-un singur loc sigur.",
+                  //             textAlign: TextAlign.center,
+                  //             style: TextStyle(
+                  //               color: Colors.white.withOpacity(0.7),
+                  //               fontSize: 15,
+                  //               height: 1.4,
+                  //             ),
+                  //           ),
+                  //           const SizedBox(height: 24),
+                  //
+                  //           // Textul de Reminder Evidențiat
+                  //           _buildReminderText(),
+                  //
+                  //           const SizedBox(height: 32),
+                  //
+                  //           // Buton CTA
+                  //           _buildCtaButton(),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ],
@@ -270,7 +334,10 @@ class _CarInitiateScreenState extends State<CarInitiateScreen> {
 
   Widget _buildCtaButton() {
     return Container(
-      height: 56,
+      // Removed fixed height to allow for text scaling,
+      // or use constraints for a "minimum" height.
+      constraints: const BoxConstraints(minHeight: 56),
+      width: double.infinity, // Ensures it fills the available width
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         gradient: LinearGradient(
@@ -286,29 +353,70 @@ class _CarInitiateScreenState extends State<CarInitiateScreen> {
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            // ACȚIUNE ACTUALIZATĂ: Arată bottom sheet (stil iOS)
-            _showAddCarBottomSheet(context);
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: const Center(
+      child: InkWell(
+        onTap: () => _showAddCarBottomSheet(context),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          // Added padding so text never touches the edges
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Center(
             child: Text(
               "Începe Urmărirea Documentelor",
+              textAlign: TextAlign.center, // Center text if it wraps
               style: TextStyle(
                 color: Colors.black87,
+                // Use a slightly smaller base size or keep 16
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.8,
               ),
+              // Added overflow handling
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),
       ),
     );
   }
+  // Widget _buildCtaButton() {
+  //   return Container(
+  //     height: 56,
+  //     decoration: BoxDecoration(
+  //       borderRadius: BorderRadius.circular(12),
+  //       gradient: LinearGradient(
+  //         colors: _gradientColors,
+  //         begin: Alignment.centerLeft,
+  //         end: Alignment.centerRight,
+  //       ),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: _accentColor.withOpacity(0.5),
+  //           blurRadius: 20,
+  //           offset: const Offset(0, 5),
+  //         ),
+  //       ],
+  //     ),
+  //     child: InkWell(
+  //       onTap: () {
+  //         // ACȚIUNE ACTUALIZATĂ: Arată bottom sheet (stil iOS)
+  //         _showAddCarBottomSheet(context);
+  //       },
+  //       borderRadius: BorderRadius.circular(12),
+  //       child:  Center(
+  //         child: Text(
+  //           "Începe Urmărirea Documentelor",
+  //           style: TextStyle(
+  //             color: Colors.black87,
+  //             fontSize: 16,
+  //             fontWeight: FontWeight.bold,
+  //             letterSpacing: 0.8,
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildErrorState(String error) {
     return Center(
@@ -826,23 +934,60 @@ class _AddCarBottomSheetState extends State<_AddCarBottomSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Data Ultima Actualizare KM *',
-                  style: TextStyle(color: widget.accentColor, fontSize: 16),
+                // 1. Wrap the label in Expanded to allow text wrapping
+                Expanded(
+                  child: Text(
+                    'Data Ultima Actualizare KM *',
+                    style: TextStyle(color: widget.accentColor, fontSize: 16),
+                  ),
                 ),
-                Text(
-                  _lastKmUpdatedAt == null
-                      ? 'Selectează'
-                      : '${_lastKmUpdatedAt!.day}.${_lastKmUpdatedAt!.month}.${_lastKmUpdatedAt!.year}',
-                  style: TextStyle(
-                    color: _lastKmUpdatedAt == null ? CupertinoColors.systemGrey : CupertinoColors.white,
-                    fontWeight: _lastKmUpdatedAt == null ? FontWeight.normal : FontWeight.bold,
-                    fontSize: 16,
+                const SizedBox(width: 10), // 2. Add a gap so text doesn't touch
+                // 3. Wrap the value in Flexible to handle tight spaces
+                Flexible(
+                  child: Text(
+                    _lastKmUpdatedAt == null
+                        ? 'Selectează'
+                        : '${_lastKmUpdatedAt!.day}.${_lastKmUpdatedAt!.month}.${_lastKmUpdatedAt!.year}',
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      color: _lastKmUpdatedAt == null ? CupertinoColors.systemGrey : CupertinoColors.white,
+                      fontWeight: _lastKmUpdatedAt == null ? FontWeight.normal : FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
+          )
+          // Container(
+          //   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+          //   decoration: BoxDecoration(
+          //     border: Border.all(
+          //         color: hasError ? CupertinoColors.systemRed : widget.accentColor.withOpacity(0.3)
+          //     ),
+          //     borderRadius: BorderRadius.circular(10),
+          //     color: CupertinoColors.systemGrey5.resolveFrom(context).withOpacity(0.1),
+          //   ),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       Text(
+          //         'Data Ultima Actualizare KM *',
+          //         style: TextStyle(color: widget.accentColor, fontSize: 16),
+          //       ),
+          //       Text(
+          //         _lastKmUpdatedAt == null
+          //             ? 'Selectează'
+          //             : '${_lastKmUpdatedAt!.day}.${_lastKmUpdatedAt!.month}.${_lastKmUpdatedAt!.year}',
+          //         style: TextStyle(
+          //           color: _lastKmUpdatedAt == null ? CupertinoColors.systemGrey : CupertinoColors.white,
+          //           fontWeight: _lastKmUpdatedAt == null ? FontWeight.normal : FontWeight.bold,
+          //           fontSize: 16,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ),
         if (hasError) _buildErrorText(_fieldErrors['last_km_updated_at']),
       ],

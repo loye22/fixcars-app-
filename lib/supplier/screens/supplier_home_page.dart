@@ -1067,7 +1067,8 @@ class _supplier_home_pageState extends State<supplier_home_page> {
         backgroundColor: Colors.transparent,
         builder: (context) => const PremiumProfileEditSheet(),
       ),
-      child: Container(
+      child:
+      Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.04),
@@ -1075,7 +1076,7 @@ class _supplier_home_pageState extends State<supplier_home_page> {
           border: Border.all(color: Colors.white24, width: 0.6),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min, // Keeps container tight around content
           children: [
             Icon(
               Icons.edit_outlined,
@@ -1083,18 +1084,52 @@ class _supplier_home_pageState extends State<supplier_home_page> {
               color: Colors.grey[300],
             ),
             const SizedBox(width: 6),
-            Text(
-              "EDITEAZĂ PROFILUL",
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: Colors.grey[300],
-                letterSpacing: 0.8,
+            // Use Flexible so the text can shrink if the Row runs out of space
+            Flexible(
+              child: Text(
+                "EDITEAZĂ PROFILUL",
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey[300],
+                  letterSpacing: 0.8,
+                ),
+                overflow: TextOverflow.ellipsis, // Adds "..." if text is too long
+                maxLines: 1,
+                softWrap: false,
               ),
             ),
           ],
         ),
       )
+      // Container(
+      //   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      //   decoration: BoxDecoration(
+      //     color: Colors.white.withOpacity(0.04),
+      //     borderRadius: BorderRadius.circular(8),
+      //     border: Border.all(color: Colors.white24, width: 0.6),
+      //   ),
+      //   child: Row(
+      //     mainAxisSize: MainAxisSize.min,
+      //     children: [
+      //       Icon(
+      //         Icons.edit_outlined,
+      //         size: 12,
+      //         color: Colors.grey[300],
+      //       ),
+      //       const SizedBox(width: 6),
+      //       Text(
+      //         "EDITEAZĂ PROFILUL",
+      //         style: TextStyle(
+      //           fontSize: 10,
+      //           fontWeight: FontWeight.w700,
+      //           color: Colors.grey[300],
+      //           letterSpacing: 0.8,
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // )
     );
   }
   /// Elegant implementation of the business hours list

@@ -32,6 +32,43 @@ enum ReminderType {
   OTHER
 }
 
+
+
+extension ObligationTypeExtension on ObligationType {
+  String get displayName {
+    switch (this) {
+      case ObligationType.ITP: return 'ITP (Inspecția Tehnică Periodică)';
+      case ObligationType.RCA: return 'RCA (Asigurare Obligatorie Răspundere Civilă Auto)';
+      case ObligationType.CASCO: return 'CASCO (Asigurare Facultativă Auto)';
+      case ObligationType.ROVINIETA: return 'Rovinietă (Taxă de Drum/Vignetă)';
+      case ObligationType.AUTO_TAX: return 'Impozit Auto Anual';
+      case ObligationType.OIL_CHANGE: return 'Schimb Ulei';
+      case ObligationType.AIR_FILTER: return 'Filtru de Aer';
+      case ObligationType.CABIN_FILTER: return 'Filtru de Polen/Habitaclu';
+      case ObligationType.BRAKE_CHECK: return 'Verificare Frâne';
+      case ObligationType.COOLANT: return 'Verificare/Schimb Lichid de Răcire';
+      case ObligationType.BATTERY: return 'Verificare/Înlocuire Baterie';
+      case ObligationType.TIRES: return 'Anvelope (Schimb Sezonier)';
+      case ObligationType.WIPERS: return 'Ștergătoare de Parbriz';
+      case ObligationType.FIRE_EXTINGUISHER: return 'Extinctor';
+      case ObligationType.FIRST_AID_KIT: return 'Trusă de Prim Ajutor';
+    }
+  }
+}
+
+extension ReminderTypeExtension on ReminderType {
+  String get displayName {
+    switch (this) {
+      case ReminderType.LEGAL: return 'Legal/Administrativ';
+      case ReminderType.MECHANICAL: return 'Mecanică/Întreținere';
+      case ReminderType.SAFETY: return 'Siguranță/Echipament';
+      case ReminderType.FINANCIAL: return 'Financiar/Asigurări';
+      case ReminderType.SEASONAL: return 'Sezonier/Operațional';
+      case ReminderType.OTHER: return 'Altele';
+    }
+  }
+}
+
 class CarService {
   final ApiService _apiService = ApiService();
 

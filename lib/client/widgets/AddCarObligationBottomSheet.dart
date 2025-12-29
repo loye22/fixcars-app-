@@ -193,25 +193,45 @@ class _AddCarObligationBottomSheetState extends State<AddCarObligationBottomShee
 
             _buildIosSelector(
               label: "Tip Obligație",
-              value: _selectedObligation.name,
+              value: _selectedObligation.displayName, // Change from .name to .displayName
               onTap: () => _showCupertinoPicker(
                 title: "Selectează Tipul",
-                items: ObligationType.values.map((e) => e.name).toList(),
+                items: ObligationType.values.map((e) => e.displayName).toList(), // Place it here
                 initialIndex: _selectedObligation.index,
                 onSelect: (i) => setState(() => _selectedObligation = ObligationType.values[i]),
               ),
             ),
+            // _buildIosSelector(
+            //   label: "Tip Obligație",
+            //   value: _selectedObligation.name,
+            //   onTap: () => _showCupertinoPicker(
+            //     title: "Selectează Tipul",
+            //     items: ObligationType.values.map((e) => e.name).toList(),
+            //     initialIndex: _selectedObligation.index,
+            //     onSelect: (i) => setState(() => _selectedObligation = ObligationType.values[i]),
+            //   ),
+            // ),
 
             _buildIosSelector(
               label: "Tip Notificare",
-              value: _selectedReminder.name,
+              value: _selectedReminder.displayName, // Change from .name to .displayName
               onTap: () => _showCupertinoPicker(
                 title: "Notificare",
-                items: ReminderType.values.map((e) => e.name).toList(),
+                items: ReminderType.values.map((e) => e.displayName).toList(), // Place it here
                 initialIndex: _selectedReminder.index,
                 onSelect: (i) => setState(() => _selectedReminder = ReminderType.values[i]),
               ),
             ),
+            // _buildIosSelector(
+            //   label: "Tip Notificare",
+            //   value: _selectedReminder.name,
+            //   onTap: () => _showCupertinoPicker(
+            //     title: "Notificare",
+            //     items: ReminderType.values.map((e) => e.name).toList(),
+            //     initialIndex: _selectedReminder.index,
+            //     onSelect: (i) => setState(() => _selectedReminder = ReminderType.values[i]),
+            //   ),
+            // ),
 
             _buildIosSelector(
               label: "Data Scadenței",
@@ -370,7 +390,7 @@ class _AddCarObligationBottomSheetState extends State<AddCarObligationBottomShee
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(value, style: const TextStyle(color: Colors.white, fontSize: 16)),
+                Flexible(child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 16))),
                 const Icon(CupertinoIcons.chevron_down, color: Colors.grey, size: 16),
               ],
             ),
