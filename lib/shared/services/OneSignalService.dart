@@ -79,6 +79,10 @@ class OneSignalService {
         },
       );
 
+      // print("==================================================================================================");
+      // print('Backend Response Status: ${response.statusCode}');
+      // print('Backend Response Body: ${response.body}');
+
       return response.statusCode == 200;
     } catch (e) {
       print('Error sending notification: $e');
