@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
+import 'package:fixcars/client/screens/client_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
@@ -545,7 +546,7 @@ class _AddCarBottomSheetState extends State<_AddCarBottomSheet> {
 
         Navigator.of(context).pushReplacement(
           CupertinoPageRoute(
-            builder: (context) => CarLoadingDecisionScreen(),
+            builder: (context) => client_home_page(),
           ),
         );
 
