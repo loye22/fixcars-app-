@@ -68,6 +68,8 @@ class OneSignalService {
     Map<String, dynamic>? data,
   }) async {
     try {
+      print("==================================================================================================");
+
       // Use your existing authenticatedPost method
       final response = await _apiService.authenticatedPost(
         '${ApiService.baseUrl}/send-notification/',
