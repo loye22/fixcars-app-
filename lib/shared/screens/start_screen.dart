@@ -58,7 +58,7 @@ class start_screen extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'SIGNUP',
+                    'SIGN UP',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),

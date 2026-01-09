@@ -431,7 +431,7 @@ class _EditCarObligationBottomSheetState extends State<EditCarObligationBottomSh
       // 1. Upload file if needed
       if (_selectedFile != null) {
         final ApiService apiService = ApiService();
-        final uploadResult = await apiService.uploadFile(_selectedFile!);
+        final uploadResult = await apiService.uploadFile2(_selectedFile!);
 
         if (uploadResult['success'] == true) {
           finalDocUrl = uploadResult['data']['file_url'] ?? uploadResult['data']['url'];

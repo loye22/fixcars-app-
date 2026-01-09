@@ -339,8 +339,8 @@ class _HomeContent extends StatelessWidget {
                 children: [
                   // Logo-ul aplicației în Header
                   Container(
-                    width: 40,
-                    height: 40,
+                    width: 60,
+                    height: 60,
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
                       color: _darkCard,
@@ -357,15 +357,15 @@ class _HomeContent extends StatelessWidget {
                   ),
 
                   // Mesajul principal (Repetat în background pentru efect)
-                  Text(
-                    'GARAJUL TĂU DIGITAL',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: _secondaryText,
-                      letterSpacing: 2,
-                    ),
-                  ),
+                  // Text(
+                  //   'GARAJUL TĂU DIGITAL',
+                  //   style: GoogleFonts.inter(
+                  //     fontSize: 14,
+                  //     fontWeight: FontWeight.w600,
+                  //     color: _secondaryText,
+                  //     letterSpacing: 2,
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -460,34 +460,36 @@ class _ServiceTile extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Iconița în stil iOS
-            Icon(
-              icon,
-              size: 38,
-              color: _accentSilver,
-            ),
-            const SizedBox(height: 10),
+            // Icon(
+            //   icon,
+            //   size: 38,
+            //   color: _accentSilver,
+            // ),
+           // const SizedBox(height: 10),
             // Titlul serviciului
-            Text(
-              title,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: _primaryText,
-                letterSpacing: 0.5,
+            Center(
+              child: Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: _primaryText,
+                  letterSpacing: 0.5,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
             // Indicator vizual
-            Container(
-              margin: const EdgeInsets.only(top: 8),
-              width: 30,
-              height: 2,
-              color: _accentSilver.withOpacity(0.4),
-            ),
+            // Container(
+            //   margin: const EdgeInsets.only(top: 8),
+            //   width: 100,
+            //   height: 2,
+            //   color: _accentSilver.withOpacity(0.4),
+            // ),
           ],
         ),
       ),
