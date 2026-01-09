@@ -144,7 +144,7 @@ class signup_screen extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
                       letterSpacing: 2,
-                      fontFamily: kFontFamily,
+                     // fontFamily: kFontFamily,
                     ),
                   ),
                   const SizedBox(height: 4),

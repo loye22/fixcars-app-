@@ -48,12 +48,11 @@ class _client_home_pageState extends State<client_home_page> {
   final NotificationService _notificationService = NotificationService();
   final FirebaseChatService _chatService = FirebaseChatService();
 
-  // LISTA DE ECRANE ACTUALIZATĂ
+// LISTA DE ECRANE ACTUALIZATĂ (Reordonată)
   final List<Widget> _screens = [
-    _HomeContent(),             // Index 0: Acasă
+    CarLoadingDecisionScreen(), // Index 0: Mașina mea (Left)
     NotificationScreen(),       // Index 1: Notificări
-    CarLoadingDecisionScreen(),
-    // CarInitiateScreen(),        // Index 2: Gestionează Mașina
+    _HomeContent(),             // Index 2: Acasă (Middle)
     ConversationListScreen(),   // Index 3: Mesaje
     AboutUsScreen(),            // Index 4: Despre
   ];
@@ -140,13 +139,14 @@ class _client_home_pageState extends State<client_home_page> {
         type: BottomNavigationBarType.fixed,
         elevation: 0,
         items: [
-          // Index 0: Acasă
+          // Index 0: Mașina mea (Moved to Left)
           _navItemWithDot(
-            outline: CupertinoIcons.house,
-            filled: CupertinoIcons.house_fill,
-            label: 'Acasă',
+            outline: CupertinoIcons.car_detailed,
+            filled: CupertinoIcons.car_detailed,
+            label: 'Mașina mea',
             isSelected: _currentIndex == 0,
           ),
+
           // Index 1: Notificări
           _navItemWithBadgeAndDot(
             outline: CupertinoIcons.bell,
@@ -156,13 +156,15 @@ class _client_home_pageState extends State<client_home_page> {
             badgeColor: const Color(0xFFE74C3C),
             isSelected: _currentIndex == 1,
           ),
-          // Index 2: Gestionează Mașina (NOU)
+
+          // Index 2: Acasă (Moved to Middle)
           _navItemWithDot(
-            outline: CupertinoIcons.car_detailed,
-            filled: CupertinoIcons.car_detailed,
-            label: 'Mașina mea',
+            outline: CupertinoIcons.house,
+            filled: CupertinoIcons.house_fill,
+            label: 'Acasă',
             isSelected: _currentIndex == 2,
           ),
+
           // Index 3: Mesaje
           _navItemWithStreamBadgeAndDot(
             outline: CupertinoIcons.chat_bubble,
@@ -172,6 +174,7 @@ class _client_home_pageState extends State<client_home_page> {
             badgeColor: const Color(0xFF2ECC71),
             isSelected: _currentIndex == 3,
           ),
+
           // Index 4: Despre
           _navItemWithDot(
             outline: CupertinoIcons.info_circle,
@@ -308,7 +311,7 @@ class _HomeContent extends StatelessWidget {
     {'title': 'SPĂLĂTORIE AUTO', 'screen': () => LocationPermissionGate(child: SpalatorieAutoScreen())},
     {'title': 'DETAILING AUTO', 'screen': () => LocationPermissionGate(child: DetailingScreen())},
     {'title': 'ITP', 'screen': () => LocationPermissionGate(child: ITPScreen())},
-    {'title': 'TRACTĂRI AUTO', 'screen': () => LocationPermissionGate(child: TractariScreen())},
+    {'title': 'PLATFORMĂ ȘI TRACTĂRI AUTO', 'screen': () => LocationPermissionGate(child: TractariScreen())},
   ];
 
   @override
@@ -459,7 +462,7 @@ class _ServiceTile extends StatelessWidget {
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Iconița în stil iOS

@@ -860,6 +860,20 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
             ? (totalExpected - missingCount - criticalCount) / totalExpected
             : 0.0;
 
+        // 1. Define the order you want (Expired first, No Data last)
+        final priority = {
+          ObligationStatus.expired: 0,
+          ObligationStatus.expiresSoon: 1,
+          ObligationStatus.updated: 2,
+          ObligationStatus.noData: 3,
+        };
+
+        // 2. Sort the list
+        loadedObligations.sort((a, b) =>
+            priority[a.status]!.compareTo(priority[b.status]!)
+        );
+
+
         if (mounted) {
           setState(() {
             _carData = car; // Fixed naming: matches your state variable
@@ -990,6 +1004,8 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
       body: SingleChildScrollView(
         child: Column(
           children: [
+            _buildInvalidCounter(), // Add it here
+
             SizedBox(
               height: 400,
               child: AnimatedBuilder(
@@ -1113,11 +1129,7 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
                   }
                 },
               )).toList(),
-              // ..._obligations.map((o) => ObligationCard(
-              //   onDelete: () => _confirmDelete(carData['id'], obligationData['id']),
-              //   obligation: o,
-              //   onAddPressed: _openAddObligationSheet, // Link callback
-              // )).toList(),
+
 
             const SizedBox(height: 50),
           ],
@@ -1126,7 +1138,126 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
     );
   }
 
+  void _showObligationInfo() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Color(0xFF1E1E1E),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade700,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            const Text(
+              'Ce sunt obligațiile mașinii?',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Obligațiile mașinii sunt toate lucrurile importante pe care trebuie să le faci pentru ca mașina ta să funcționeze corect și să fie în regulă din punct de vedere legal. FixCar te ajută să le urmărești pe toate într-un singur loc.',
+              style: TextStyle(color: Colors.white70, fontSize: 15, height: 1.5),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'După ce adaugi obligațiile în FixCar, vei primi notificări din timp, astfel încât să nu uiți nimic important. De exemplu, schimbul de ulei, rotația anvelopelor, inspecția tehnică, asigurarea sau reînnoirea înmatriculării.',
+              style: TextStyle(color: Colors.white70, fontSize: 15, height: 1.5),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Cu FixCar, rămâi organizat, eviți problemele neașteptate, economisești bani pe termen lung și ai liniștea că mașina ta este mereu îngrijită.',
+              style: TextStyle(color: Colors.white70, fontSize: 15, height: 1.5, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 30),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: const Text('AM ÎNȚELES', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
 
+  int get _invalidCount => _obligations.where((o) =>
+  o.status == ObligationStatus.expired ||
+      o.status == ObligationStatus.expiresSoon ||
+      o.status == ObligationStatus.noData
+  ).length;
+
+  Widget _buildInvalidCounter() {
+    if (_invalidCount == 0) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.red.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.red.shade900.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.notification_important, color: Colors.red.shade400, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Ai $_invalidCount obligații care necesită atenție',
+              style: TextStyle(
+                color: Colors.red.shade200,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          // The Help Icon integrated into the counter
+          GestureDetector(
+            onTap: _showObligationInfo,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.help_outline_sharp,
+                color: Colors.white70,
+                size: 18,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   void _confirmDelete(String carId, String obligationId) {
     showDialog(
       context: context,
