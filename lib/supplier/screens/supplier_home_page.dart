@@ -1061,12 +1061,27 @@ class _supplier_home_pageState extends State<supplier_home_page> {
 
   Widget _buildEditProfileButton(BuildContext context) {
     return GestureDetector(
-      onTap: () => showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) => const PremiumProfileEditSheet(),
-      ),
+        onTap: () async {
+          // 1. Open the sheet and wait for it to close
+          await showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const PremiumProfileEditSheet(),
+          );
+
+          // 2. Fetch data regardless of how the sheet was closed
+          // (Save button, Swipe down, or Cancel)
+          if (mounted) {
+            _fetchSupplierProfile();
+          }
+        },
+      // onTap: () => showModalBottomSheet(
+      //   context: context,
+      //   isScrollControlled: true,
+      //   backgroundColor: Colors.transparent,
+      //   builder: (context) => const PremiumProfileEditSheet(),
+      // ),
       child:
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -1375,10 +1390,9 @@ class _supplier_home_pageState extends State<supplier_home_page> {
   }
 
   void _showEditBusinessHoursSheet(
-    BuildContext context,
-    Map<String, dynamic> initialHours,
-  )
-  {
+      BuildContext context,
+      Map<String, dynamic> initialHours,
+      ) {
     // Create a deep copy to avoid modifying the original list until "Save" is pressed
     Map<String, dynamic> editedHours = jsonDecode(jsonEncode(initialHours));
 
@@ -1413,60 +1427,59 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                     ),
                     child: ListView(
                       shrinkWrap: true,
-                      children:
-                          editedHours.keys.map((day) {
-                            bool isClosed = editedHours[day]['closed'] ?? false;
-                            return ListTile(
-                              title: Text(
-                                day[0].toUpperCase() + day.substring(1),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
+                      children: editedHours.keys.map((day) {
+                        bool isClosed = editedHours[day]['closed'] ?? false;
+
+                        // Translate the day to Romanian and capitalize it
+                        String romanianDay = _translateDay(day);
+                        String displayDay = romanianDay.isNotEmpty
+                            ? romanianDay[0].toUpperCase() + romanianDay.substring(1)
+                            : day;
+
+                        return ListTile(
+                          title: Text(
+                            displayDay,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            isClosed
+                                ? "Închis"
+                                : "${editedHours[day]['open']} - ${editedHours[day]['close']}",
+                            style: TextStyle(
+                              color: isClosed ? Colors.redAccent : Colors.grey[400],
+                            ),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Switch(
+                                value: !isClosed,
+                                onChanged: (val) => setModalState(
+                                      () => editedHours[day]['closed'] = !val,
+                                ),
+                                activeColor: Colors.greenAccent,
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.access_time_filled_rounded,
+                                  color: Colors.grey,
+                                ),
+                                onPressed: isClosed
+                                    ? null
+                                    : () => _showDualTimePicker(
+                                  context,
+                                  day,
+                                  editedHours,
+                                  setModalState,
                                 ),
                               ),
-                              subtitle: Text(
-                                isClosed
-                                    ? "Închis"
-                                    : "${editedHours[day]['open']} - ${editedHours[day]['close']}",
-                                style: TextStyle(
-                                  color:
-                                      isClosed
-                                          ? Colors.redAccent
-                                          : Colors.grey[400],
-                                ),
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Switch(
-                                    value: !isClosed,
-                                    onChanged:
-                                        (val) => setModalState(
-                                          () =>
-                                              editedHours[day]['closed'] = !val,
-                                        ),
-                                    activeColor: Colors.greenAccent,
-                                  ),
-                                  IconButton(
-                                    // iOS style time icon
-                                    icon: const Icon(
-                                      Icons.access_time_filled_rounded,
-                                      color: Colors.grey,
-                                    ),
-                                    onPressed:
-                                        isClosed
-                                            ? null
-                                            : () => _showDualTimePicker(
-                                              context,
-                                              day,
-                                              editedHours,
-                                              setModalState,
-                                            ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ),
 
@@ -1482,11 +1495,6 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        // onPressed: () async {
-                        //   // Logic to call BusinessHourService().updateBusinessHours(editedHours)
-                        //   Navigator.pop(context);
-                        // },
-                        // Inside _showEditBusinessHoursSheet -> ElevatedButton onPressed:
                         onPressed: () async {
                           // 1. Show a loading indicator
                           showDialog(
@@ -1496,7 +1504,6 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                           );
 
                           // 2. Prepare the data (Ensure HH:mm format)
-                          // Our picker might produce HH:mm:ss, but the API wants HH:mm
                           Map<String, dynamic> payload = {};
                           editedHours.forEach((key, value) {
                             payload[key] = {
@@ -1543,6 +1550,176 @@ class _supplier_home_pageState extends State<supplier_home_page> {
       },
     );
   }
+
+  // void _showEditBusinessHoursSheet(
+  //   BuildContext context,
+  //   Map<String, dynamic> initialHours,
+  // )
+  // {
+  //   // Create a deep copy to avoid modifying the original list until "Save" is pressed
+  //   Map<String, dynamic> editedHours = jsonDecode(jsonEncode(initialHours));
+  //
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     backgroundColor: const Color(0xFF1E1E1E),
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+  //     ),
+  //     builder: (context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setModalState) {
+  //           return SafeArea(
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 const SizedBox(height: 12),
+  //                 const Text(
+  //                   "Editează Program",
+  //                   style: TextStyle(
+  //                     color: Colors.white,
+  //                     fontSize: 18,
+  //                     fontWeight: FontWeight.bold,
+  //                   ),
+  //                 ),
+  //                 const Divider(color: Colors.white10, height: 30),
+  //
+  //                 ConstrainedBox(
+  //                   constraints: BoxConstraints(
+  //                     maxHeight: MediaQuery.of(context).size.height * 0.5,
+  //                   ),
+  //                   child: ListView(
+  //                     shrinkWrap: true,
+  //                     children:
+  //                         editedHours.keys.map((day) {
+  //                           bool isClosed = editedHours[day]['closed'] ?? false;
+  //                           return ListTile(
+  //                             title: Text(
+  //                               day[0].toUpperCase() + day.substring(1),
+  //                               style: const TextStyle(
+  //                                 color: Colors.white,
+  //                                 fontWeight: FontWeight.w600,
+  //                               ),
+  //                             ),
+  //                             subtitle: Text(
+  //                               isClosed
+  //                                   ? "Închis"
+  //                                   : "${editedHours[day]['open']} - ${editedHours[day]['close']}",
+  //                               style: TextStyle(
+  //                                 color:
+  //                                     isClosed
+  //                                         ? Colors.redAccent
+  //                                         : Colors.grey[400],
+  //                               ),
+  //                             ),
+  //                             trailing: Row(
+  //                               mainAxisSize: MainAxisSize.min,
+  //                               children: [
+  //                                 Switch(
+  //                                   value: !isClosed,
+  //                                   onChanged:
+  //                                       (val) => setModalState(
+  //                                         () =>
+  //                                             editedHours[day]['closed'] = !val,
+  //                                       ),
+  //                                   activeColor: Colors.greenAccent,
+  //                                 ),
+  //                                 IconButton(
+  //                                   // iOS style time icon
+  //                                   icon: const Icon(
+  //                                     Icons.access_time_filled_rounded,
+  //                                     color: Colors.grey,
+  //                                   ),
+  //                                   onPressed:
+  //                                       isClosed
+  //                                           ? null
+  //                                           : () => _showDualTimePicker(
+  //                                             context,
+  //                                             day,
+  //                                             editedHours,
+  //                                             setModalState,
+  //                                           ),
+  //                                 ),
+  //                               ],
+  //                             ),
+  //                           );
+  //                         }).toList(),
+  //                   ),
+  //                 ),
+  //
+  //                 Padding(
+  //                   padding: const EdgeInsets.all(24.0),
+  //                   child: SizedBox(
+  //                     width: double.infinity,
+  //                     height: 54,
+  //                     child: ElevatedButton(
+  //                       style: ElevatedButton.styleFrom(
+  //                         backgroundColor: Colors.white,
+  //                         shape: RoundedRectangleBorder(
+  //                           borderRadius: BorderRadius.circular(16),
+  //                         ),
+  //                       ),
+  //                       // onPressed: () async {
+  //                       //   // Logic to call BusinessHourService().updateBusinessHours(editedHours)
+  //                       //   Navigator.pop(context);
+  //                       // },
+  //                       // Inside _showEditBusinessHoursSheet -> ElevatedButton onPressed:
+  //                       onPressed: () async {
+  //                         // 1. Show a loading indicator
+  //                         showDialog(
+  //                           context: context,
+  //                           barrierDismissible: false,
+  //                           builder: (context) => const Center(child: CircularProgressIndicator()),
+  //                         );
+  //
+  //                         // 2. Prepare the data (Ensure HH:mm format)
+  //                         // Our picker might produce HH:mm:ss, but the API wants HH:mm
+  //                         Map<String, dynamic> payload = {};
+  //                         editedHours.forEach((key, value) {
+  //                           payload[key] = {
+  //                             "open": value['open'].toString().substring(0, 5),
+  //                             "close": value['close'].toString().substring(0, 5),
+  //                             "closed": value['closed']
+  //                           };
+  //                         });
+  //
+  //                         // 3. Call the API
+  //                         bool success = await BusinessHourService().updateBusinessHours(payload);
+  //
+  //                         // 4. Remove loading indicator
+  //                         Navigator.pop(context);
+  //
+  //                         if (success) {
+  //                           // Close the edit sheet
+  //                           Navigator.pop(context);
+  //
+  //                           // Refresh the main page data
+  //                           _fetchSupplierProfile();
+  //
+  //                           ScaffoldMessenger.of(context).showSnackBar(
+  //                             const SnackBar(content: Text("Program actualizat cu succes!")),
+  //                           );
+  //                         } else {
+  //                           ScaffoldMessenger.of(context).showSnackBar(
+  //                             const SnackBar(content: Text("Eroare la salvarea programului.")),
+  //                           );
+  //                         }
+  //                       },
+  //                       child: const Text(
+  //                         "Salvează Modificările",
+  //                         style: TextStyle(color: Colors.black),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   void _showDualTimePicker(
     BuildContext context,

@@ -59,7 +59,7 @@ class _PremiumProfileEditSheetState extends State<PremiumProfileEditSheet> {
 
     setState(() => _isUploadingImage = true);
 
-    final uploadRes = await _apiService.uploadFile(File(image.path));
+    final uploadRes = await _apiService.uploadFile2(File(image.path));
 
     if (uploadRes['success']) {
       setState(() {
