@@ -223,8 +223,8 @@ class _client_singup_screenState extends State<client_singup_screen> {
       child: Column(
         children: [
           const SizedBox(height: 80),
-          const Text('CREEAZĂ CONT',
-              style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 4, fontFamily: kFontFamily)),
+          // const Text('CREEAZĂ CONT',
+          //     style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 4, fontFamily: kFontFamily)),
           const SizedBox(height: 40),
           _buildImagePicker(),
           const SizedBox(height: 40),

@@ -85,7 +85,7 @@ class signup_screen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildRoleCard(
               context,
-              title: 'MECANIC',
+              title: 'Furnizor de servicii',
               subtitle: 'Gestionează programări și fluxul de lucru',
               icon: CupertinoIcons.wrench_fill,
               onTap: () {
