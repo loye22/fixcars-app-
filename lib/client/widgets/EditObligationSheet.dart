@@ -455,11 +455,8 @@ class _EditCarObligationBottomSheetState extends State<EditCarObligationBottomSh
       // 3. SUCCESS: Navigate to Home Screen and clear the history ("no go back")
       if (response['success'] == true) {
         if (mounted) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) =>  client_home_page()), // Adjust name if different
-                (route) => false, // This line removes all previous screens (no go back)
-          );
+
+          Navigator.pop(context, true);
         }
       } else {
         _showErrorDialog(response['error'] ?? "Eroare la actualizare");

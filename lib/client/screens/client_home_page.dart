@@ -91,6 +91,7 @@ class _client_home_pageState extends State<client_home_page> {
       child: ServerDownWrapper(
         apiService: ApiService(),
         child: Scaffold(
+          extendBody: true, // <--- Add this line
           backgroundColor: _darkBackground,
           body: _screens[_currentIndex],
           bottomNavigationBar: _buildBottomNavBar(),
@@ -101,197 +102,132 @@ class _client_home_pageState extends State<client_home_page> {
 
   Widget _buildBottomNavBar() {
     return Container(
-      // 1. MARGINI ELIMINATE: Bara ocupă lățimea completă.
-      margin: EdgeInsets.zero,
+      height: 65, // Fixed height to prevent overflow
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
       decoration: BoxDecoration(
-        color: _navBarColor,
-        // 2. COLȚURI ROTUNJITE ELIMINATE.
-        borderRadius: BorderRadius.zero,
-        boxShadow: [
-          // Umbra este orientată în sus pentru a separa bara de conținut
-          BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            blurRadius: 25,
-            offset: const Offset(0, -10),
-          ),
-        ],
-        // 3. Bordura superioară subtilă.
-        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1), width: 0.5)),
-      ),
-      // 4. Eliminăm ClipRRect
-      child: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
-        // Fundalul barei de navigare setat la culoarea Container-ului
-        backgroundColor: _navBarColor,
-        selectedItemColor: _accentSilver,
-        unselectedItemColor: _secondaryText.withOpacity(0.6),
-        selectedLabelStyle: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          color: _accentSilver,
+        color: _navBarColor.withOpacity(0.85), // Slight transparency
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.05),
+          width: 1,
         ),
-        unselectedLabelStyle: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w500,
-          color: _secondaryText.withOpacity(0.6),
-        ),
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-        items: [
-          // Index 0: Mașina mea (Moved to Left)
-          _navItemWithDot(
-            outline: CupertinoIcons.car_detailed,
-            filled: CupertinoIcons.car_detailed,
-            label: 'Mașina mea',
-            isSelected: _currentIndex == 0,
-          ),
 
-          // Index 1: Notificări
-          _navItemWithBadgeAndDot(
-            outline: CupertinoIcons.bell,
-            filled: CupertinoIcons.bell_fill,
-            label: 'Notificări',
-            showBadge: _hasUnreadNotifications,
-            badgeColor: const Color(0xFFE74C3C),
-            isSelected: _currentIndex == 1,
-          ),
-
-          // Index 2: Acasă (Moved to Middle)
-          _navItemWithDot(
-            outline: CupertinoIcons.house,
-            filled: CupertinoIcons.house_fill,
-            label: 'Acasă',
-            isSelected: _currentIndex == 2,
-          ),
-
-          // Index 3: Mesaje
-          _navItemWithStreamBadgeAndDot(
-            outline: CupertinoIcons.chat_bubble,
-            filled: CupertinoIcons.chat_bubble_fill,
-            label: 'Mesaje',
-            stream: _chatService.getTotalUnreadMessagesStream(),
-            badgeColor: const Color(0xFF2ECC71),
-            isSelected: _currentIndex == 3,
-          ),
-
-          // Index 4: Despre
-          _navItemWithDot(
-            outline: CupertinoIcons.info_circle,
-            filled: CupertinoIcons.info_circle_fill,
-            label: 'Despre',
-            isSelected: _currentIndex == 4,
-          ),
-        ],
       ),
-    );
-  }
-
-  // ────────────────────── Bottom Nav Helpers (Logica Păstrată) ──────────────────────
-
-  BottomNavigationBarItem _navItemWithDot({
-    required IconData outline,
-    required IconData filled,
-    required String label,
-    required bool isSelected,
-  }) {
-    return BottomNavigationBarItem(
-      icon: _iconWithDot(outline, isSelected),
-      activeIcon: _iconWithDot(filled, isSelected),
-      label: label,
-    );
-  }
-
-  BottomNavigationBarItem _navItemWithBadgeAndDot({
-    required IconData outline,
-    required IconData filled,
-    required String label,
-    required bool showBadge,
-    required Color badgeColor,
-    required bool isSelected,
-  }) {
-    return BottomNavigationBarItem(
-      icon: _badgeIcon(outline, showBadge, badgeColor, isSelected),
-      activeIcon: _badgeIcon(filled, showBadge, badgeColor, isSelected),
-      label: label,
-    );
-  }
-
-  BottomNavigationBarItem _navItemWithStreamBadgeAndDot({
-    required IconData outline,
-    required IconData filled,
-    required String label,
-    required Stream<int> stream,
-    required Color badgeColor,
-    required bool isSelected,
-  }) {
-    return BottomNavigationBarItem(
-      icon: StreamBuilder<int>(
-        stream: stream,
-        initialData: 0,
-        builder: (c, snap) {
-          final bool show = snap.hasData && snap.data! > 0;
-          return _badgeIcon(outline, show, badgeColor, isSelected);
-        },
-      ),
-      activeIcon: StreamBuilder<int>(
-        stream: stream,
-        initialData: 0,
-        builder: (c, snap) {
-          final bool show = snap.hasData && snap.data! > 0;
-          return _badgeIcon(filled, show, badgeColor, isSelected);
-        },
-      ),
-      label: label,
-    );
-  }
-
-  Widget _iconWithDot(IconData icon, bool selected) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 28, color: selected ? _accentSilver : _secondaryText.withOpacity(0.6)),
-        if (selected)
-          Container(
-            margin: const EdgeInsets.only(top: 4),
-            width: 4,
-            height: 4,
-            decoration: BoxDecoration(
-              color: _accentSilver,
-              shape: BoxShape.circle,
-            ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildElegantNavItem(
+            icon: CupertinoIcons.car_detailed,
+            index: 0,
+            label: 'Garaj',
           ),
-      ],
-    );
-  }
+          _buildElegantNavItem(
+            icon: CupertinoIcons.bell,
+            index: 1,
+            label: 'Alerte',
+            hasBadge: _hasUnreadNotifications,
+          ),
 
-  Widget _badgeIcon(
-      IconData icon,
-      bool showBadge,
-      Color badgeColor,
-      bool isSelected,
-      ) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        _iconWithDot(icon, isSelected),
-        if (showBadge)
-          Positioned(
-            right: -2,
-            top: -2,
+          // --- CENTER ASSET (t3.png) ---
+          GestureDetector(
+            onTap: () => setState(() => _currentIndex = 2),
             child: Container(
-              width: 8,
-              height: 8,
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: badgeColor,
                 shape: BoxShape.circle,
-                border: Border.all(color: _navBarColor, width: 2), // Margine pentru contrast
+                color: _currentIndex == 2 ? Colors.white.withOpacity(0.05) : Colors.transparent,
+              ),
+              child: Image.asset(
+                'assets/logos/t3.png',
+                height: 35, // Controlled height
+                width: 35,
+                color: _currentIndex == 2 ? Colors.white : _accentSilver.withOpacity(0.7),
               ),
             ),
           ),
-      ],
+
+          _buildElegantNavItem(
+            icon: CupertinoIcons.chat_bubble,
+            index: 3,
+            label: 'Mesaje',
+            isStream: true,
+          ),
+          _buildElegantNavItem(
+            icon: CupertinoIcons.info_circle,
+            index: 4,
+            label: 'Despre',
+          ),
+        ],
+      ),
     );
   }
+
+  Widget _buildElegantNavItem({
+    required IconData icon,
+    required int index,
+    required String label,
+    bool hasBadge = false,
+    bool isStream = false,
+  }) {
+    bool isSelected = _currentIndex == index;
+
+    return InkWell(
+      onTap: () => setState(() => _currentIndex = index),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(
+                icon,
+                size: 24,
+                color: isSelected ? Colors.white : _secondaryText.withOpacity(0.5),
+              ),
+              if (isStream)
+                StreamBuilder<int>(
+                  stream: _chatService.getTotalUnreadMessagesStream(),
+                  builder: (context, snap) {
+                    if (snap.hasData && snap.data! > 0) return _redDot();
+                    return const SizedBox.shrink();
+                  },
+                )
+              else if (hasBadge)
+                _redDot(),
+            ],
+          ),
+          if (isSelected)
+            Container(
+              margin: const EdgeInsets.only(top: 4),
+              width: 4,
+              height: 4,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _redDot() {
+    return Positioned(
+      right: -2,
+      top: -2,
+      child: Container(
+        width: 7,
+        height: 7,
+        decoration: const BoxDecoration(
+          color: Color(0xFFE74C3C),
+          shape: BoxShape.circle,
+        ),
+      ),
+    );
+  }
+
 }
 
 

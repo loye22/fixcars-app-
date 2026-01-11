@@ -56,12 +56,14 @@ class ObligationCard extends StatelessWidget {
   final Obligation obligation;
   final VoidCallback onAddPressed;
   final VoidCallback onDelete; // <--- ADAUGĂ ACEASTA
+  final VoidCallback onRefresh; // <--- Add this
 
   const ObligationCard({
     super.key,
     required this.obligation,
     required this.onAddPressed ,
     required this.onDelete, // <--- ADAUGĂ ACEASTA
+    required this.onRefresh, // <--- Add this
   });
 
   Color _getEffectiveStatusColor() {
@@ -122,9 +124,9 @@ class ObligationCard extends StatelessWidget {
     return 'VALIDĂ';
   }
 
-
-  void _showEditSheet(BuildContext context) {
-    showModalBottomSheet(
+  // Inside ObligationCard class in CarHealthScreen.dart
+  void _showEditSheet(BuildContext context) async {
+    final bool? refreshNeeded = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -132,7 +134,18 @@ class ObligationCard extends StatelessWidget {
         return EditCarObligationBottomSheet(obligation: obligation);
       },
     );
+
+    // If the sheet returned true, we need to tell the CarHealthScreen to refresh
+    if (refreshNeeded == true && context.mounted) {
+      // We can use a callback or, if this card is inside a stateful parent,
+      // trigger the parent's refresh logic.
+      // For now, let's assume you'll add an 'onRefresh' callback to ObligationCard.
+      Navigator.pop(context);
+      onRefresh();
+    }
   }
+
+
   void _showBusinessSearch(BuildContext context, ObligationType type) {
     showModalBottomSheet(
       context: context,
@@ -143,29 +156,6 @@ class ObligationCard extends StatelessWidget {
   }
 
 
-  // void _showBusinessSearch(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     backgroundColor: Colors.transparent,
-  //     builder: (context) {
-  //       return Container(
-  //         height: MediaQuery.of(context).size.height * 0.4,
-  //         decoration: const BoxDecoration(
-  //           color: Color(0xFF1E1E1E),
-  //           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-  //         ),
-  //         child: Center(
-  //           child: Text(
-  //             'Căutăm cele mai bune servicii pentru ${obligation.title} lângă tine...',
-  //             textAlign: TextAlign.center,
-  //             style: const TextStyle(fontSize: 18, color: Colors.white),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   void _showDetails(BuildContext context) {
     print(obligation.id);
@@ -1116,6 +1106,7 @@ class _CarHealthScreenState extends State<CarHealthScreen> with SingleTickerProv
             else
             // Replace your current map loop with this:
               ..._obligations.map((o) => ObligationCard(
+                onRefresh: _loadCarData,
                 obligation: o,
                 onAddPressed: _openAddObligationSheet,
                 onDelete: () {
