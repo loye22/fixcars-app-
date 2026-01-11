@@ -66,7 +66,8 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
 
   Future<void> _checkAndGetLocation() async {
     LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
       _navigateToPermissionGate();
       return;
     }
@@ -78,9 +79,10 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => BusinessLocationPermissionGate(
-            child: const AddNewServiceScreen(),
-          ),
+          builder:
+              (context) => BusinessLocationPermissionGate(
+                child: const AddNewServiceScreen(),
+              ),
         ),
       );
     });
@@ -127,7 +129,10 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
       if (_selectAllBrands) {
         bool hasAnyService = _servicesByBrand.values.any((s) => s.isNotEmpty);
         if (!hasAnyService) {
-          _showSnackBar('SELECTAȚI CEL PUȚIN UN SERVICIU UNIVERSAL', backgroundColor: _accentDanger);
+          _showSnackBar(
+            'SELECTAȚI CEL PUȚIN UN SERVICIU UNIVERSAL',
+            backgroundColor: _accentDanger,
+          );
           return;
         }
       } else {
@@ -135,7 +140,10 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
           if ((_servicesByBrand[brandId] ?? {}).isEmpty) {
             setState(() => _brandWithNoServices = brandId);
             _scrollToBrandWithNoServices();
-            _showSnackBar('LIPSĂ SERVICII PENTRU MARCA SELECTATĂ', backgroundColor: _accentDanger);
+            _showSnackBar(
+              'LIPSĂ SERVICII PENTRU MARCA SELECTATĂ',
+              backgroundColor: _accentDanger,
+            );
             return;
           }
         }
@@ -145,7 +153,10 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
 
     if (_currentStep < 2) {
       setState(() => _currentStep++);
-      _pageController.nextPage(duration: _animationDuration, curve: Curves.easeInOut);
+      _pageController.nextPage(
+        duration: _animationDuration,
+        curve: Curves.easeInOut,
+      );
     } else {
       _submit();
     }
@@ -155,9 +166,15 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
     if (_brandWithNoServices == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final brands = _data!['brands'] as List;
-      final index = brands.indexWhere((b) => b['brand_id'] == _brandWithNoServices);
+      final index = brands.indexWhere(
+        (b) => b['brand_id'] == _brandWithNoServices,
+      );
       if (index != -1 && _scrollController.hasClients) {
-        _scrollController.animateTo((index ~/ _gridColumns) * 180.0, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+        _scrollController.animateTo(
+          (index ~/ _gridColumns) * 180.0,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
       }
     });
   }
@@ -165,13 +182,19 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
   void _previousStep() {
     if (_currentStep > 0) {
       setState(() => _currentStep--);
-      _pageController.previousPage(duration: _animationDuration, curve: Curves.easeInOut);
+      _pageController.previousPage(
+        duration: _animationDuration,
+        curve: Curves.easeInOut,
+      );
     }
   }
 
   void _submit() async {
     if (_currentPosition == null) {
-      _showSnackBar('SENZOR GPS INACTIV. REÎNCERCARE...', backgroundColor: _accentWarning);
+      _showSnackBar(
+        'SENZOR GPS INACTIV. REÎNCERCARE...',
+        backgroundColor: _accentWarning,
+      );
       await _getCurrentLocation();
       return;
     }
@@ -186,8 +209,10 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
 
     setState(() => _isSubmitting = true);
     final result = await _addService.addSupplierBrandService(
-      city: "Bucharest" , //_selectedCityValue!,
-      sector: "sector_1" , //_selectedSectorValue,
+      city: "Bucharest",
+      //_selectedCityValue!,
+      sector: "sector_1",
+      //_selectedSectorValue,
       latitude: double.parse(_currentPosition!.latitude.toStringAsFixed(6)),
       longitude: double.parse(_currentPosition!.longitude.toStringAsFixed(6)),
       payloads: payloads,
@@ -195,10 +220,16 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
     setState(() => _isSubmitting = false);
 
     if (result['success'] == true) {
-      _showSnackBar('SYNC COMPLET. DATE SALVATE.', backgroundColor: _accentGreen);
+      _showSnackBar(
+        'SYNC COMPLET. DATE SALVATE.',
+        backgroundColor: _accentGreen,
+      );
       Future.delayed(const Duration(seconds: 2), () => Navigator.pop(context));
     } else {
-      _showSnackBar(result['error'] ?? 'SYSTEM ERROR', backgroundColor: _accentDanger);
+      _showSnackBar(
+        result['error'] ?? 'SYSTEM ERROR',
+        backgroundColor: _accentDanger,
+      );
     }
   }
 
@@ -234,7 +265,9 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
   void _toggleServiceForBrand(String brandId, String serviceId) {
     setState(() {
       final services = _servicesByBrand[brandId] ?? {};
-      services.contains(serviceId) ? services.remove(serviceId) : services.add(serviceId);
+      services.contains(serviceId)
+          ? services.remove(serviceId)
+          : services.add(serviceId);
       _servicesByBrand[brandId] = services;
       if (services.isNotEmpty) _brandWithNoServices = null;
     });
@@ -243,7 +276,15 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
   void _showSnackBar(String message, {Color? backgroundColor}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: const TextStyle(fontFamily: 'monospace', color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+        content: Text(
+          message,
+          style: const TextStyle(
+            fontFamily: 'monospace',
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: backgroundColor?.withOpacity(0.9) ?? _cardColor,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -255,9 +296,15 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bgColor,
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: _accentCyan, strokeWidth: 2))
-          : _buildMainContent(),
+      body:
+          _isLoading
+              ? const Center(
+                child: CircularProgressIndicator(
+                  color: _accentCyan,
+                  strokeWidth: 2,
+                ),
+              )
+              : _buildMainContent(),
     );
   }
 
@@ -298,14 +345,31 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
                 children: [
                   AnimatedContainer(
                     duration: _animationDuration,
-                    width: 40, height: 3,
+                    width: 40,
+                    height: 3,
                     decoration: BoxDecoration(
                       color: active ? _accentCyan : Colors.white10,
-                      boxShadow: active ? [BoxShadow(color: _accentCyan.withOpacity(0.6), blurRadius: 10)] : [],
+                      boxShadow:
+                          active
+                              ? [
+                                BoxShadow(
+                                  color: _accentCyan.withOpacity(0.6),
+                                  blurRadius: 10,
+                                ),
+                              ]
+                              : [],
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(labels[i], style: TextStyle(fontFamily: 'monospace', fontSize: 9, color: active ? Colors.white : _mutedText, letterSpacing: 1)),
+                  Text(
+                    labels[i],
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 9,
+                      color: active ? Colors.white : _mutedText,
+                      letterSpacing: 1,
+                    ),
+                  ),
                 ],
               ),
               if (i < 2) const SizedBox(width: 15),
@@ -331,14 +395,16 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: _gridColumns,
-            crossAxisSpacing: 12, mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
             childAspectRatio: 0.85,
           ),
           itemCount: brands.length,
           itemBuilder: (context, index) {
             final brand = brands[index];
             final id = brand['brand_id'];
-            final isSelected = _selectedBrandIds.contains(id) || _selectAllBrands;
+            final isSelected =
+                _selectedBrandIds.contains(id) || _selectAllBrands;
             return GestureDetector(
               onTap: _selectAllBrands ? null : () => _toggleBrandSelection(id),
               child: AnimatedContainer(
@@ -346,7 +412,10 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
                 decoration: BoxDecoration(
                   color: _surfaceColor,
                   borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: isSelected ? _accentCyan : Colors.white10, width: 1.5),
+                  border: Border.all(
+                    color: isSelected ? _accentCyan : Colors.white10,
+                    width: 1.5,
+                  ),
                 ),
                 child: Opacity(
                   opacity: isSelected ? 1.0 : 0.4,
@@ -354,11 +423,37 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (brand['brand_photo'] != null)
-                        Image.network(brand['brand_photo'], height: 35, errorBuilder: (_,__,___) => const Icon(Icons.car_repair, color: Colors.white24))
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15)
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Image.network(
+                              brand['brand_photo'],
+                              height: 35,
+                              errorBuilder:
+                                  (_, __, ___) => const Icon(
+                                    Icons.car_repair,
+                                    color: Colors.white24,
+                                  ),
+                            ),
+                          ),
+                        )
                       else
                         const Icon(Icons.directions_car, color: Colors.white24),
                       const SizedBox(height: 12),
-                      Text(brand['brand_name'].toString().toUpperCase(), textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 10, fontFamily: 'monospace', fontWeight: FontWeight.bold)),
+                      Text(
+                        brand['brand_name'].toString().toUpperCase(),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -375,11 +470,28 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
       decoration: BoxDecoration(
         color: _cardColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: _selectAllBrands ? _accentCyan : Colors.white10),
+        border: Border.all(
+          color: _selectAllBrands ? _accentCyan : Colors.white10,
+        ),
       ),
       child: CheckboxListTile(
-        title: const Text('ACCES UNIVERSAL', style: TextStyle(color: Colors.white, fontFamily: 'monospace', fontSize: 14, fontWeight: FontWeight.bold)),
-        subtitle: const Text('ANULEAZĂ SELECȚIA INDIVIDUALĂ A BRANDULUI', style: TextStyle(color: _mutedText, fontSize: 10, fontFamily: 'monospace')),
+        title: const Text(
+          'ACCES UNIVERSAL',
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'monospace',
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: const Text(
+          'ANULEAZĂ SELECȚIA INDIVIDUALĂ A BRANDULUI',
+          style: TextStyle(
+            color: _mutedText,
+            fontSize: 10,
+            fontFamily: 'monospace',
+          ),
+        ),
         value: _selectAllBrands,
         activeColor: _accentCyan,
         checkColor: Colors.black,
@@ -394,7 +506,10 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
       return _buildAllBrandsServicesList();
     }
 
-    final brands = (_data!['brands'] as List).where((b) => _selectedBrandIds.contains(b['brand_id'])).toList();
+    final brands =
+        (_data!['brands'] as List)
+            .where((b) => _selectedBrandIds.contains(b['brand_id']))
+            .toList();
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -410,14 +525,35 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
           decoration: BoxDecoration(
             color: _surfaceColor,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: isProblem ? _accentDanger : Colors.white10),
+            border: Border.all(
+              color: isProblem ? _accentDanger : Colors.white10,
+            ),
           ),
           child: Theme(
             data: ThemeData.dark().copyWith(dividerColor: Colors.transparent),
             child: ExpansionTile(
-              leading: CircleAvatar(radius: 15, backgroundColor: Colors.white10, backgroundImage: NetworkImage(brand['brand_photo'] ?? '')),
-              title: Text(brand['brand_name'].toString().toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
-              subtitle: Text('${services.length} SERVICES_ENABLED', style: TextStyle(fontFamily: 'monospace', color: _accentCyan, fontSize: 9)),
+              leading: CircleAvatar(
+                radius: 15,
+                backgroundColor: Colors.white10,
+                backgroundImage: NetworkImage(brand['brand_photo'] ?? ''),
+              ),
+              title: Text(
+                brand['brand_name'].toString().toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'monospace',
+                ),
+              ),
+              subtitle: Text(
+                '${services.length} SERVICES_ENABLED',
+                style: TextStyle(
+                  fontFamily: 'monospace',
+                  color: _accentCyan,
+                  fontSize: 9,
+                ),
+              ),
               children: _buildServiceCategories(id),
             ),
           ),
@@ -434,12 +570,25 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
         Container(
           padding: const EdgeInsets.all(15),
           margin: const EdgeInsets.only(bottom: 20),
-          decoration: BoxDecoration(color: _accentCyan.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: _accentCyan.withOpacity(0.2))),
+          decoration: BoxDecoration(
+            color: _accentCyan.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: _accentCyan.withOpacity(0.2)),
+          ),
           child: const Row(
             children: [
               Icon(Icons.hub, color: _accentCyan, size: 18),
               SizedBox(width: 12),
-              Expanded(child: Text('UNIVERSAL MODE: SERVICES SELECTED BELOW APPLY TO ALL SUPPORTED BRANDS.', style: TextStyle(color: _accentCyan, fontSize: 10, fontFamily: 'monospace'))),
+              Expanded(
+                child: Text(
+                  'UNIVERSAL MODE: SERVICES SELECTED BELOW APPLY TO ALL SUPPORTED BRANDS.',
+                  style: TextStyle(
+                    color: _accentCyan,
+                    fontSize: 10,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -455,31 +604,48 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
 
   Widget _buildCategoryTile(dynamic cat, String? brandId) {
     return ExpansionTile(
-      title: Text(cat['category_name'].toString().toUpperCase(), style: const TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'monospace')),
-      children: (cat['services'] as List).map((s) {
-        final serviceId = s['service_id'];
-        // Logic to check if selected across all brands or specific brand
-        final isSelected = brandId != null
-            ? (_servicesByBrand[brandId] ?? {}).contains(serviceId)
-            : _servicesByBrand.values.any((set) => set.contains(serviceId));
+      title: Text(
+        cat['category_name'].toString().toUpperCase(),
+        style: const TextStyle(
+          color: Colors.white70,
+          fontSize: 11,
+          fontFamily: 'monospace',
+        ),
+      ),
+      children:
+          (cat['services'] as List).map((s) {
+            final serviceId = s['service_id'];
+            // Logic to check if selected across all brands or specific brand
+            final isSelected =
+                brandId != null
+                    ? (_servicesByBrand[brandId] ?? {}).contains(serviceId)
+                    : _servicesByBrand.values.any(
+                      (set) => set.contains(serviceId),
+                    );
 
-        return CheckboxListTile(
-          title: Text(s['service_name'], style: TextStyle(color: isSelected ? Colors.white : _mutedText, fontSize: 12)),
-          value: isSelected,
-          activeColor: _accentCyan,
-          checkColor: Colors.black,
-          onChanged: (v) {
-            if (brandId != null) {
-              _toggleServiceForBrand(brandId, serviceId);
-            } else {
-              // Apply to all currently selected brands (the "All Brands" original logic)
-              for (final bId in _selectedBrandIds) {
-                _toggleServiceForBrand(bId, serviceId);
-              }
-            }
-          },
-        );
-      }).toList(),
+            return CheckboxListTile(
+              title: Text(
+                s['service_name'],
+                style: TextStyle(
+                  color: isSelected ? Colors.white : _mutedText,
+                  fontSize: 12,
+                ),
+              ),
+              value: isSelected,
+              activeColor: _accentCyan,
+              checkColor: Colors.black,
+              onChanged: (v) {
+                if (brandId != null) {
+                  _toggleServiceForBrand(brandId, serviceId);
+                } else {
+                  // Apply to all currently selected brands (the "All Brands" original logic)
+                  for (final bId in _selectedBrandIds) {
+                    _toggleServiceForBrand(bId, serviceId);
+                  }
+                }
+              },
+            );
+          }).toList(),
     );
   }
 
@@ -499,20 +665,44 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
           // const SizedBox(height: 30),
           // _buildSummaryItem('OPERATIONAL_HUB', '$_selectedCityValue, $_selectedSectorValue', _accentGreen, Icons.gps_fixed),
           const SizedBox(height: 15),
-          _buildSummaryItem('UNITĂȚI ÎNSCRISE', '${_selectedBrandIds.length} PRODUCĂTORI', _accentCyan, Icons.lan),
+          _buildSummaryItem(
+            'UNITĂȚI ÎNSCRISE',
+            '${_selectedBrandIds.length} PRODUCĂTORI',
+            _accentCyan,
+            Icons.lan,
+          ),
           const SizedBox(height: 15),
-          _buildSummaryItem('PROTOCOALE ACTIVE', '$totalServices SSERVICII ACTIVE', _accentGreen, Icons.terminal),
+          _buildSummaryItem(
+            'PROTOCOALE ACTIVE',
+            '$totalServices SSERVICII ACTIVE',
+            _accentGreen,
+            Icons.terminal,
+          ),
           const SizedBox(height: 15),
-          _buildSummaryItem('STARE GPS', _currentPosition != null ? 'CONECTAT' : "SE OBȚINE SEMNALUL...", _currentPosition != null ? _accentGreen : _accentWarning, Icons.sensors),
+          _buildSummaryItem(
+            'STARE GPS',
+            _currentPosition != null ? 'CONECTAT' : "SE OBȚINE SEMNALUL...",
+            _currentPosition != null ? _accentGreen : _accentWarning,
+            Icons.sensors,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryItem(String label, String value, Color color, IconData icon) {
+  Widget _buildSummaryItem(
+    String label,
+    String value,
+    Color color,
+    IconData icon,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: _surfaceColor, borderRadius: BorderRadius.circular(15), border: Border.all(color: color.withOpacity(0.2))),
+      decoration: BoxDecoration(
+        color: _surfaceColor,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
       child: Row(
         children: [
           Icon(icon, color: color, size: 18),
@@ -520,18 +710,43 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(color: _mutedText, fontSize: 9, fontFamily: 'monospace', letterSpacing: 1)),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: _mutedText,
+                  fontSize: 9,
+                  fontFamily: 'monospace',
+                  letterSpacing: 1,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(value.toUpperCase(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: 'monospace')),
+              Text(
+                value.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  fontFamily: 'monospace',
+                ),
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
 
   Widget _buildTitle(String text) {
-    return Text(text, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: 3, fontFamily: 'monospace'));
+    return Text(
+      text,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+        fontWeight: FontWeight.w900,
+        letterSpacing: 3,
+        fontFamily: 'monospace',
+      ),
+    );
   }
 
   Widget _buildNavButtons() {
@@ -541,8 +756,18 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
         children: [
           if (_currentStep > 0)
             Container(
-              decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white10)),
-              child: IconButton(onPressed: _previousStep, icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white54, size: 18)),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white10),
+              ),
+              child: IconButton(
+                onPressed: _previousStep,
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.white54,
+                  size: 18,
+                ),
+              ),
             ),
           const Spacer(),
           GestureDetector(
@@ -552,11 +777,35 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
               decoration: BoxDecoration(
                 color: _accentCyan,
                 borderRadius: BorderRadius.circular(5),
-                boxShadow: [BoxShadow(color: _accentCyan.withOpacity(0.4), blurRadius: 15, offset: const Offset(0, 4))],
+                boxShadow: [
+                  BoxShadow(
+                    color: _accentCyan.withOpacity(0.4),
+                    blurRadius: 15,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: _isSubmitting
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                  : Text(_currentStep == 2 ? 'CONFIRMĂ ÎNCĂRCAREA' : 'URMĂTOAREA FAZĂ', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 12, fontFamily: 'monospace')),
+              child:
+                  _isSubmitting
+                      ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.black,
+                        ),
+                      )
+                      : Text(
+                        _currentStep == 2
+                            ? 'CONFIRMĂ ÎNCĂRCAREA'
+                            : 'URMĂTOAREA FAZĂ',
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 12,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
             ),
           ),
         ],
@@ -571,6 +820,7 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
     super.dispose();
   }
 }
+
 /// ORIGINAL CODE //////////////////
 // import 'dart:convert';
 // import 'package:flutter/cupertino.dart';

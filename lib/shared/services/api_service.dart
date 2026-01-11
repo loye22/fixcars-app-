@@ -16,9 +16,9 @@ class ApiService {
   //
   static const String _baseUrl = 'http://192.168.1.129:8000/api';
   static const String _baseMediaUrl = 'http://192.168.1.129:8000/media/';
-
-   // static const String _baseUrl = 'https://www.app.fixcars.ro/api';
-   // static const String _baseMediaUrl = 'https://www.app.fixcars.ro/media/';
+  //
+  //  static const String _baseUrl = 'https://www.app.fixcars.ro/api';
+  //  static const String _baseMediaUrl = 'https://www.app.fixcars.ro/media/';
 
 
 
