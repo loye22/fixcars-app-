@@ -23,7 +23,7 @@ class start_screen extends StatelessWidget {
               Image.asset('assets/logos/t3.png' , width: 200,) ,
               SizedBox(height: 20,) ,
               Text(
-                'Bine ai venit la Fixcar',
+                'Bine ai venit la Fixcars',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 32,

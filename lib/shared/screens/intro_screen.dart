@@ -55,7 +55,7 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
                       
                       // Title
                       Text(
-                        'Bun venit la FixCar!',
+                        'Bun venit la FixCars!',
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -443,7 +443,7 @@ class OnboardingScreen1 extends StatelessWidget {
           children: [
             SizedBox(height: 100),
             Text(
-              'FIXCAR',
+              'FIXCARS',
               style: TextStyle(
                 fontSize: 40,
                 color: Colors.white,
