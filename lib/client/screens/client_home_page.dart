@@ -101,63 +101,65 @@ class _client_home_pageState extends State<client_home_page> {
   }
 
   Widget _buildBottomNavBar() {
-    return Container(
-      height: 65, // Fixed height to prevent overflow
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-      decoration: BoxDecoration(
-        color: _navBarColor.withOpacity(0.85), // Slight transparency
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.05),
-          width: 1,
+    return SafeArea(
+      child: Container(
+        height: 65, // Fixed height to prevent overflow
+        margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+        decoration: BoxDecoration(
+          color: _navBarColor.withOpacity(0.85), // Slight transparency
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.05),
+            width: 1,
+          ),
+      
         ),
-
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildElegantNavItem(
-            icon: CupertinoIcons.car_detailed,
-            index: 0,
-            label: 'Garaj',
-          ),
-          _buildElegantNavItem(
-            icon: CupertinoIcons.bell,
-            index: 1,
-            label: 'Alerte',
-            hasBadge: _hasUnreadNotifications,
-          ),
-
-          // --- CENTER ASSET (t3.png) ---
-          GestureDetector(
-            onTap: () => setState(() => _currentIndex = 2),
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _currentIndex == 2 ? Colors.white.withOpacity(0.05) : Colors.transparent,
-              ),
-              child: Image.asset(
-                'assets/logos/t3.png',
-                height: 35, // Controlled height
-                width: 35,
-                color: _currentIndex == 2 ? Colors.white : _accentSilver.withOpacity(0.7),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildElegantNavItem(
+              icon: CupertinoIcons.car_detailed,
+              index: 0,
+              label: 'Garaj',
+            ),
+            _buildElegantNavItem(
+              icon: CupertinoIcons.bell,
+              index: 1,
+              label: 'Alerte',
+              hasBadge: _hasUnreadNotifications,
+            ),
+      
+            // --- CENTER ASSET (t3.png) ---
+            GestureDetector(
+              onTap: () => setState(() => _currentIndex = 2),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _currentIndex == 2 ? Colors.white.withOpacity(0.05) : Colors.transparent,
+                ),
+                child: Image.asset(
+                  'assets/logos/t3.png',
+                  height: 35, // Controlled height
+                  width: 35,
+                  color: _currentIndex == 2 ? Colors.white : _accentSilver.withOpacity(0.7),
+                ),
               ),
             ),
-          ),
-
-          _buildElegantNavItem(
-            icon: CupertinoIcons.chat_bubble,
-            index: 3,
-            label: 'Mesaje',
-            isStream: true,
-          ),
-          _buildElegantNavItem(
-            icon: CupertinoIcons.info_circle,
-            index: 4,
-            label: 'Despre',
-          ),
-        ],
+      
+            _buildElegantNavItem(
+              icon: CupertinoIcons.chat_bubble,
+              index: 3,
+              label: 'Mesaje',
+              isStream: true,
+            ),
+            _buildElegantNavItem(
+              icon: CupertinoIcons.info_circle,
+              index: 4,
+              label: 'Despre',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -289,7 +291,7 @@ class _HomeContent extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Image.asset(
-                        'assets/logos/t1.png',
+                        'assets/logos/introo.png',
                         color: _accentSilver,
                       ),
                     ),

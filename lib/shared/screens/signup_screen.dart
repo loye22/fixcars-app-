@@ -72,7 +72,7 @@ class signup_screen extends StatelessWidget {
             // Role Selection Cards
             _buildRoleCard(
               context,
-              title: 'CLIENT',
+              title: 'Șofer',
               subtitle: 'Solicită asistență și gestionează mașina',
               icon: CupertinoIcons.person_fill,
               onTap: () {
