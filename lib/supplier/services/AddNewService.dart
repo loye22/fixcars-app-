@@ -92,7 +92,7 @@ class AddNewService {
 
       final responseData = jsonDecode(response.body);
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         return {
           'success': true,
           'message': responseData['message'] ?? 'Servicii adăugate cu succes!',

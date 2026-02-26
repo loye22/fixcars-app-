@@ -219,6 +219,7 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
     );
     setState(() => _isSubmitting = false);
 
+
     if (result['success'] == true) {
       _showSnackBar(
         'SYNC COMPLET. DATE SALVATE.',
@@ -312,6 +313,13 @@ class _AddNewServiceScreenState extends State<AddNewServiceScreen> {
     return Column(
       children: [
         const SizedBox(height: 60),
+        Row(
+          children: [
+            IconButton(onPressed: (){
+              Navigator.pop(context);
+            }, icon: Icon(Icons.arrow_back_ios)),
+          ],
+        ) ,
         _buildStepIndicator(),
         Expanded(
           child: PageView(
