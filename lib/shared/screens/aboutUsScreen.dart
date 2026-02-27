@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../supplier/services/ReferralService.dart';
 import '../services/DeleteAccountService.dart';
 import '../services/api_service.dart';
+import '../widgets/ShareAppButton.dart';
 import '../widgets/SocialMediaSection.dart';
 import 'start_screen.dart';
 
@@ -235,6 +236,10 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                 icon: Icons.people_outline,
                 title: 'Ghidul Comunității',
                 onTap: () => _showPDF('assets/docs/fixcars_community_guidelines_ro.pdf', 'Ghidul Comunității'),
+              ),
+
+              Center(
+                child: ShareAppButton(),
               ),
 
 
