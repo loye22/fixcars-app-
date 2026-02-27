@@ -1,4 +1,5 @@
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:fixcars/shared/widgets/FeedbackButton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:flutter/services.dart';
@@ -238,9 +239,11 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                 onTap: () => _showPDF('assets/docs/fixcars_community_guidelines_ro.pdf', 'Ghidul Comunității'),
               ),
 
-              Center(
-                child: ShareAppButton(),
-              ),
+
+               ShareAppButton(),
+              SizedBox(height: 10,) ,
+              FeedbackButton() ,
+
 
 
 
