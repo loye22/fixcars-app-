@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:fixcars/client/screens/ReviewScreen.dart';
+import 'package:fixcars/client/widgets/SupplierSocialMediaSection.dart';
 import 'package:fixcars/shared/services/api_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -186,6 +187,21 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
                         // Action Buttons (Waze, Call, Chat)
                         _buildActionButtons(userProfile),
                         const SizedBox(height: 32),
+
+                        // Social Media (only show icons when links exist)
+                        SupplierSocialMediaSection(
+                          primaryColor: _accentSilver,
+                          socialMedia: {
+                            'facebook_url': userProfile['facebook_url'],
+                            'tiktok_url': userProfile['tiktok_url'],
+                            'instagram_url': userProfile['instagram_url'],
+                            'website_url': userProfile['website_url'],
+                            'youtube_url': userProfile['youtube_url'],
+                          },
+                        ),
+
+                        const SizedBox(height: 32),
+
 
                         // Services and Brands
                         ServicesGrid(
