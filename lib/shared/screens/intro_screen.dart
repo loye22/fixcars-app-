@@ -432,29 +432,18 @@ class OnboardingScreen1 extends StatelessWidget {
       body: Container(
         width: double.infinity, //
         decoration: BoxDecoration(
+          color: Colors.black,
           image: DecorationImage(
-            image: AssetImage('assets/intro1.jpg'),
+            image: AssetImage('assets/nintro.png'),
             // Replace with your image asset
-            fit: BoxFit.cover,
+            fit: BoxFit.fitWidth,
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            SizedBox(height: 100),
-            Text(
-              'FIXCARS',
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              'Servicii auto eficiente pentru o călătorie mai lină înainte',
-              style: TextStyle(fontSize: 14, color: Colors.white),
-            ),
-            SizedBox(height: 20),
+            SizedBox(height: MediaQuery.of(context).size.height * .33,),
+
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -496,36 +485,17 @@ class OnboardingScreen2 extends StatelessWidget {
       body: Container(
         width: double.infinity, // Ensure it takes full width
         decoration: BoxDecoration(
+          color: Colors.black,
           image: DecorationImage(
-            image: AssetImage('assets/intro2.png'),
+            image: AssetImage('assets/nintro2.png'),
             // Replace with your image asset
-            fit: BoxFit.cover,
+            fit: BoxFit.fitWidth,
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            SizedBox(height: 100),
-            Text(
-              'Descoperă servicii auto din apropiere.',
-              style: TextStyle(
-                fontSize: 20,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
 
-            SizedBox(height: 10),
-            Center(
-              child: Text(
-                'Suntem aici pentru a-ți oferi servicii și asistență\n de cea mai bună calitate.',
-                style: const TextStyle(fontSize: 12, color: Colors.white),
-                textAlign:
-                    TextAlign.center, // Centers the text within its own bounds
-              ),
-            ),
-            SizedBox(height: 20),
-            Image.asset('assets/dots.png', width: 50),
             SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -602,28 +572,20 @@ class OnboardingScreen3 extends StatelessWidget {
       body: Container(
         width: double.infinity, // Ensure it takes full width
         decoration: BoxDecoration(
+          color: Colors.black,
           image: DecorationImage(
-            image: AssetImage('assets/intro3.png'),
+            image: AssetImage('assets/nintro3.png'),
             // Replace with your image asset
-            fit: BoxFit.cover,
+            fit: BoxFit.fitWidth,
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            SizedBox(height: 100),
-            Text(
-              'Serviciu ușor de rezervat',
-              style: TextStyle(fontSize: 18, color: Colors.white),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Stai liniștit și relaxează-te în timp ce ne ocupăm de restul',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, color: Colors.white),
-            ),
-            SizedBox(height: 20),
-            Image.asset('assets/dots2.png', width: 50),
+            //SizedBox(height: 70),
+
+
+           // Image.asset('assets/dots2.png', width: 50),
             SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -631,7 +593,7 @@ class OnboardingScreen3 extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => start_screen()),
+                    MaterialPageRoute(builder: (context) => OnboardingScreen4()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -691,3 +653,81 @@ class OnboardingScreen3 extends StatelessWidget {
     );
   }
 } 
+
+class OnboardingScreen4 extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.black,
+          image: DecorationImage(
+            image: AssetImage('assets/nintro4.png'),
+            fit: BoxFit.fitWidth,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => start_screen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF808080),
+                  foregroundColor: Colors.white,
+                  textStyle: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  minimumSize: const Size(500, 40),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 15,
+                  ),
+                ),
+                child: Text('URMĂTORUL'),
+              ),
+            ),
+            Expanded(child: SizedBox(height: 20)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => start_screen()),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: Color(0xFF808080),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    child: Text('Omite', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+}
