@@ -282,7 +282,7 @@ class _SocialMediaSectionState extends State<SocialMediaSection> {
                       style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600)),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 400),
             ],
           ),
         ),
@@ -346,7 +346,8 @@ class _SocialMediaSectionState extends State<SocialMediaSection> {
                 _showEditSheet(platform, key, url ?? '', asset);
               },
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 100),
+
           ],
         ),
       ),
