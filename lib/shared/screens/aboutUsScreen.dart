@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../supplier/services/ReferralService.dart';
 import '../services/DeleteAccountService.dart';
 import '../services/api_service.dart';
+import '../widgets/SocialMediaSection.dart';
 import 'start_screen.dart';
 
 class AboutUsScreen extends StatefulWidget {
@@ -236,6 +237,14 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                 onTap: () => _showPDF('assets/docs/fixcars_community_guidelines_ro.pdf', 'Ghidul Comunității'),
               ),
 
+
+
+              const SizedBox(height: 32),
+              SocialMediaSection(
+                primaryColor: primaryGray,
+                showToast: _showToast,
+              ),
+
               const SizedBox(height: 32),
               Text('CONT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: primaryGray, letterSpacing: 1.5)),
               const SizedBox(height: 16),
@@ -314,6 +323,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                 ),
               ),
               const SizedBox(height: 30),
+              const SizedBox(height: 40),
             ],
           ),
         ),
