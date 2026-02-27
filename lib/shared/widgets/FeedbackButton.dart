@@ -305,15 +305,16 @@ class _FeedbackButtonState extends State<FeedbackButton> {
                                         onTap: () => _pickImage(setSheetState),
                                       ),
                                     ),
-                                  const SizedBox(width: 12),
-                                  if (_voiceFile == null)
-                                    Expanded(
-                                      child: _buildMediaButton(
-                                        icon: Icons.mic_none,
-                                        label: 'Adaugă audio',
-                                        onTap: () => _pickVoice(setSheetState),
-                                      ),
-                                    ),
+                                  /// this is the voice button, but we will hide it for now because it is not working properly
+                                  // const SizedBox(width: 12),
+                                  // if (_voiceFile == null)
+                                  //   Expanded(
+                                  //     child: _buildMediaButton(
+                                  //       icon: Icons.mic_none,
+                                  //       label: 'Adaugă audio',
+                                  //       onTap: () => _pickVoice(setSheetState),
+                                  //     ),
+                                  //   ),
                                 ],
                               ),
 
