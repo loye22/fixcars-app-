@@ -20,6 +20,7 @@ import '../../shared/services/PendingCountRequestsService.dart';
 import '../../shared/services/api_service.dart';
 import '../../shared/services/firebase_chat_service.dart';
 import '../../shared/services/phone_service.dart';
+import '../../shared/widgets/AppUpdateBanner.dart';
 import '../services/AccountStatusService.dart';
 import '../services/BusinessHourService.dart';
 import '../services/MarkNotificationAsReadService.dart';
@@ -969,6 +970,8 @@ class _supplier_home_pageState extends State<supplier_home_page> {
                           ],
                         ),
                         SizedBox(height: 150),
+
+                        const AppUpdateBanner(),
                         Padding(
                           padding: const EdgeInsets.all(18.0),
                           child: Container(
