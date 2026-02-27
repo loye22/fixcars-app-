@@ -24,7 +24,7 @@ import 'VulcanizareScreen.dart';
 import '../../shared/screens/conversation_list_screen.dart';
 import '../../shared/screens/aboutUsScreen.dart';
 import 'car_initiate_screen.dart';
-
+import '../../shared/widgets/AppUpdateBanner.dart';
 
 // ───────────────────────────────────── COLOR PALETTE ─────────────────────────────────────
 // Tema Dark Mode Premium
@@ -254,97 +254,104 @@ class _HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          backgroundColor: _darkBackground,
-          elevation: 0,
-          pinned: true,
-          expandedHeight: 200.0,
-          flexibleSpace: FlexibleSpaceBar(
-            centerTitle: false,
-            titlePadding: const EdgeInsets.only(left: 24, bottom: 20),
-            // Header-ul (Titlul) Redesenat
-            title: Text(
-              'Cum te putem ajuta astăzi?',
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: _primaryText,
-              ),
-            ),
-            background: Container(
-              padding: const EdgeInsets.fromLTRB(24, 60, 24, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Logo-ul aplicației în Header
-                  Container(
-                    width: 60,
-                    height: 60,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: _darkCard,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.05), blurRadius: 10)],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Image.asset(
-                        'assets/logos/introo.png',
-                        color: _accentSilver,
-                      ),
+    return Column(
+      children: [
+        const AppUpdateBanner(),
+        Expanded(
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                backgroundColor: _darkBackground,
+                elevation: 0,
+                pinned: true,
+                expandedHeight: 200.0,
+                flexibleSpace: FlexibleSpaceBar(
+                  centerTitle: false,
+                  titlePadding: const EdgeInsets.only(left: 24, bottom: 20),
+                  // Header-ul (Titlul) Redesenat
+                  title: Text(
+                    'Cum te putem ajuta astăzi?',
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: _primaryText,
                     ),
                   ),
+                  background: Container(
+                    padding: const EdgeInsets.fromLTRB(24, 60, 24, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Logo-ul aplicației în Header
+                        Container(
+                          width: 60,
+                          height: 60,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: _darkCard,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.05), blurRadius: 10)],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Image.asset(
+                              'assets/logos/introo.png',
+                              color: _accentSilver,
+                            ),
+                          ),
+                        ),
 
-                  // Mesajul principal (Repetat în background pentru efect)
-                  // Text(
-                  //   'GARAJUL TĂU DIGITAL',
-                  //   style: GoogleFonts.inter(
-                  //     fontSize: 14,
-                  //     fontWeight: FontWeight.w600,
-                  //     color: _secondaryText,
-                  //     letterSpacing: 2,
-                  //   ),
-                  // ),
-                ],
+                        // Mesajul principal (Repetat în background pentru efect)
+                        // Text(
+                        //   'GARAJUL TĂU DIGITAL',
+                        //   style: GoogleFonts.inter(
+                        //     fontSize: 14,
+                        //     fontWeight: FontWeight.w600,
+                        //     color: _secondaryText,
+                        //     letterSpacing: 2,
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
 
-        // Grila de Servicii
-        SliverPadding(
-          padding: const EdgeInsets.all(20),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.4, // Carduri mai late
-            ),
-            delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                final service = services[index];
-                return _ServiceTile(
-                  title: service['title'],
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => service['screen']()),
-                    );
-                  },
-                  // Atribuie o pictogramă relevantă pentru o estetică mai bună
-                  icon: _getServiceIcon(service['title']),
-                );
-              },
-              childCount: services.length,
-            ),
+              // Grila de Servicii
+              SliverPadding(
+                padding: const EdgeInsets.all(20),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1.4, // Carduri mai late
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                      final service = services[index];
+                      return _ServiceTile(
+                        title: service['title'],
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => service['screen']()),
+                          );
+                        },
+                        // Atribuie o pictogramă relevantă pentru o estetică mai bună
+                        icon: _getServiceIcon(service['title']),
+                      );
+                    },
+                    childCount: services.length,
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: SizedBox(height: 100), // Spațiu pentru a nu fi acoperit de nav bar
+              )
+            ],
           ),
         ),
-        SliverToBoxAdapter(
-          child: SizedBox(height: 100), // Spațiu pentru a nu fi acoperit de nav bar
-        )
       ],
     );
   }
